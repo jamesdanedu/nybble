@@ -21,32 +21,47 @@ supabase/
     numbase.ts                    number base scorer (+ generator copy)
 public/
   index.html                      landing page — the deployed front door
-  harness.html                    dev harness — try a runner with no backend
+  demo.html                       clean student-facing demo of one activity
+  harness.html                    dev harness — same runners, with the message log
   runners/
     lib/runner-sdk.js             loaded inside a runner
     lib/runner-host.js            portal side of the protocol
     lib/runner.css                shared runner styling, light + dark
     lib/numbase-gen.js            seeded question generator
+    lib/demo-kit.js               sample activities + client marking (demo pages ONLY)
     mcq/index.html                MCQ runner
     numbase/index.html            binary/hex conversion runner
 docs/runner-contract.md           the protocol spec
 test/harness.test.mjs             end-to-end checks through a real browser
+test/deploy.test.mjs              checks that survive real static hosting
+test/vercel-sim.py                local stand-in for Vercel's static host
 ```
 
 ## Try it now
 
 ```bash
-cd public && python3 -m http.server 8099
-# open http://localhost:8099/harness.html
+python3 test/vercel-sim.py          # serves public/ on :8102 the way Vercel does
+# open http://127.0.0.1:8102/
 ```
 
-The harness mounts a runner in a sandboxed iframe exactly as the portal will,
-shows every message crossing the boundary, marks the submission with a local
-copy of the server scorer, and re-mounts in review mode. No database needed.
+`/demo.html?activity=numbase` is what a student would see: the activity, a score,
+worked answers, and a "try again with new numbers" button. `/harness.html` is the
+same runners with the developer chrome — editable config and every message
+crossing the sandbox boundary. Neither needs a database.
+
+Do not use `python3 -m http.server` for this. It redirects `/runners/mcq` to
+`/runners/mcq/`, which Vercel does not, and that difference hides a whole class
+of path bug — see the note in `test/vercel-sim.py`.
 
 ```bash
 npm i -D playwright && npx playwright install chromium
-node test/harness.test.mjs     # 9 checks, drives a real Chromium
+
+python3 test/vercel-sim.py --port 8102 &          # production config
+node test/harness.test.mjs                        # 9 runner-contract checks
+node test/deploy.test.mjs                         # 7 deployment checks
+
+python3 test/vercel-sim.py --clean --port 8101 &  # if cleanUrls ever comes back
+BASE=http://127.0.0.1:8101 node test/deploy.test.mjs
 ```
 
 There is deliberately no `package.json` in the repo — adding one would make
@@ -115,6 +130,10 @@ using the service role — that function is not written yet.
 
 ## Known sharp edges
 
+- **Runner subresources must use absolute paths.** `/runners/lib/...`, never
+  `../lib/...`. Under `cleanUrls` a runner's document URL loses its trailing
+  slash and relative paths silently resolve one directory too high, leaving a
+  blank iframe and no error. `test/deploy.test.mjs --clean` guards this.
 - **Generator drift.** `numbase-gen.js` and `numbase.ts` are the same algorithm
   in two languages. The scorer regenerates from the seed and compares against
   the questions the student submitted; a mismatch sets `needsReview` rather than
