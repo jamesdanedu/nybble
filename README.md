@@ -11,10 +11,16 @@ expensive to change later: the schema, the tenancy boundary, and the contract
 that lets new activity types be added without touching the portal.
 
 ```
-vercel.json                       static deploy config (serves public/)
+app/                              Next.js portal (App Router)
+lib/                              Supabase clients, session, activity importer
+components/                       shared UI, incl. the runner iframe wrapper
+scripts/import-activities.mjs     CLI importer (same code as the web one)
+examples/lccs-week1.json          a real activity file to import
+vercel.json                       headers only — Next owns the build now
 supabase/
   config.toml                     keeps verify_jwt on for the scorer
   migrations/0001_init.sql        schema + RLS + guard triggers
+  migrations/0002_profile_guard.sql  self-update guard as a trigger, not a subquery
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -31,7 +37,9 @@ public/
     lib/demo-kit.js               sample activities + client marking (demo pages ONLY)
     mcq/index.html                MCQ runner
     numbase/index.html            binary/hex conversion runner
+    parsons/index.html            Parsons problem runner (drag, tap, keyboard)
 docs/runner-contract.md           the protocol spec
+docs/activity-format.md           the activity file format you author against
 test/harness.test.mjs             end-to-end checks through a real browser
 test/deploy.test.mjs              checks that survive real static hosting
 test/vercel-sim.py                local stand-in for Vercel's static host
@@ -64,8 +72,8 @@ python3 test/vercel-sim.py --clean --port 8101 &  # if cleanUrls ever comes back
 BASE=http://127.0.0.1:8101 node test/deploy.test.mjs
 ```
 
-There is deliberately no `package.json` in the repo — adding one would make
-Vercel run an install on every deploy for a site that needs no build.
+(There is a `package.json` now — the portal is a Next.js app, so Vercel installs
+and builds on every deploy. That was not true of the earlier static-only repo.)
 
 ## The three ideas
 
@@ -86,9 +94,18 @@ role can read it. The scorer Edge Function marks and writes; a trigger strips
 
 ## Deploying the site (Vercel)
 
-Import the repo at [vercel.com/new](https://vercel.com/new) and accept the
-defaults. `vercel.json` sets `outputDirectory: public`, so `public/` becomes the
-site root — no build step, no framework preset needed.
+Import the repo at [vercel.com/new](https://vercel.com/new); Vercel detects
+Next.js. Set the four environment variables from `.env.example` — only
+`SUPABASE_SERVICE_ROLE_KEY` must stay server-side (do not prefix it with
+`NEXT_PUBLIC_`).
+
+`vercel.json` no longer sets `outputDirectory`. It did when this was a static
+site; leaving it would have made Vercel publish `public/` and never run the
+build. Next serves `public/` at the root anyway, so `/runners/**`, `/demo.html`
+and `/harness.html` keep their URLs.
+
+The signed-out `/` is the public landing page with the three demos — it works
+before Supabase is configured at all, so you can deploy and look at it today.
 
 Note that the security headers deliberately omit `X-Frame-Options`. The runners
 *must* be embeddable in an iframe; that is how the portal loads them. Isolation
