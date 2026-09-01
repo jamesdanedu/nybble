@@ -58,7 +58,7 @@
 </head>
 <body>
 <header>
-  <h1>Runner harness</h1>
+  <h1><a href="/" style="color:inherit;text-decoration:none">Nybble</a> <span style="color:var(--muted);font-weight:400">/ runner harness</span></h1>
   <span class="tag">sap-runner-v1</span>
   <span class="tag" id="capTag">no runner mounted</span>
 </header>
@@ -102,55 +102,10 @@
 
 <script src="/runners/lib/runner-host.js"></script>
 <script src="/runners/lib/numbase-gen.js"></script>
+<script src="/runners/lib/demo-kit.js"></script>
 <script>
-/* Sample activities. `config` is what a runner receives; `key` is what would
-   live in activity_keys and never leave the server. */
-const SAMPLES = {
-  mcq: {
-    entryUrl: '/runners/mcq/index.html',
-    config: {
-      title: 'Data Representation — quick check',
-      instructions: 'Choose the best answer for each question.',
-      shuffleOptions: true,
-      questions: [
-        { id: 'q1', marks: 1,
-          stem: 'How many distinct values can be represented with 8 bits?',
-          options: [ {id:'a',text:'8'}, {id:'b',text:'128'},
-                     {id:'c',text:'255'}, {id:'d',text:'256'} ] },
-        { id: 'q2', marks: 1,
-          stem: 'What is printed by this code?',
-          code: 'x = 0b1010\ny = 0x0A\nprint(x == y)',
-          options: [ {id:'a',text:'True',code:true}, {id:'b',text:'False',code:true},
-                     {id:'c',text:'TypeError',code:true}, {id:'d',text:'10',code:true} ] },
-        { id: 'q3', marks: 2, multiple: true,
-          stem: 'Which of these are valid hexadecimal digits? Select all that apply.',
-          options: [ {id:'a',text:'9'}, {id:'b',text:'A'},
-                     {id:'c',text:'G'}, {id:'d',text:'F'} ] }
-      ]
-    },
-    key: {
-      q1: { correct: ['d'], marks: 1,
-            explanation: '2^8 = 256 distinct values, 0 to 255 inclusive.' },
-      q2: { correct: ['a'], marks: 1,
-            explanation: '0b1010 and 0x0A are both the integer 10 — the literal notation does not change the value.' },
-      q3: { correct: ['a','b','d'], marks: 2, partial: true,
-            explanation: 'Hex digits are 0-9 and A-F. G is not one of them.' }
-    }
-  },
-  numbase: {
-    entryUrl: '/runners/numbase/index.html',
-    config: {
-      title: 'Binary & Hex — weekly test',
-      count: 6,
-      conversions: ['dec2bin','bin2dec','dec2hex','hex2dec','bin2hex'],
-      minValue: 5, maxValue: 255,
-      marksPerQuestion: 1,
-      timeLimitSecs: 300,
-      showPlaceValues: true
-    },
-    key: {}   // generated questions need no stored key
-  }
-};
+/* Sample activities and marking live in demo-kit.js, shared with /demo.html. */
+const SAMPLES = DemoKit.SAMPLES;
 
 const $ = id => document.getElementById(id);
 let slot = null, current = 'mcq', savedState = null, lastResponse = null, lastScore = null;
@@ -166,44 +121,6 @@ function log(dir, type, detail) {
 function loadSample() {
   current = $('runner').value;
   $('config').value = JSON.stringify(SAMPLES[current].config, null, 2);
-}
-
-/* ---- Local copies of the server scorers, so the harness can close the loop -- */
-function scoreMcq(config, key, response) {
-  const answers = response.answers || {};
-  const perQuestion = {}; let total = 0, max = 0;
-  for (const q of config.questions) {
-    const k = key[q.id] || {};
-    const marks = k.marks ?? q.marks ?? 1; max += marks;
-    const correctIds = k.correct || [];
-    const chosen = answers[q.id] || [];
-    const hits = chosen.filter(c => correctIds.includes(c)).length;
-    const misses = chosen.filter(c => !correctIds.includes(c)).length;
-    const exact = hits === correctIds.length && misses === 0 && correctIds.length > 0;
-    let awarded = 0;
-    if (exact) awarded = marks;
-    else if (k.partial && q.multiple && correctIds.length)
-      awarded = Math.max(0, Math.round(((hits - misses) / correctIds.length) * marks * 100) / 100);
-    total += awarded;
-    perQuestion[q.id] = { correct: exact, awarded, marks, chosen, correctIds,
-                          explanation: k.explanation };
-  }
-  return { total, max, perQuestion };
-}
-
-function scoreNumbase(config, seed, response) {
-  const questions = NumbaseGen.generate(config, seed);
-  const answers = response.answers || {};
-  const perQuestion = {}; let total = 0, max = 0;
-  for (const q of questions) {
-    const marks = q.marks || 1; max += marks;
-    const given = String(answers[q.id] ?? '');
-    const correct = NumbaseGen.isCorrect(q, given);
-    const awarded = correct ? marks : 0; total += awarded;
-    perQuestion[q.id] = { correct, awarded, marks, given,
-                          expected: NumbaseGen.expected(q, false) };
-  }
-  return { total, max, perQuestion, elapsedSecs: response.elapsedSecs };
 }
 
 function mount(mode) {
@@ -242,9 +159,8 @@ function mount(mode) {
       log('←', 'submit', 'maxScore=' + payload.maxScore);
       lastResponse = payload.response;
       const cfg = JSON.parse($('config').value);
-      lastScore = current === 'mcq'
-        ? scoreMcq(cfg, SAMPLES.mcq.key, payload.response)
-        : scoreNumbase(cfg, Number($('seed').value) || 1, payload.response);
+      lastScore = DemoKit.scoreStep(current, cfg, Number($('seed').value) || 1,
+                                    payload.response);
       $('scorePill').textContent = 'score: ' + lastScore.total + ' / ' + lastScore.max;
       $('scorePill').classList.add('ok');
       log('→', 'scored (server-side)', lastScore.total + '/' + lastScore.max);
@@ -269,6 +185,10 @@ $('resetBtn').addEventListener('click', () => {
   $('scorePill').classList.remove('ok'); $('statePill').textContent = 'state: —';
   mount('attempt');
 });
+
+// Allow /harness.html?runner=numbase to preselect a runner.
+const wanted = new URLSearchParams(location.search).get('runner');
+if (wanted && SAMPLES[wanted]) $('runner').value = wanted;
 
 loadSample();
 mount('attempt');

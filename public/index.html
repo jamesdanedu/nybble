@@ -44,6 +44,7 @@
 
   .note { background:var(--amber-soft); border:1px solid var(--amber); border-radius:12px;
           padding:16px 18px; font-size:14.5px; margin-top:16px; }
+  .note a { color:var(--amber); }
   .note strong { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.05em;
                  color:var(--amber); margin-bottom:4px; }
 
@@ -75,13 +76,13 @@
 
   <h2>Try a runner</h2>
   <div class="cards">
-    <a class="card" href="/harness.html?runner=numbase">
+    <a class="card" href="/demo.html?activity=numbase">
       <h3>Binary &amp; hex conversion</h3>
       <p>Six conversion directions, generated from a seed so every student gets a different
          paper and the marking still works.</p>
       <div class="go">Open →</div>
     </a>
-    <a class="card" href="/harness.html?runner=mcq">
+    <a class="card" href="/demo.html?activity=mcq">
       <h3>Multiple choice</h3>
       <p>Code snippets in the stem, single or multiple answers, shuffled options, and a
          marked-up review view.</p>
@@ -90,10 +91,11 @@
   </div>
 
   <div class="note">
-    <strong>Development harness</strong>
-    These links open the runners in a test harness that marks your answers in the browser and
-    shows every message crossing the sandbox boundary. There is no login and nothing is saved —
-    the portal itself is not built yet.
+    <strong>Demo</strong>
+    These are real activities, but marked in your browser and not saved anywhere — the portal
+    itself isn't built yet, so there's no login and no record of who did what. There's also a
+    <a href="/harness.html">developer harness</a> that shows every message crossing the sandbox
+    boundary.
   </div>
 
   <h2>What's built</h2>
