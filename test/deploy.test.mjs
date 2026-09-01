@@ -1,9 +1,17 @@
-/* Deployment checks — the things that only break once the site is behind a real
- * static host. Start test/vercel-sim.py first, in either mode:
+/* Deployment checks — the things that only break once the site is really served.
+ *
+ * `/` is an app route (app/page.tsx) now, not a file in public/, so these run
+ * against a built Next server rather than the static simulator:
+ *
+ *   npm run build && npx next start -p 8102
+ *   BASE=http://127.0.0.1:8102 node test/deploy.test.mjs
+ *
+ * test/vercel-sim.py still covers the static half — the runners and the demo
+ * pages — and remains the only way to test the cleanUrls behaviour it exists
+ * for, but it cannot serve `/` and so cannot run this file end to end:
  *
  *   python3 test/vercel-sim.py            --port 8102   (production config)
  *   python3 test/vercel-sim.py --clean    --port 8101   (if cleanUrls came back)
- *   BASE=http://127.0.0.1:8102 node test/deploy.test.mjs
  */
 import { chromium } from 'playwright';
 import assert from 'node:assert';
