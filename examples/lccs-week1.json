@@ -1,0 +1,140 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Number systems — week 1",
+      "topic": "Number Systems",
+      "description": "Binary and hex conversion, then a short check on data representation.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "conversions",
+          "runner_id": "numbase",
+          "title": "Conversions",
+          "weight": 8,
+          "config": {
+            "title": "Binary & hex conversions",
+            "count": 8,
+            "conversions": ["dec2bin", "bin2dec", "dec2hex", "hex2dec"],
+            "minValue": 5,
+            "maxValue": 255,
+            "marksPerQuestion": 1,
+            "timeLimitSecs": 420,
+            "showPlaceValues": true
+          },
+          "key": {}
+        },
+        {
+          "id": "theory",
+          "runner_id": "mcq",
+          "title": "Data representation",
+          "weight": 4,
+          "config": {
+            "title": "Data representation",
+            "instructions": "Choose the best answer for each question.",
+            "shuffleOptions": true,
+            "questions": [
+              {
+                "id": "q1",
+                "marks": 1,
+                "stem": "How many distinct values can be represented with 8 bits?",
+                "options": [
+                  { "id": "a", "text": "8" },
+                  { "id": "b", "text": "128" },
+                  { "id": "c", "text": "255" },
+                  { "id": "d", "text": "256" }
+                ]
+              },
+              {
+                "id": "q2",
+                "marks": 1,
+                "stem": "What is printed by this code?",
+                "code": "x = 0b1010\ny = 0x0A\nprint(x == y)",
+                "options": [
+                  { "id": "a", "text": "True", "code": true },
+                  { "id": "b", "text": "False", "code": true },
+                  { "id": "c", "text": "TypeError", "code": true },
+                  { "id": "d", "text": "10", "code": true }
+                ]
+              },
+              {
+                "id": "q3",
+                "marks": 2,
+                "multiple": true,
+                "stem": "Which of these are valid hexadecimal digits? Select all that apply.",
+                "options": [
+                  { "id": "a", "text": "9" },
+                  { "id": "b", "text": "A" },
+                  { "id": "c", "text": "G" },
+                  { "id": "d", "text": "F" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["d"],
+              "marks": 1,
+              "explanation": "2^8 = 256 distinct values, 0 to 255 inclusive."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "0b1010 and 0x0A are both the integer 10 — the literal notation does not change the value."
+            },
+            "q3": {
+              "correct": ["a", "b", "d"],
+              "marks": 2,
+              "partial": true,
+              "explanation": "Hex digits are 0-9 and A-F. G is not one of them."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "Parsons — sum a list",
+      "topic": "Programming",
+      "description": "Restore the order and indentation of an accumulator loop.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "sum",
+          "runner_id": "parsons",
+          "title": "Sum a list of numbers",
+          "weight": 5,
+          "config": {
+            "title": "Sum a list of numbers",
+            "instructions": "Put the lines in order and set the indentation of each one. Two of the lines do not belong in the finished program.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 5,
+            "lines": [
+              { "id": "l1", "text": "def total(numbers):" },
+              { "id": "l2", "text": "runningTotal = 0" },
+              { "id": "l3", "text": "for n in numbers:" },
+              { "id": "l4", "text": "runningTotal = runningTotal + n" },
+              { "id": "l5", "text": "return runningTotal" },
+              { "id": "d1", "text": "return n" },
+              { "id": "d2", "text": "runningTotal = runningTotal + numbers" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "l1", "indent": 0 },
+              { "id": "l2", "indent": 1 },
+              { "id": "l3", "indent": 1 },
+              { "id": "l4", "indent": 2 },
+              { "id": "l5", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "The accumulator has to be initialised before the loop, and the return has to be outside it."
+          }
+        }
+      ]
+    }
+  ]
+}

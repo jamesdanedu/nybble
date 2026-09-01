@@ -59,6 +59,44 @@
         showPlaceValues: true
       },
       key: {}   // generated questions need no stored key
+    },
+
+    parsons: {
+      runnerId: 'parsons',
+      entryUrl: '/runners/parsons/index.html',
+      name: 'Parsons problem',
+      config: {
+        title: 'Sum a list of numbers',
+        instructions: 'Put the lines in order and set the indentation of each one. ' +
+                      'Two of the lines do not belong in the finished program.',
+        language: 'python',
+        indentSize: 4,
+        maxIndent: 5,
+        lines: [
+          { id: 'l1', text: 'def total(numbers):' },
+          { id: 'l2', text: 'runningTotal = 0' },
+          { id: 'l3', text: 'for n in numbers:' },
+          { id: 'l4', text: 'runningTotal = runningTotal + n' },
+          { id: 'l5', text: 'return runningTotal' },
+          { id: 'd1', text: 'return n' },
+          { id: 'd2', text: 'runningTotal = runningTotal + numbers' }
+        ]
+      },
+      key: {
+        solution: [
+          { id: 'l1', indent: 0 },
+          { id: 'l2', indent: 1 },
+          { id: 'l3', indent: 1 },
+          { id: 'l4', indent: 2 },
+          { id: 'l5', indent: 1 }
+        ],
+        distractors: ['d1', 'd2'],
+        marks: 5,
+        partial: true,
+        distractorPenalty: 0.5,
+        explanation: 'The accumulator has to be initialised before the loop, ' +
+                     'and the return has to be outside it.'
+      }
     }
   };
 
@@ -106,11 +144,101 @@
              elapsedSecs: response.elapsedSecs };
   }
 
+  /* Mirror of supabase/functions/score/parsons.ts — keep the two in step. */
+  var ORDER_WEIGHT = 0.7, INDENT_WEIGHT = 0.3;
+
+  /* LCS returning matched index pairs, so we know WHICH lines are in order and
+     which solution line each one lines up with. See parsons.ts for the why. */
+  function lcsPairs(a, b) {
+    var n = a.length, m = b.length, i, j;
+    var dp = [];
+    for (i = 0; i <= n; i++) { dp.push(new Array(m + 1)); dp[i].fill(0); }
+    for (i = n - 1; i >= 0; i--) {
+      for (j = m - 1; j >= 0; j--) {
+        dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1
+                                 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    var pairs = [];
+    i = 0; j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) { pairs.push([i, j]); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+      else j++;
+    }
+    return pairs;
+  }
+
+  function scoreParsons(config, key, response) {
+    var maxIndent = typeof config.maxIndent === 'number' ? config.maxIndent : 12;
+    function clamp(n) { return Math.max(0, Math.min(maxIndent, Math.round(Number(n) || 0))); }
+
+    var solution = (key.solution || []).map(function (s) {
+      return { id: String(s.id), indent: clamp(s.indent) };
+    });
+    var arrangement = (response.arrangement || []).map(function (a) {
+      return { id: String(a.id), indent: clamp(a.indent) };
+    });
+
+    var marks = typeof key.marks === 'number' ? key.marks : solution.length;
+    var partial = key.partial === true;
+    var penalty = typeof key.distractorPenalty === 'number' ? key.distractorPenalty : 0;
+
+    var solIds = solution.map(function (s) { return s.id; });
+    var givenIds = arrangement.map(function (a) { return a.id; });
+    var pairs = lcsPairs(givenIds, solIds);
+    var orderScore = solIds.length ? pairs.length / solIds.length : 0;
+
+    var matchOf = {}, indentMatches = 0;
+    pairs.forEach(function (p) {
+      matchOf[p[0]] = p[1];
+      if (arrangement[p[0]].indent === solution[p[1]].indent) indentMatches++;
+    });
+    var indentScore = pairs.length ? indentMatches / pairs.length : 0;
+
+    var distractorsUsed = givenIds.filter(function (id) { return solIds.indexOf(id) === -1; });
+    var missing = solIds.filter(function (id) { return givenIds.indexOf(id) === -1; });
+
+    var exact = solIds.length > 0 && givenIds.length === solIds.length &&
+      arrangement.every(function (a, i) {
+        return a.id === solution[i].id && a.indent === solution[i].indent;
+      });
+
+    var total;
+    if (exact) total = marks;
+    else if (!partial) total = 0;
+    else {
+      total = Math.max(0, marks * (ORDER_WEIGHT * orderScore + INDENT_WEIGHT * indentScore) -
+                          penalty * distractorsUsed.length);
+    }
+
+    var perLine = arrangement.map(function (a, i) {
+      var si = matchOf[i];
+      var distractor = solIds.indexOf(a.id) === -1;
+      var keyIdx = solIds.indexOf(a.id);
+      return {
+        id: a.id, indent: a.indent, distractor: distractor,
+        inSequence: si !== undefined,
+        indentOk: si !== undefined && a.indent === solution[si].indent,
+        expectedIndent: distractor ? null : solution[keyIdx].indent
+      };
+    });
+
+    return {
+      total: Math.round(total * 100) / 100, max: marks, exact: exact,
+      orderScore: Math.round(orderScore * 100) / 100,
+      indentScore: Math.round(indentScore * 100) / 100,
+      distractorsUsed: distractorsUsed, missing: missing,
+      perLine: perLine, solution: solution, explanation: key.explanation
+    };
+  }
+
   /** Mark one submitted step the way the Edge Function would. */
   function scoreStep(sampleId, config, seed, response) {
     var s = SAMPLES[sampleId];
     if (s.runnerId === 'mcq') return scoreMcq(config, s.key, response);
     if (s.runnerId === 'numbase') return scoreNumbase(config, seed, response);
+    if (s.runnerId === 'parsons') return scoreParsons(config, s.key, response);
     throw new Error('no demo scorer for ' + s.runnerId);
   }
 

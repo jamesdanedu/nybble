@@ -15,6 +15,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import * as mcq from './mcq.ts';
 import * as numbase from './numbase.ts';
+import * as parsons from './parsons.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': Deno.env.get('PORTAL_ORIGIN') ?? '*',
@@ -106,6 +107,9 @@ Deno.serve(async (req) => {
       break;
     case 'numbase':
       stepScore = numbase.score(step.config ?? {}, attempt.seed, response as any);
+      break;
+    case 'parsons':
+      stepScore = parsons.score(step.config ?? {}, stepKey, response as any);
       break;
     default:
       if (runner?.scorer === 'manual') {

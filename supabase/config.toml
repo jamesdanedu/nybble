@@ -1,0 +1,11 @@
+# Nybble — Supabase project config.
+# `supabase init` will generate a much longer file than this; the block that
+# matters for us is [functions.score].
+
+project_id = "nybble"
+
+[functions.score]
+# Leave JWT verification ON. The gateway then rejects tokenless calls before our
+# code runs, and index.ts re-checks the caller with auth.getUser(). The scorer is
+# the only thing standing between a student and their own answer key.
+verify_jwt = true
