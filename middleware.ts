@@ -1,25 +1,34 @@
-import type { NextRequest } from 'next/server';
-// Imported by relative path, not the `@/` alias. Vercel's deploy-time Edge
-// Function check reports `@/lib/supabase/middleware` as an unsupported
-// module and rejects the deployment, even though the build inlines it fine.
-import { updateSession } from './lib/supabase/middleware';
+import { NextResponse } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  return updateSession(request);
+/**
+ * PROBE — not the real middleware. Revert once this question is answered.
+ *
+ * The question: can this project run *any* middleware on Vercel's edge runtime?
+ *
+ * Production and every preview return 500 MIDDLEWARE_INVOCATION_FAILED on all
+ * matched paths. A diagnostic build that wrapped the entire handler — including
+ * a dynamic import of the Supabase chain, so module init was inside the guard —
+ * still returned a bare 500 rather than the caught exception. Nothing in our
+ * chain throws; the handler is not reaching our code.
+ *
+ * So this reduces the middleware to the smallest thing that can exist: one
+ * import, no session, no Supabase, no env, no matcher exclusions to get wrong.
+ *
+ *   - this works  -> middleware is viable here, and the fault is something the
+ *                    real middleware pulls in. Bisect from here.
+ *   - this 500s   -> no middleware of any shape runs on this deployment. The
+ *                    fault is the platform or the Next version, not our code,
+ *                    and the fix is `experimental.nodeMiddleware` (needs a Next
+ *                    canary) or Vercel support.
+ *
+ * Note the auth gate is gone while this is deployed. That costs nothing today,
+ * because Supabase is not configured and `updateSession` returns immediately
+ * anyway — but it must not stay past this experiment.
+ */
+export function middleware() {
+  return NextResponse.next({ headers: { 'x-mw-probe': 'ran' } });
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Everything except:
-     *  - _next/static, _next/image, favicon
-     *  - /runners/** and the two static demo pages, which are plain files in
-     *    public/ and must keep working at their existing URLs with no session
-     *  - anything with a file extension (public/ assets generally)
-     *
-     * Written as a negative lookahead because Next's matcher does not support
-     * "all paths except" any other way.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|runners/|.*\\.[^/]+$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|runners/|.*\\.[^/]+$).*)'],
 };
