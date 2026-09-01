@@ -12,9 +12,14 @@ import { env } from '@/lib/env';
  *
  * The setAll try/catch is not optional: Server Components are not allowed to
  * write cookies. Supabase calls setAll when it refreshes an expired token, and
- * in a Server Component that throws. Swallowing it is safe *because* the
- * middleware (lib/supabase/middleware.ts) refreshes the session on every
- * request and writes the refreshed cookies there, where writing is legal.
+ * in a Server Component that throws.
+ *
+ * That swallow used to be safe because the middleware refreshed the session on
+ * every request and wrote the cookies where writing is legal. There is no
+ * middleware now — it could not run on Vercel's edge runtime (see README,
+ * "Known sharp edges"), so nothing writes a refreshed token. Sessions therefore
+ * expire rather than roll over. That costs nothing while Supabase is
+ * unconfigured, and must be fixed before real accounts exist.
  */
 export async function createClient() {
   const cookieStore = await cookies();
