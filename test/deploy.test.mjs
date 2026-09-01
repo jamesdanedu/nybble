@@ -16,9 +16,16 @@ p.on('pageerror', e => errs.push('PAGEERR ' + e));
 
 // --- landing page
 await p.goto(`${B}/`, { waitUntil:'networkidle' });
-const cards = await p.$$eval('a.card', a => a.map(x => x.getAttribute('href')));
-assert.deepStrictEqual(cards, ['/demo.html?activity=numbase','/demo.html?activity=mcq']);
-console.log('✓ landing page links to the demo, not the harness');
+const cards = await p.$$eval('a[href^="/demo.html"]', a => a.map(x => x.getAttribute('href')));
+assert.deepStrictEqual(cards, [
+  '/demo.html?activity=numbase',
+  '/demo.html?activity=parsons',
+  '/demo.html?activity=mcq',
+]);
+// Signed out, `/` must be the public landing page, not a redirect to login —
+// the demos are the point of it and they need no account.
+assert.ok(await p.$('a[href="/login"]'), 'landing page should offer sign in');
+console.log(`✓ landing page shows ${cards.length} demo links and a sign-in`);
 
 // --- demo: numbase
 await p.goto(`${B}/demo.html?activity=numbase`, { waitUntil:'networkidle' });

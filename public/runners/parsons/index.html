@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parsons Problem</title>
+<link rel="stylesheet" href="/runners/lib/runner.css">
+<style>
+  /* --isize is the number of monospace columns one indent level is worth.
+     Set from config.indentSize at init so the guides, the drag threshold and
+     the review listing all agree on one number. */
+  :root { --isize: 4; }
+
+  .p-help { margin: 0 0 14px; padding: 10px 12px; font-size: 12.5px; line-height: 1.6;
+            color: var(--muted); background: var(--surface-2);
+            border: 1px solid var(--border); border-radius: 8px; }
+  .p-help b { color: var(--text); font-weight: 600; }
+  .p-help kbd { font-family: var(--mono); font-size: 11.5px; padding: 1px 5px;
+                border: 1px solid var(--border); border-bottom-width: 2px;
+                border-radius: 4px; background: var(--bg); color: var(--text); }
+
+  .p-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 700px) { .p-cols { grid-template-columns: 1fr; } }
+
+  .p-col { background: var(--surface); border: 1px solid var(--border);
+           border-radius: var(--radius); padding: 12px 14px 14px; }
+  .p-colhead { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px;
+               font-size: 12px; font-weight: 600; letter-spacing: .04em;
+               text-transform: uppercase; color: var(--muted); }
+  .p-count { font-family: var(--mono); font-weight: 400; letter-spacing: 0; }
+
+  .p-list { list-style: none; margin: 0; padding: 5px; min-height: 92px;
+            border: 1px dashed var(--border); border-radius: 8px; background: var(--bg); }
+  .p-list.over { border-color: var(--accent); background: var(--accent-soft); }
+  .p-list:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .p-empty { color: var(--muted); font-size: 12.5px; font-style: italic;
+             padding: 24px 8px; text-align: center; }
+
+  .p-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 3px 0;
+            padding: 5px 7px; background: var(--surface-2);
+            border: 1px solid var(--border); border-radius: 7px;
+            cursor: grab; touch-action: manipulation; }
+  .p-line:hover { border-color: var(--accent); }
+  .p-line:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .p-line[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft);
+            box-shadow: 0 0 0 1px var(--accent); }
+  .p-line.dragging { opacity: .4; }
+  .p-line.locked { cursor: default; }
+  .p-line.locked:hover { border-color: var(--border); }
+
+  /* Indentation guides: one bar per level, exactly indentSize columns wide, so
+     the nesting is legible from the back of a classroom. */
+  .p-gutter { display: flex; flex: none; font-family: var(--mono); font-size: 13.5px; }
+  .p-guide { width: calc(var(--isize) * 1ch); align-self: stretch;
+             border-left: 2px solid var(--muted); opacity: .5; min-height: 1.5em; }
+  .p-line[aria-selected="true"] .p-guide,
+  .p-line.ok .p-guide { border-left-color: var(--accent); opacity: 1; }
+  .p-line.indent-off .p-guide { border-left-color: var(--wrong); opacity: 1; }
+
+  /* Long lines wrap rather than scroll out of sight: a line that is half
+     hidden on an iPad, or on a projector, is a line the student cannot order. */
+  .p-text { flex: 1 1 22ch; min-width: 0; font-family: var(--mono); font-size: 13.5px;
+            line-height: 1.5; white-space: pre-wrap; overflow-wrap: break-word; }
+
+  /* The buttons drop onto a second row before the code starts breaking mid-word. */
+  .p-tools { display: flex; gap: 2px; flex: none; margin-left: auto; }
+  .p-btn { font: inherit; font-size: 13px; line-height: 1; width: 28px; height: 28px;
+           padding: 0; border: 1px solid var(--border); border-radius: 6px;
+           background: var(--bg); color: var(--muted); cursor: pointer; }
+  .p-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .p-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* Pointer/touch insertion targets. Only rendered while a line is picked up,
+     which is what makes click-to-select → click-to-place work without a drag. */
+  .p-slot { height: 16px; margin: 2px 0; border: 1px dashed var(--accent);
+            border-radius: 5px; opacity: .45; cursor: pointer; list-style: none; }
+  .p-slot:hover { opacity: 1; background: var(--accent-soft); }
+
+  .p-marker { height: 0; margin: 2px 0 2px 0; border-top: 2px solid var(--accent);
+              list-style: none; }
+
+  .p-flag { font-size: 11px; font-weight: 600; letter-spacing: .04em;
+            text-transform: uppercase; flex: none; }
+  .p-flag.ok { color: var(--correct); font-size: 14px; }
+  .p-flag.no { color: var(--wrong); }
+
+  .p-line.ok { border-color: var(--correct); background: var(--correct-soft); }
+  .p-line.no { border-color: var(--wrong); background: var(--wrong-soft); }
+  .p-line.indent-off { border-color: var(--wrong); border-style: dashed; }
+
+  .p-key { margin-top: 14px; }
+  .p-key h2 { font-size: 12px; font-weight: 600; letter-spacing: .04em;
+              text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+
+  .p-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 0;
+              font-size: 12px; color: var(--muted); }
+  .p-swatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+              margin-right: 5px; vertical-align: -1px; border: 1px solid var(--border); }
+  .p-swatch.ok { background: var(--correct-soft); border-color: var(--correct); }
+  .p-swatch.no { background: var(--wrong-soft); border-color: var(--wrong); }
+  .p-swatch.ind { background: var(--surface-2); border-color: var(--wrong); border-style: dashed; }
+
+  .p-probe { position: absolute; visibility: hidden; height: 0;
+             font-family: var(--mono); font-size: 13.5px;
+             width: calc(var(--isize) * 1ch); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- Kept outside #app so a re-render never destroys the live region mid-announcement. -->
+<div id="live" class="r-sr" role="status" aria-live="polite" aria-atomic="true"></div>
+<span id="probe" class="p-probe" aria-hidden="true"></span>
+
+<script src="/runners/lib/runner-sdk.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * Parsons problem runner
+ *
+ * The student is given the lines of a program in scrambled order and has to
+ * restore both the ORDER and the INDENTATION. The pool may contain distractors
+ * — lines that belong in no correct solution.
+ *
+ * The runner is never told which lines are distractors, nor what the correct
+ * order is. Both live in the key, server-side. All this file knows is that
+ * config.lines exists; correctness only ever comes back in `score`, in review
+ * mode. Anything else would put the answer in the student's dev tools.
+ *
+ * config = {
+ *   title, instructions,
+ *   language: "python",       // cosmetic label only
+ *   indentSize: 4,            // columns per indent level
+ *   maxIndent: 5,             // indent is clamped to 0..maxIndent
+ *   lines: [{ id: "l1", text: "def total(numbers):" }, ...]   // in ANY order
+ * }
+ *
+ * response = {
+ *   arrangement: [{ id, indent }, ...],   // the program, top to bottom
+ *   unused:      ["d1", "d2"]             // ids left in the pool
+ * }
+ *
+ * score (review mode, from supabase/functions/score/parsons.ts) = {
+ *   total, max, exact, explanation,
+ *   distractorsUsed: ["d1"],
+ *   missing: ["l4"],
+ *   solution: [{ id, indent }, ...],
+ *   perLine: [{ id, indent, distractor, inSequence, indentOk, expectedIndent }]
+ *            — parallel to response.arrangement
+ * }
+ *
+ * ── Accessibility model ────────────────────────────────────────────────────
+ * Each column is a `listbox`; each line is an `option` whose accessible name
+ * carries its text, its indent level and its position. "Picked up" is exposed
+ * as aria-selected (aria-grabbed is deprecated), and every move is narrated
+ * through the polite live region above.
+ *
+ * The small per-line buttons are deliberately aria-hidden and tabindex="-1".
+ * An `option` must not contain focusable children, so they exist purely as
+ * pointer/touch affordances; keyboard and screen-reader users drive everything
+ * from the option itself with the key map in `HELP`. That keeps the ARIA valid
+ * while still giving an iPad something to tap.
+ *
+ * Tab only changes indentation while a line is picked up, and Escape always
+ * puts it down — so the list is never a keyboard trap.
+ * ------------------------------------------------------------------------ */
+
+var app = document.getElementById('app');
+var live = document.getElementById('live');
+var probe = document.getElementById('probe');
+
+var cfg = null;                 // public step config
+var mode = 'attempt';
+var scoreData = null;           // server marking, review mode only
+var lines = {};                 // id -> { id, text }
+var arrangement = [];           // [{ id, indent }] — "Your program"
+var pool = [];                  // [id]              — "Available lines"
+var indentSize = 4, maxIndent = 5;
+var grabbed = null;             // id of the picked-up line, or null
+var focusId = null;             // line to focus after the next render
+var wantFocus = false;
+var dragId = null;              // id being dragged with HTML5 DnD
+var submitted = false;
+var liveTick = 0;
+
+var HELP =
+  '<b>Mouse or touch:</b> drag a line across, and drag left or right inside ' +
+  'your program to set its indentation — or tap a line to pick it up, then tap ' +
+  'where it should go. <b>Keyboard:</b> ' +
+  '<kbd>&uarr;</kbd><kbd>&darr;</kbd> move between lines, ' +
+  '<kbd>Enter</kbd> picks a line up and puts it down, ' +
+  '<kbd>&rarr;</kbd> adds a line to your program or indents it, ' +
+  '<kbd>&larr;</kbd> outdents, ' +
+  '<kbd>Tab</kbd>/<kbd>Shift</kbd>+<kbd>Tab</kbd> indent while a line is held, ' +
+  '<kbd>Backspace</kbd> sends a line back, <kbd>Esc</kbd> puts it down.';
+
+/* ---------------------------------------------------------------- helpers */
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function clampIndent(n) {
+  n = Math.round(Number(n) || 0);
+  return Math.max(0, Math.min(maxIndent, n));
+}
+
+function textOf(id) {
+  return lines[id] ? lines[id].text : '(missing line ' + id + ')';
+}
+
+/** Fisher–Yates over a copy, driven by the SDK's seeded RNG. */
+function shuffled(arr, rnd) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rnd() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/** Where does this id currently live? */
+function locate(id) {
+  for (var i = 0; i < arrangement.length; i++) {
+    if (arrangement[i].id === id) return { zone: 'solution', index: i };
+  }
+  var p = pool.indexOf(id);
+  return p === -1 ? null : { zone: 'pool', index: p };
+}
+
+function announce(msg) {
+  // A repeated identical string is not re-announced by some screen readers, so
+  // alternate an invisible suffix.
+  liveTick = (liveTick + 1) % 2;
+  live.textContent = msg + (liveTick ? ' ' : '');
+}
+
+/** One indent level in CSS pixels — used to read indentation off a drag. */
+function indentPx() {
+  var w = probe.offsetWidth;
+  return w > 0 ? w : indentSize * 8;
+}
+
+function describe(id) {
+  var at = locate(id);
+  if (!at) return textOf(id);
+  if (at.zone === 'pool') {
+    return textOf(id) + ', available line ' + (at.index + 1) + ' of ' + pool.length;
+  }
+  return textOf(id) + ', indent level ' + arrangement[at.index].indent +
+         ', line ' + (at.index + 1) + ' of ' + arrangement.length + ' of your program';
+}
+
+/* ------------------------------------------------------------ mutations */
+
+function save() {
+  if (mode !== 'attempt') return;
+  Runner.saveState({ arrangement: arrangement.slice(), unused: pool.slice() });
+}
+
+/**
+ * Move `id` into `zone` at `domIndex` (an index into the list as currently
+ * displayed). Because the line is removed before it is re-inserted, an index
+ * taken from the rendered list has to shift down by one when the line is
+ * moving further down its own list.
+ */
+function moveTo(id, zone, domIndex, indent) {
+  var from = locate(id);
+  if (!from) return;
+  var idx = (domIndex == null) ? Infinity : domIndex;
+  if (from.zone === zone && from.index < idx) idx--;
+
+  var keptIndent = from.zone === 'solution' ? arrangement[from.index].indent : 0;
+  if (from.zone === 'solution') arrangement.splice(from.index, 1);
+  else pool.splice(from.index, 1);
+
+  if (zone === 'solution') {
+    var use = (indent == null) ? keptIndent : clampIndent(indent);
+    idx = Math.max(0, Math.min(arrangement.length, idx));
+    arrangement.splice(idx, 0, { id: id, indent: use });
+  } else {
+    idx = Math.max(0, Math.min(pool.length, idx));
+    pool.splice(idx, 0, id);
+  }
+  save();
+}
+
+function setIndent(id, delta) {
+  var at = locate(id);
+  if (!at || at.zone !== 'solution') return false;
+  var before = arrangement[at.index].indent;
+  var after = clampIndent(before + delta);
+  if (after === before) {
+    announce(delta > 0 ? 'Already at the deepest indent, level ' + maxIndent
+                       : 'Already at the left margin');
+    return false;
+  }
+  arrangement[at.index].indent = after;
+  save();
+  return true;
+}
+
+/* -------------------------------------------------------------- rendering */
+
+function gutter(indent) {
+  var out = '';
+  for (var i = 0; i < indent; i++) out += '<span class="p-guide"></span>';
+  return '<span class="p-gutter" aria-hidden="true">' + out + '</span>';
+}
+
+function lineHtml(id, zone, index, count, indent, opts) {
+  opts = opts || {};
+  var locked = !!opts.locked;
+  var sel = (grabbed === id);
+  var cls = 'p-line' + (locked ? ' locked' : '') + (opts.cls ? ' ' + opts.cls : '');
+
+  var label = zone === 'solution'
+    ? textOf(id) + ', indent level ' + indent + ', line ' + (index + 1) + ' of ' + count
+    : textOf(id) + ', available line ' + (index + 1) + ' of ' + count;
+  if (opts.label) label += ', ' + opts.label;
+
+  var h = '<li class="' + cls + '" role="option" id="ln-' + esc(id) + '"' +
+          ' data-id="' + esc(id) + '" data-zone="' + zone + '"' +
+          ' aria-selected="' + (sel ? 'true' : 'false') + '"' +
+          ' aria-label="' + esc(label) + '"' +
+          ' tabindex="' + (opts.tabbable ? '0' : '-1') + '"' +
+          (locked ? '' : ' draggable="true"') + '>';
+
+  if (zone === 'solution') h += gutter(indent);
+  h += '<code class="p-text">' + esc(textOf(id)) + '</code>';
+
+  if (opts.flag) {
+    h += '<span class="p-flag ' + opts.flagCls + '">' + esc(opts.flag) + '</span>';
+  }
+
+  if (!locked) {
+    // Pointer-only affordances — hidden from assistive tech on purpose, see
+    // the accessibility note at the top of this file.
+    h += '<span class="p-tools" aria-hidden="true">';
+    if (zone === 'pool') {
+      h += btn('add', '&rarr;', 'Add to your program');
+    } else {
+      h += btn('out', '&#8676;', 'Decrease indent', indent === 0);
+      h += btn('in', '&#8677;', 'Increase indent', indent >= maxIndent);
+      h += btn('up', '&uarr;', 'Move up', index === 0);
+      h += btn('down', '&darr;', 'Move down', index === count - 1);
+      h += btn('remove', '&times;', 'Back to available lines');
+    }
+    h += '</span>';
+  }
+  return h + '</li>';
+}
+
+function btn(act, glyph, title, disabled) {
+  return '<button class="p-btn" type="button" tabindex="-1" data-act="' + act + '"' +
+         ' title="' + esc(title) + '"' + (disabled ? ' disabled' : '') + '>' + glyph + '</button>';
+}
+
+function slot(zone, index) {
+  return '<li class="p-slot" role="presentation" aria-hidden="true"' +
+         ' data-slot="' + zone + '" data-index="' + index + '"></li>';
+}
+
+function listHtml(zone, items, opts) {
+  opts = opts || {};
+  var locked = !!opts.locked;
+  var showSlots = !locked && grabbed !== null;
+  var count = items.length;
+  var ids = items.map(function (it) { return typeof it === 'string' ? it : it.id; });
+  // Roving tabindex: exactly one line per column is in the tab order — the one
+  // that last had focus, or the first line if focus is elsewhere. Every column
+  // keeps an entry point, so Tab always reaches both lists.
+  var anchor = ids.indexOf(focusId) !== -1 ? focusId : ids[0];
+  var h = '';
+
+  if (!count) {
+    h += '<li class="p-empty" role="presentation">' + esc(opts.empty) + '</li>';
+  }
+  if (showSlots) h += slot(zone, 0);
+
+  items.forEach(function (it, i) {
+    var id = ids[i];
+    var indent = typeof it === 'string' ? 0 : it.indent;
+    var extra = opts.decorate ? opts.decorate(id, i) : {};
+    extra.locked = locked;
+    extra.tabbable = (id === anchor);
+    h += lineHtml(id, zone, i, count, indent, extra);
+    if (showSlots) h += slot(zone, i + 1);
+  });
+  return h;
+}
+
+function reviewDecorator() {
+  var per = (scoreData && scoreData.perLine) || [];
+  return function (id, i) {
+    var r = per[i];
+    if (!r) return {};
+    if (r.distractor) {
+      return { cls: 'no', flag: 'distractor', flagCls: 'no',
+               label: 'a distractor — this line belongs in no correct solution' };
+    }
+    if (!r.inSequence) {
+      return { cls: 'no', flag: 'out of order', flagCls: 'no', label: 'out of order' };
+    }
+    if (!r.indentOk) {
+      return { cls: 'indent-off', flag: 'needs indent ' + r.expectedIndent, flagCls: 'no',
+               label: 'correct position, but the indent should be level ' + r.expectedIndent };
+    }
+    return { cls: 'ok', flag: '✓', flagCls: 'ok', label: 'correct' };
+  };
+}
+
+function keyBlock() {
+  var sol = (scoreData && scoreData.solution) || [];
+  if (!sol.length) return '';
+  var text = sol.map(function (s) {
+    return new Array(s.indent * indentSize + 1).join(' ') + textOf(s.id);
+  }).join('\n');
+  return '<div class="p-key"><h2>The correct program</h2>' +
+         '<pre class="r-code">' + esc(text) + '</pre></div>';
+}
+
+function render() {
+  var reviewing = (mode === 'review');
+  var html = '';
+
+  html += '<div class="r-head">';
+  html += '<h1 class="r-title">' + esc(cfg.title || 'Parsons problem') + '</h1>';
+  html += '<p class="r-sub">' + esc(cfg.instructions ||
+          'Put the lines in order and set the indentation of each one. ' +
+          'Not every line belongs in the finished program.') + '</p></div>';
+
+  if (reviewing && scoreData) {
+    html += '<div class="r-score">Score: ' + scoreData.total + ' / ' + scoreData.max +
+            (scoreData.exact ? ' &middot; exact match' : '') + '</div>';
+  }
+
+  if (!reviewing) html += '<p class="p-help">' + HELP + '</p>';
+
+  html += '<div class="p-cols">';
+
+  html += '<section class="p-col"><h2 class="p-colhead" id="pool-h">' +
+          (reviewing ? 'Lines you did not use' : 'Available lines') +
+          ' <span class="p-count">' + pool.length + '</span></h2>' +
+          '<ul class="p-list" id="list-pool" role="listbox" aria-labelledby="pool-h"' +
+          (reviewing ? ' aria-disabled="true"' : '') + '>' +
+          listHtml('pool', pool, {
+            locked: reviewing,
+            empty: reviewing ? 'You used every line.' : 'Every line is in your program.'
+          }) +
+          '</ul></section>';
+
+  html += '<section class="p-col"><h2 class="p-colhead" id="sol-h">Your program ' +
+          '<span class="p-count">' + arrangement.length +
+          (cfg.language ? ' &middot; ' + esc(cfg.language) : '') + '</span></h2>' +
+          '<ul class="p-list p-sol" id="list-solution" role="listbox" aria-labelledby="sol-h"' +
+          (reviewing ? ' aria-disabled="true"' : '') + '>' +
+          listHtml('solution', arrangement, {
+            locked: reviewing,
+            empty: 'Drop lines here to build the program.',
+            decorate: reviewing ? reviewDecorator() : null
+          }) +
+          '</ul>';
+
+  if (reviewing && scoreData) {
+    html += '<p class="p-legend">' +
+            '<span><span class="p-swatch ok"></span>correct</span>' +
+            '<span><span class="p-swatch ind"></span>right place, wrong indent</span>' +
+            '<span><span class="p-swatch no"></span>out of order or a distractor</span>' +
+            '</p>';
+  }
+  html += '</section></div>';
+
+  if (reviewing && scoreData) {
+    if (scoreData.distractorsUsed && scoreData.distractorsUsed.length) {
+      html += '<div class="r-explain"><strong>Distractors used</strong>' +
+              esc(scoreData.distractorsUsed.length + ' line' +
+                  (scoreData.distractorsUsed.length === 1 ? '' : 's') +
+                  ' in your program belong in no correct solution: ') +
+              scoreData.distractorsUsed.map(function (id) {
+                return '<code>' + esc(textOf(id)) + '</code>';
+              }).join(', ') + '</div>';
+    }
+    if (scoreData.missing && scoreData.missing.length) {
+      html += '<div class="r-explain"><strong>Lines you left out</strong>' +
+              scoreData.missing.map(function (id) {
+                return '<code>' + esc(textOf(id)) + '</code>';
+              }).join(', ') + '</div>';
+    }
+    html += keyBlock();
+    if (scoreData.explanation) {
+      html += '<div class="r-explain"><strong>Why</strong>' + esc(scoreData.explanation) + '</div>';
+    }
+  }
+
+  if (!reviewing) {
+    html += '<div class="r-foot">' +
+            '<button class="r-btn" id="submit"' + (submitted ? ' disabled' : '') + '>Submit program</button>' +
+            '<span class="r-status" id="status"></span></div>';
+  }
+
+  app.innerHTML = html;
+
+  if (!reviewing) updateStatus();
+
+  if (wantFocus && focusId) {
+    var el = document.getElementById('ln-' + focusId);
+    if (el) el.focus({ preventScroll: false });
+  }
+  wantFocus = false;
+  Runner.measure();
+}
+
+function updateStatus(msg, warn) {
+  var el = document.getElementById('status');
+  if (!el) return;
+  el.textContent = msg || (arrangement.length + ' line' + (arrangement.length === 1 ? '' : 's') +
+                           ' in your program, ' + pool.length + ' still available');
+  el.className = 'r-status' + (warn ? ' warn' : '');
+}
+
+/** Re-render, keeping keyboard focus on the line the student just acted on. */
+function repaint(id, msg) {
+  if (id) { focusId = id; wantFocus = true; }
+  render();
+  if (msg) announce(msg);
+}
+
+/* --------------------------------------------------------------- pointer */
+
+function onClick(e) {
+  if (mode !== 'attempt') return;
+
+  var submit = e.target.closest && e.target.closest('#submit');
+  if (submit) { doSubmit(); return; }
+
+  var slotEl = e.target.closest && e.target.closest('.p-slot');
+  if (slotEl && grabbed) {
+    var id = grabbed;
+    moveTo(id, slotEl.dataset.slot, Number(slotEl.dataset.index), null);
+    grabbed = null;
+    repaint(id, 'Placed. ' + describe(id));
+    return;
+  }
+
+  var btnEl = e.target.closest && e.target.closest('.p-btn');
+  if (btnEl) {
+    var host = btnEl.closest('.p-line');
+    doAction(host.dataset.id, btnEl.dataset.act);
+    return;
+  }
+
+  var lineEl = e.target.closest && e.target.closest('.p-line');
+  if (lineEl) {
+    var lid = lineEl.dataset.id;
+    if (grabbed === lid) {                       // tap again to put it down
+      grabbed = null;
+      repaint(lid, 'Put down. ' + describe(lid));
+    } else if (grabbed) {                        // place the held line here
+      var held = grabbed;
+      var at = locate(lid);
+      grabbed = null;
+      moveTo(held, at.zone, at.index, null);
+      repaint(held, 'Placed. ' + describe(held));
+    } else {
+      grabbed = lid;
+      repaint(lid, 'Picked up ' + describe(lid) + '. Choose where to put it.');
+    }
+  }
+}
+
+function doAction(id, act) {
+  var at = locate(id);
+  if (!at) return;
+  if (act === 'add') {
+    moveTo(id, 'solution', arrangement.length, 0);
+    repaint(id, 'Added. ' + describe(id));
+  } else if (act === 'remove') {
+    moveTo(id, 'pool', pool.length, null);
+    repaint(id, 'Returned to available lines. ' + describe(id));
+  } else if (act === 'up' || act === 'down') {
+    moveTo(id, 'solution', at.index + (act === 'up' ? -1 : 2), null);
+    repaint(id, describe(id));
+  } else if (act === 'in' || act === 'out') {
+    if (setIndent(id, act === 'in' ? 1 : -1)) repaint(id, describe(id));
+  }
+}
+
+/* -------------------------------------------------------------- keyboard */
+
+function onKeyDown(e) {
+  if (mode !== 'attempt') return;
+  var lineEl = e.target.closest && e.target.closest('.p-line');
+  if (!lineEl) return;
+  var id = lineEl.dataset.id;
+  var at = locate(id);
+  if (!at) return;
+  var held = (grabbed === id);
+  var list = at.zone === 'solution' ? arrangement : pool;
+
+  switch (e.key) {
+    case 'Enter':
+    case ' ':
+    case 'Spacebar':
+      e.preventDefault();
+      grabbed = held ? null : id;
+      repaint(id, held ? 'Put down. ' + describe(id)
+                       : 'Picked up ' + describe(id) +
+                         '. Use the arrow keys to move it, Enter to put it down.');
+      return;
+
+    case 'Escape':
+      if (!held) return;
+      e.preventDefault();
+      grabbed = null;
+      repaint(id, 'Put down. ' + describe(id));
+      return;
+
+    case 'ArrowUp':
+    case 'ArrowDown': {
+      e.preventDefault();
+      var dir = e.key === 'ArrowDown' ? 1 : -1;
+      if (held) {                                  // move the line itself
+        var target = at.index + dir;
+        if (target < 0 || target >= list.length) {
+          announce('Already at the ' + (dir < 0 ? 'top' : 'bottom'));
+          return;
+        }
+        moveTo(id, at.zone, at.index + (dir < 0 ? -1 : 2), null);
+        repaint(id, describe(id));
+      } else {                                     // move focus between lines
+        var next = list[at.index + dir];
+        if (!next) return;
+        var nid = typeof next === 'string' ? next : next.id;
+        focusId = nid; wantFocus = true; render();
+      }
+      return;
+    }
+
+    case 'Home':
+    case 'End': {
+      e.preventDefault();
+      if (!list.length) return;
+      var edge = e.key === 'Home' ? list[0] : list[list.length - 1];
+      focusId = typeof edge === 'string' ? edge : edge.id;
+      wantFocus = true; render();
+      return;
+    }
+
+    case 'ArrowRight':
+      e.preventDefault();
+      if (at.zone === 'pool') {
+        moveTo(id, 'solution', arrangement.length, 0);
+        repaint(id, 'Added to your program. ' + describe(id));
+      } else if (setIndent(id, 1)) {
+        repaint(id, describe(id));
+      }
+      return;
+
+    case 'ArrowLeft':
+      if (at.zone !== 'solution') return;
+      e.preventDefault();
+      if (setIndent(id, -1)) repaint(id, describe(id));
+      return;
+
+    case 'Backspace':
+    case 'Delete':
+      if (at.zone !== 'solution') return;
+      e.preventDefault();
+      grabbed = null;
+      moveTo(id, 'pool', pool.length, null);
+      repaint(id, 'Returned to available lines. ' + describe(id));
+      return;
+
+    case 'Tab':
+      // Only swallowed while the line is held, so the list is never a trap:
+      // Escape or Enter puts the line down and Tab leaves as normal.
+      if (!held || at.zone !== 'solution') return;
+      e.preventDefault();
+      if (setIndent(id, e.shiftKey ? -1 : 1)) repaint(id, describe(id));
+      return;
+  }
+}
+
+/* ------------------------------------------------------ HTML5 drag & drop */
+
+function onDragStart(e) {
+  if (mode !== 'attempt') return;
+  var lineEl = e.target.closest && e.target.closest('.p-line');
+  if (!lineEl) return;
+  dragId = lineEl.dataset.id;
+  grabbed = null;
+  lineEl.classList.add('dragging');
+  try {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragId);   // Firefox needs a payload
+  } catch (err) { /* ignore */ }
+}
+
+/** Which gap is the pointer over, and (in the solution) at what indent? */
+function dropTarget(listEl, e) {
+  var kids = listEl.querySelectorAll('.p-line');
+  var index = kids.length;
+  for (var i = 0; i < kids.length; i++) {
+    var box = kids[i].getBoundingClientRect();
+    if (e.clientY < box.top + box.height / 2) { index = i; break; }
+  }
+  var indent = null;
+  if (listEl.id === 'list-solution') {
+    var lb = listEl.getBoundingClientRect();
+    var pad = parseFloat(getComputedStyle(listEl).paddingLeft) || 0;
+    indent = clampIndent((e.clientX - lb.left - pad - 8) / indentPx());
+  }
+  return { index: index, indent: indent };
+}
+
+function clearDropChrome() {
+  var m = document.getElementById('p-marker');
+  if (m) m.remove();
+  Array.prototype.forEach.call(document.querySelectorAll('.p-list.over'),
+    function (n) { n.classList.remove('over'); });
+}
+
+function onDragOver(e) {
+  if (mode !== 'attempt' || !dragId) return;
+  var listEl = e.target.closest && e.target.closest('.p-list');
+  if (!listEl) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+
+  var t = dropTarget(listEl, e);
+  var marker = document.getElementById('p-marker');
+  if (!marker) {
+    marker = document.createElement('li');
+    marker.id = 'p-marker';
+    marker.className = 'p-marker';
+    marker.setAttribute('role', 'presentation');
+  }
+  marker.style.marginLeft = t.indent
+    ? 'calc(' + t.indent + ' * var(--isize) * 1ch)' : '0';
+  var kids = listEl.querySelectorAll('.p-line');
+  listEl.insertBefore(marker, kids[t.index] || null);
+  Array.prototype.forEach.call(document.querySelectorAll('.p-list'),
+    function (n) { n.classList.toggle('over', n === listEl); });
+}
+
+function onDrop(e) {
+  if (mode !== 'attempt' || !dragId) return;
+  var listEl = e.target.closest && e.target.closest('.p-list');
+  if (!listEl) return;
+  e.preventDefault();
+  var zone = listEl.id === 'list-solution' ? 'solution' : 'pool';
+  var t = dropTarget(listEl, e);
+  // The marker sits between the lines, so it never shifts the computed index.
+  var id = dragId;
+  dragId = null;
+  clearDropChrome();
+  moveTo(id, zone, t.index, t.indent);
+  repaint(id, describe(id));
+}
+
+function onDragEnd() {
+  dragId = null;
+  clearDropChrome();
+  Array.prototype.forEach.call(document.querySelectorAll('.p-line.dragging'),
+    function (n) { n.classList.remove('dragging'); });
+}
+
+/* ----------------------------------------------------------------- submit */
+
+function doSubmit() {
+  if (submitted || mode !== 'attempt') return;
+  if (!arrangement.length) {
+    updateStatus('Move at least one line into your program before submitting.', true);
+    Runner.measure();
+    return;
+  }
+  submitted = true;
+  var btn = document.getElementById('submit');
+  if (btn) btn.disabled = true;
+
+  Runner.submit({
+    arrangement: arrangement.map(function (a) {
+      return { id: a.id, indent: clampIndent(a.indent) };
+    }),
+    unused: pool.slice()
+  }, {
+    maxScore: typeof cfg.marks === 'number' ? cfg.marks : null
+  });
+}
+
+/* ------------------------------------------------------------------- init */
+
+app.addEventListener('click', onClick);
+app.addEventListener('keydown', onKeyDown);
+app.addEventListener('dragstart', onDragStart);
+app.addEventListener('dragover', onDragOver);
+app.addEventListener('drop', onDrop);
+app.addEventListener('dragend', onDragEnd);
+
+/** Rebuild pool/arrangement from saved state, discarding anything stale. */
+function restore(saved) {
+  var known = {}, seen = {};
+  Object.keys(lines).forEach(function (k) { known[k] = true; });
+
+  arrangement = (saved && Array.isArray(saved.arrangement) ? saved.arrangement : [])
+    .filter(function (a) {
+      return a && known[a.id] && !seen[a.id] && (seen[a.id] = true);
+    })
+    .map(function (a) { return { id: a.id, indent: clampIndent(a.indent) }; });
+
+  var rest = (saved && Array.isArray(saved.unused) ? saved.unused : [])
+    .filter(function (id) { return known[id] && !seen[id] && (seen[id] = true); });
+
+  // Any line the saved state forgot about goes back in the pool, so a config
+  // that gained a line mid-assignment still renders every line exactly once.
+  Object.keys(lines).forEach(function (id) { if (!seen[id]) rest.push(id); });
+  pool = rest;
+}
+
+Runner.start({
+  capabilities: { selfSubmit: true, autoScore: false },
+
+  onInit: function (init) {
+    cfg = init.config || {};
+    mode = init.mode || 'attempt';
+    scoreData = init.score || null;
+
+    indentSize = Math.max(1, Math.min(8, Number(cfg.indentSize) || 4));
+    maxIndent = Math.max(0, Math.min(12, cfg.maxIndent == null ? 5 : Number(cfg.maxIndent)));
+    document.documentElement.style.setProperty('--isize', indentSize);
+
+    (cfg.lines || []).forEach(function (l) {
+      if (l && l.id != null) lines[l.id] = { id: String(l.id), text: String(l.text == null ? '' : l.text) };
+    });
+
+    if (mode === 'review' && init.response) {
+      restore({ arrangement: init.response.arrangement, unused: init.response.unused });
+    } else if (init.state && (init.state.arrangement || init.state.unused)) {
+      restore(init.state);
+    } else {
+      // Fresh attempt: shuffle the pool from the attempt seed, so a resumed
+      // attempt starts where it left off and two students get different decks.
+      var seed = (init.context && init.context.seed) || cfg.seed || 1;
+      arrangement = [];
+      pool = shuffled(Object.keys(lines), Runner.rng(seed));
+    }
+    render();
+  },
+
+  onRequestSubmit: function () { doSubmit(); },
+
+  onModeChange: function (m) {
+    mode = m;
+    grabbed = null;
+    focusId = null;
+    render();
+  }
+});
+</script>
+</body>
+</html>

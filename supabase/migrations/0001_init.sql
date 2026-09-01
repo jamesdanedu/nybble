@@ -379,4 +379,5 @@ create trigger reviews_touch       before update on reviews
 -- ---------------------------------------------------------------------------
 insert into runners (id, name, version, entry_url, scorer, builtin) values
   ('mcq',     'Multiple Choice',        '1.0.0', '/runners/mcq/index.html',     'server', true),
-  ('numbase', 'Number Base Conversion', '1.0.0', '/runners/numbase/index.html', 'server', true);
+  ('numbase', 'Number Base Conversion', '1.0.0', '/runners/numbase/index.html', 'server', true),
+  ('parsons', 'Parsons Problem',         '1.0.0', '/runners/parsons/index.html', 'server', true);
