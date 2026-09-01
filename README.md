@@ -147,6 +147,20 @@ using the service role — that function is not written yet.
 
 ## Known sharp edges
 
+- **There is no middleware, so sessions do not refresh.** Every deployment
+  returned 500 `MIDDLEWARE_INVOCATION_FAILED` on every matched path — including
+  a build cut down to a single `next/server` import, which rules out anything
+  this repo puts in the bundle. Removing `middleware.ts` is what got the site
+  serving. Auth is unaffected: all fourteen protected pages call
+  `requireSession()` and friends themselves. What is lost is the token refresh,
+  because a Server Component cannot write cookies and the middleware was what
+  wrote them. Harmless while Supabase is unconfigured — `updateSession` returned
+  immediately anyway — but **fix this before there are real accounts**, or users
+  will be signed out whenever an access token expires. `lib/supabase/middleware.ts`
+  is kept intact and carries the snippet that wires it back. The likely routes
+  are Next's `experimental.nodeMiddleware` (canary at 15.5.25) to move it off the
+  edge runtime, or Vercel support — this project began life as a static site, so
+  stale project settings are a plausible cause.
 - **Runner subresources must use absolute paths.** `/runners/lib/...`, never
   `../lib/...`. Under `cleanUrls` a runner's document URL loses its trailing
   slash and relative paths silently resolve one directory too high, leaving a

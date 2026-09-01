@@ -1,3 +1,18 @@
+/*
+ * CURRENTLY UNWIRED. Nothing imports this.
+ *
+ * middleware.ts was removed because no middleware of any shape would run on
+ * this Vercel deployment: a build reduced to one import of next/server and
+ * nothing else still returned 500 MIDDLEWARE_INVOCATION_FAILED. Kept intact
+ * because it is what goes back once that is fixed — recreate middleware.ts as
+ *
+ *   export async function middleware(request: NextRequest) {
+ *     return updateSession(request);
+ *   }
+ *   export const config = {
+ *     matcher: ['/((?!_next/static|_next/image|favicon.ico|runners/|.*\\.[^/]+$).*)'],
+ *   };
+ */
 import type { CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '../env';
