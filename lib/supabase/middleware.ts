@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { env } from '@/lib/env';
+import { env } from '../env';
 
 /** Paths that never need a session. Everything else is behind the gate. */
 const PUBLIC_PREFIXES = ['/login', '/auth', '/api/public'];

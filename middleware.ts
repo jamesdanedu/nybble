@@ -1,5 +1,8 @@
 import type { NextRequest } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
+// Imported by relative path, not the `@/` alias. Vercel's deploy-time Edge
+// Function check reports `@/lib/supabase/middleware` as an unsupported
+// module and rejects the deployment, even though the build inlines it fine.
+import { updateSession } from './lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
   return updateSession(request);
