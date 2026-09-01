@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import type { CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '../env';
 
@@ -41,6 +41,13 @@ export async function updateSession(request: NextRequest) {
     // rather than bouncing every request to a login page that cannot work.
     return response;
   }
+
+  // Imported here, not at module scope. `createServerClient` pulls the whole
+  // of @supabase/supabase-js into the bundle — auth, postgrest, storage,
+  // functions and the realtime WebSocket client. Loading that on every edge
+  // invocation is expensive, and pointless on the path above, which is the
+  // only path taken until the Supabase env vars are set.
+  const { createServerClient } = await import('@supabase/ssr');
 
   const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     cookies: {
