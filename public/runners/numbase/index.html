@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Number Base Conversion</title>
+<link rel="stylesheet" href="../lib/runner.css">
+<style>
+  .nb-q { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .nb-prompt { font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: .5px; }
+  .nb-sub { color: var(--muted); font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; }
+  .nb-arrow { color: var(--muted); font-size: 18px; }
+  .nb-expected { font-family: var(--mono); font-weight: 600; color: var(--correct); }
+  .nb-hint { margin-top: 10px; font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+  .nb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
+             gap: 3px; max-width: 340px; margin-top: 8px; }
+  .nb-grid span { text-align: center; padding: 3px 0; background: var(--surface-2);
+                  border: 1px solid var(--border); border-radius: 4px;
+                  font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="../lib/runner-sdk.js"></script>
+<script src="../lib/numbase-gen.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * Number base conversion runner
+ *
+ * Questions are GENERATED, not authored — one seed gives an unlimited supply.
+ * The seed comes from attempts.seed via context.seed, so the server can
+ * regenerate the identical set at marking time without storing the questions.
+ *
+ * config = {
+ *   title, instructions,
+ *   count: 10,
+ *   conversions: ["dec2bin","bin2dec","dec2hex","hex2dec","bin2hex","hex2bin"],
+ *   minValue: 1, maxValue: 255,
+ *   padBinary: true,          // show binary prompts padded to a nibble boundary
+ *   marksPerQuestion: 1,
+ *   timeLimitSecs: null,      // null = untimed
+ *   showPlaceValues: true     // the 128 64 32 16 8 4 2 1 crib under each question
+ * }
+ *
+ * response = { seed, answers: { n0: "1010", ... }, elapsedSecs, questions: [...] }
+ * ------------------------------------------------------------------------ */
+
+var app = document.getElementById('app');
+var cfg = null, mode = 'attempt', seed = 1, questions = [], answers = {},
+    scoreData = null, startedAt = Date.now(), elapsed = 0,
+    timerHandle = null, submitted = false;
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function fmtTime(secs) {
+  secs = Math.max(0, Math.floor(secs));
+  var m = Math.floor(secs / 60), s = secs % 60;
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function placeValues(q) {
+  if (q.toBase !== 2 && q.fromBase !== 2) return '';
+  var bits = Math.max(8, Math.ceil((q.value.toString(2).length) / 4) * 4);
+  var cells = [];
+  for (var i = bits - 1; i >= 0; i--) cells.push('<span>' + Math.pow(2, i) + '</span>');
+  return '<div class="nb-grid">' + cells.join('') + '</div>';
+}
+
+function answeredCount() {
+  return questions.filter(function (q) {
+    return NumbaseGen.isWellFormed(answers[q.id], q.toBase);
+  }).length;
+}
+
+function render() {
+  var reviewing = (mode === 'review');
+  var html = '';
+
+  html += '<div class="r-head">';
+  html += '<h1 class="r-title">' + esc(cfg.title || 'Number Base Conversion') + '</h1>';
+  html += '<p class="r-sub">' + esc(cfg.instructions ||
+          'Convert each value. Hex may be written with or without a 0x prefix; case does not matter.') +
+          '</p></div>';
+
+  if (reviewing && scoreData) {
+    html += '<div class="r-score">Score: ' + scoreData.total + ' / ' + scoreData.max +
+            (scoreData.elapsedSecs != null ? ' &middot; time ' + fmtTime(scoreData.elapsedSecs) : '') +
+            '</div>';
+  }
+
+  questions.forEach(function (q, idx) {
+    var given = answers[q.id] || '';
+    var qs = (reviewing && scoreData && scoreData.perQuestion) ? scoreData.perQuestion[q.id] : null;
+    var inputCls = 'r-input';
+    if (qs) inputCls += qs.correct ? ' correct' : ' wrong';
+
+    html += '<section class="r-card">';
+    html += '<div class="r-qnum">Question ' + (idx + 1) + ' of ' + questions.length +
+            ' &middot; ' + esc(q.label) +
+            (qs ? ' &middot; <span class="' + (qs.correct ? 'r-mark ok' : 'r-mark no') + '">' +
+                  qs.awarded + '/' + qs.marks + '</span>' : '') + '</div>';
+
+    html += '<div class="nb-q">';
+    html += '<div><div class="nb-sub">' + esc(q.fromName) + '</div>' +
+            '<div class="nb-prompt">' + esc(q.prompt) + '</div></div>';
+    html += '<div class="nb-arrow">&rarr;</div>';
+    html += '<div><div class="nb-sub">' + esc(q.toName) + '</div>' +
+            '<input class="' + inputCls + '" data-q="' + esc(q.id) + '"' +
+            ' inputmode="' + (q.toBase === 10 ? 'numeric' : 'text') + '"' +
+            ' autocomplete="off" spellcheck="false"' +
+            ' aria-label="Answer for question ' + (idx + 1) + ', ' + esc(q.label) + '"' +
+            ' value="' + esc(given) + '"' + (reviewing ? ' disabled' : '') + '></div>';
+
+    if (qs && !qs.correct) {
+      html += '<div><div class="nb-sub">answer</div>' +
+              '<div class="nb-expected">' + esc(qs.expected) + '</div></div>';
+    }
+    html += '</div>';
+
+    if (cfg.showPlaceValues !== false && !reviewing) html += placeValues(q);
+    html += '</section>';
+  });
+
+  if (!reviewing) {
+    html += '<div class="r-foot">';
+    html += '<button class="r-btn" id="submit">Submit</button>';
+    if (cfg.timeLimitSecs) html += '<span class="r-timer" id="timer">--:--</span>';
+    html += '<span class="r-status" id="status"></span>';
+    html += '</div>';
+  }
+
+  app.innerHTML = html;
+
+  if (!reviewing) {
+    document.getElementById('submit').addEventListener('click', function () { doSubmit(false); });
+    updateStatus();
+    tick();
+  }
+  Runner.measure();
+}
+
+function onInput(e) {
+  var el = e.target;
+  if (!el || !el.dataset || !el.dataset.q) return;
+  answers[el.dataset.q] = el.value;
+  updateStatus();
+  Runner.saveState({ seed: seed, answers: answers, elapsedSecs: elapsedSecs() });
+}
+
+function elapsedSecs() { return Math.floor((Date.now() - startedAt) / 1000) + elapsed; }
+
+function updateStatus() {
+  var el = document.getElementById('status');
+  if (!el) return;
+  el.textContent = answeredCount() + ' of ' + questions.length + ' answered';
+  el.className = 'r-status';
+}
+
+function tick() {
+  if (!cfg.timeLimitSecs || mode === 'review' || submitted) return;
+  var el = document.getElementById('timer');
+  if (!el) return;
+  var left = cfg.timeLimitSecs - elapsedSecs();
+  el.textContent = fmtTime(left);
+  el.classList.toggle('low', left <= 30);
+  if (left <= 0) { doSubmit(true); return; }
+  clearTimeout(timerHandle);
+  timerHandle = setTimeout(tick, 1000);
+}
+
+function doSubmit(auto) {
+  if (submitted) return;
+  var n = answeredCount();
+  if (!auto && n < questions.length) {
+    var el = document.getElementById('status');
+    el.textContent = 'Fill in all ' + questions.length + ' answers before submitting (' +
+                     (questions.length - n) + ' left).';
+    el.className = 'r-status warn';
+    Runner.measure();
+    return;
+  }
+  submitted = true;
+  clearTimeout(timerHandle);
+  var btn = document.getElementById('submit');
+  if (btn) btn.disabled = true;
+
+  // Send the questions we actually rendered. The server regenerates from the
+  // seed and compares — a mismatch means the generator drifted, and the attempt
+  // is flagged for review rather than mismarked.
+  Runner.submit({
+    seed: seed,
+    answers: answers,
+    elapsedSecs: elapsedSecs(),
+    timedOut: !!auto,
+    questions: questions.map(function (q) {
+      return { id: q.id, kind: q.kind, value: q.value, toBase: q.toBase };
+    })
+  }, {
+    maxScore: questions.reduce(function (s, q) { return s + (q.marks || 1); }, 0)
+  });
+}
+
+app.addEventListener('input', onInput);
+
+Runner.start({
+  capabilities: { selfSubmit: true, autoScore: false, timed: true },
+
+  onInit: function (init) {
+    cfg = init.config || {};
+    mode = init.mode || 'attempt';
+    scoreData = init.score || null;
+
+    // Seed precedence: the attempt's seed, then a saved one, then config.
+    seed = (init.context && init.context.seed) ||
+           (init.state && init.state.seed) ||
+           cfg.seed || 20260901;
+
+    if (mode === 'review' && init.response) {
+      seed = init.response.seed || seed;
+      answers = init.response.answers || {};
+      elapsed = 0;
+    } else if (init.state) {
+      answers = init.state.answers || {};
+      elapsed = init.state.elapsedSecs || 0;
+    }
+    startedAt = Date.now();
+    questions = NumbaseGen.generate(cfg, seed);
+    render();
+  },
+
+  onRequestSubmit: function () { doSubmit(false); },
+  onModeChange: function (m) { mode = m; render(); }
+});
+</script>
+</body>
+</html>
