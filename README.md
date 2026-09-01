@@ -12,6 +12,7 @@ that lets new activity types be added without touching the portal.
 
 ```
 app/                              Next.js portal (App Router)
+  page.tsx                        landing page — the deployed front door
 lib/                              Supabase clients, session, activity importer
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
@@ -26,7 +27,6 @@ supabase/
     mcq.ts                        MCQ scorer
     numbase.ts                    number base scorer (+ generator copy)
 public/
-  index.html                      landing page — the deployed front door
   demo.html                       clean student-facing demo of one activity
   harness.html                    dev harness — same runners, with the message log
   runners/
