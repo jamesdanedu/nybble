@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiple Choice</title>
+<link rel="stylesheet" href="../lib/runner.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="../lib/runner-sdk.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * MCQ runner
+ *
+ * config = {
+ *   title, instructions,
+ *   shuffleQuestions: false,
+ *   shuffleOptions: true,
+ *   requireAll: true,             // block submit until every question answered
+ *   questions: [{
+ *     id: "q1",
+ *     stem: "Which of these ...",   // plain text, newlines become paragraphs
+ *     code: "for i in range(3):\n    print(i)",   // optional
+ *     image: "https://...",                        // optional
+ *     multiple: false,                             // checkbox instead of radio
+ *     marks: 1,
+ *     options: [{ id: "a", text: "...", code: false }, ...]
+ *   }]
+ * }
+ *
+ * response = { answers: { q1: ["b"], q2: ["a","c"] } }
+ *
+ * score (review mode) = {
+ *   total, max,
+ *   perQuestion: { q1: { correct: true, awarded: 1, marks: 1,
+ *                        correctIds: ["b"], explanation: "..." } }
+ * }
+ *
+ * The answer key never arrives here. Correctness is only ever rendered from
+ * the `score` the server sends back in review mode.
+ * ------------------------------------------------------------------------ */
+
+var app = document.getElementById('app');
+var cfg = null, mode = 'attempt', answers = {}, order = [], scoreData = null;
+
+// Delegated once — render() replaces app's children, not app itself.
+app.addEventListener('change', onChange);
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function paras(text) {
+  return String(text || '').split(/\n{2,}/).map(function (p) {
+    return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+
+function shuffled(arr, rnd) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rnd() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* Build the display order once, and keep it in state so a resumed attempt
+   shows the questions in the same order the student saw before. */
+function buildOrder(seedState) {
+  if (seedState && seedState.order && seedState.order.length) return seedState.order;
+  var rnd = Runner.rng(cfg.seed || 12345);
+  var qs = cfg.questions.map(function (q) { return q.id; });
+  if (cfg.shuffleQuestions) qs = shuffled(qs, rnd);
+  return qs.map(function (qid) {
+    var q = byId(qid);
+    var opts = q.options.map(function (o) { return o.id; });
+    if (cfg.shuffleOptions !== false) opts = shuffled(opts, rnd);
+    return { q: qid, opts: opts };
+  });
+}
+
+function byId(qid) {
+  for (var i = 0; i < cfg.questions.length; i++) {
+    if (cfg.questions[i].id === qid) return cfg.questions[i];
+  }
+  return null;
+}
+
+function optById(q, oid) {
+  for (var i = 0; i < q.options.length; i++) {
+    if (q.options[i].id === oid) return q.options[i];
+  }
+  return { id: oid, text: '(missing option)' };
+}
+
+function answeredCount() {
+  return order.filter(function (row) {
+    return (answers[row.q] || []).length > 0;
+  }).length;
+}
+
+function render() {
+  var reviewing = (mode === 'review');
+  var html = '';
+
+  if (cfg.title || cfg.instructions) {
+    html += '<div class="r-head">';
+    if (cfg.title) html += '<h1 class="r-title">' + esc(cfg.title) + '</h1>';
+    if (cfg.instructions) html += '<p class="r-sub">' + esc(cfg.instructions) + '</p>';
+    html += '</div>';
+  }
+
+  if (reviewing && scoreData) {
+    html += '<div class="r-score">Score: ' + scoreData.total + ' / ' + scoreData.max + '</div>';
+  }
+
+  order.forEach(function (row, idx) {
+    var q = byId(row.q);
+    if (!q) return;
+    var chosen = answers[q.id] || [];
+    var qs = (reviewing && scoreData && scoreData.perQuestion) ? scoreData.perQuestion[q.id] : null;
+
+    html += '<section class="r-card">';
+    html += '<div class="r-qnum">Question ' + (idx + 1) + ' of ' + order.length +
+            (q.marks ? ' &middot; ' + q.marks + ' mark' + (q.marks === 1 ? '' : 's') : '') +
+            (qs ? ' &middot; <span class="' + (qs.correct ? 'r-mark ok' : 'r-mark no') + '">' +
+                  qs.awarded + '/' + qs.marks + '</span>' : '') +
+            '</div>';
+    html += '<div class="r-stem">' + paras(q.stem) + '</div>';
+    if (q.code) html += '<pre class="r-code">' + esc(q.code) + '</pre>';
+    if (q.image) html += '<img class="r-img" src="' + esc(q.image) + '" alt="">';
+
+    html += '<div class="r-options" role="group" aria-labelledby="lbl-' + esc(q.id) + '">';
+    html += '<span class="r-sr" id="lbl-' + esc(q.id) + '">' + esc(q.stem) + '</span>';
+
+    row.opts.forEach(function (oid) {
+      var o = optById(q, oid);
+      var sel = chosen.indexOf(oid) !== -1;
+      var cls = 'r-opt';
+      if (sel) cls += ' sel';
+      if (reviewing) {
+        cls += ' locked';
+        var isKey = qs && qs.correctIds && qs.correctIds.indexOf(oid) !== -1;
+        if (isKey) cls = cls.replace(' sel', '') + ' correct';
+        else if (sel) cls = cls.replace(' sel', '') + ' wrong';
+      }
+      html += '<label class="' + cls + '">' +
+              '<input type="' + (q.multiple ? 'checkbox' : 'radio') + '"' +
+              ' name="' + esc(q.id) + '" value="' + esc(oid) + '"' +
+              (sel ? ' checked' : '') + (reviewing ? ' disabled' : '') + '>' +
+              '<span>' + (o.code ? '<code>' + esc(o.text) + '</code>' : esc(o.text)) + '</span>';
+      if (reviewing) {
+        var isKey2 = qs && qs.correctIds && qs.correctIds.indexOf(oid) !== -1;
+        if (isKey2) html += '<span class="r-mark ok">correct</span>';
+        else if (sel) html += '<span class="r-mark no">your answer</span>';
+      }
+      html += '</label>';
+    });
+    html += '</div>';
+
+    if (reviewing && qs && qs.explanation) {
+      html += '<div class="r-explain"><strong>Why</strong>' + esc(qs.explanation) + '</div>';
+    }
+    html += '</section>';
+  });
+
+  if (!reviewing) {
+    html += '<div class="r-foot">' +
+            '<button class="r-btn" id="submit">Submit answers</button>' +
+            '<span class="r-status" id="status"></span>' +
+            '</div>';
+  }
+
+  app.innerHTML = html;
+
+  if (!reviewing) {
+    document.getElementById('submit').addEventListener('click', doSubmit);
+    updateStatus();
+  }
+  Runner.measure();
+}
+
+function onChange(e) {
+  var input = e.target;
+  if (!input || input.tagName !== 'INPUT') return;
+  var qid = input.name, q = byId(qid);
+  if (!q) return;
+
+  if (q.multiple) {
+    var set = (answers[qid] || []).slice();
+    var i = set.indexOf(input.value);
+    if (input.checked && i === -1) set.push(input.value);
+    if (!input.checked && i !== -1) set.splice(i, 1);
+    answers[qid] = set;
+  } else {
+    answers[qid] = [input.value];
+  }
+
+  // repaint selection highlight without a full re-render
+  var labels = app.querySelectorAll('input[name="' + CSS.escape(qid) + '"]');
+  Array.prototype.forEach.call(labels, function (inp) {
+    inp.closest('.r-opt').classList.toggle('sel', inp.checked);
+  });
+
+  updateStatus();
+  Runner.saveState({ answers: answers, order: order });
+}
+
+function updateStatus() {
+  var el = document.getElementById('status');
+  if (!el) return;
+  var n = answeredCount();
+  el.textContent = n + ' of ' + order.length + ' answered';
+  el.className = 'r-status' + (n < order.length ? '' : ' ');
+}
+
+function doSubmit() {
+  var n = answeredCount();
+  if (cfg.requireAll !== false && n < order.length) {
+    var el = document.getElementById('status');
+    el.textContent = 'Answer all ' + order.length + ' questions before submitting (' +
+                     (order.length - n) + ' left).';
+    el.className = 'r-status warn';
+    Runner.measure();
+    return;
+  }
+  document.getElementById('submit').disabled = true;
+  Runner.submit({ answers: answers }, {
+    maxScore: cfg.questions.reduce(function (s, q) { return s + (q.marks || 1); }, 0)
+  });
+}
+
+Runner.start({
+  capabilities: { selfSubmit: true, autoScore: false },
+
+  onInit: function (init) {
+    cfg = init.config || {};
+    cfg.questions = cfg.questions || [];
+    mode = init.mode || 'attempt';
+    scoreData = init.score || null;
+
+    if (mode === 'review' && init.response) {
+      answers = init.response.answers || {};
+      order = (init.state && init.state.order) || buildOrder(null);
+    } else {
+      answers = (init.state && init.state.answers) || {};
+      order = buildOrder(init.state);
+    }
+    render();
+  },
+
+  onRequestSubmit: function () {
+    doSubmit();
+  },
+
+  onModeChange: function (m) { mode = m; render(); }
+});
+</script>
+</body>
+</html>
