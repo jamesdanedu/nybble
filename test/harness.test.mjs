@@ -4,7 +4,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert';
 
-const BASE = 'http://localhost:8099';
+const BASE = process.env.BASE || 'http://127.0.0.1:8102';
 const results = [];
 function check(name, fn) { results.push({ name, fn }); }
 
