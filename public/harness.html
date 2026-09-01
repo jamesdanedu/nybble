@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runner harness</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg:#fff; --panel:#f7f7f5; --border:#dcdcd6; --text:#1c1c1a; --muted:#6b6b63;
+    --accent:#2f6f4f; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16171a; --panel:#1e2024; --border:#363940; --text:#e8e8e6;
+            --muted:#9a9ca3; --accent:#6fbf95; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+         color:var(--text); background:var(--bg); }
+  header { padding:14px 20px; border-bottom:1px solid var(--border); background:var(--panel);
+           display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  h1 { font-size:15px; margin:0; font-weight:650; }
+  .tag { font-family:var(--mono); font-size:11px; color:var(--muted);
+         border:1px solid var(--border); padding:2px 7px; border-radius:20px; }
+  main { display:grid; grid-template-columns: 380px 1fr; gap:0; height:calc(100vh - 55px); }
+  @media (max-width:900px){ main{ grid-template-columns:1fr; height:auto; } }
+  .side { border-right:1px solid var(--border); padding:16px 18px; overflow:auto; background:var(--panel); }
+  .stage { padding:0; overflow:auto; }
+  label.f { display:block; font-size:11px; font-weight:650; text-transform:uppercase;
+            letter-spacing:.05em; color:var(--muted); margin:14px 0 5px; }
+  select, textarea, input[type=number] {
+    width:100%; font-family:var(--mono); font-size:12.5px; padding:8px 10px;
+    border:1px solid var(--border); border-radius:7px; background:var(--bg); color:var(--text);
+  }
+  textarea { min-height:230px; resize:vertical; line-height:1.45; white-space:pre; }
+  .row { display:flex; gap:8px; align-items:center; }
+  button { font:inherit; font-weight:600; font-size:13px; padding:8px 14px; border-radius:7px;
+           border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--accent); }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  #log { font-family:var(--mono); font-size:11.5px; line-height:1.5; margin-top:10px;
+         border:1px solid var(--border); border-radius:7px; background:var(--bg);
+         max-height:260px; overflow:auto; }
+  #log div { padding:4px 9px; border-bottom:1px solid var(--border); }
+  #log div:last-child { border-bottom:0; }
+  .dir { font-weight:700; margin-right:6px; }
+  .in  { color:#2f6f4f; }  .out { color:#7a5cc0; }
+  @media (prefers-color-scheme: dark){ .in{color:#6fbf95;} .out{color:#b49ae8;} }
+  .frame-wrap { border-bottom:1px solid var(--border); }
+  .bar { padding:8px 14px; font-size:12px; color:var(--muted); background:var(--panel);
+         border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:center;
+         flex-wrap:wrap; }
+  .pill { font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:20px;
+          border:1px solid var(--border); }
+  .pill.ok { border-color:var(--accent); color:var(--accent); }
+  .hint { font-size:12px; color:var(--muted); margin:8px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Runner harness</h1>
+  <span class="tag">sap-runner-v1</span>
+  <span class="tag" id="capTag">no runner mounted</span>
+</header>
+
+<main>
+  <div class="side">
+    <label class="f" for="runner">Runner</label>
+    <select id="runner">
+      <option value="mcq">mcq — Multiple Choice</option>
+      <option value="numbase">numbase — Number Base Conversion</option>
+    </select>
+
+    <label class="f" for="seed">Attempt seed (context.seed)</label>
+    <input type="number" id="seed" value="20260901">
+
+    <label class="f" for="config">Step config (public — no answer key)</label>
+    <textarea id="config" spellcheck="false"></textarea>
+
+    <div class="row" style="margin-top:12px">
+      <button id="mount">Mount</button>
+      <button id="submitBtn" class="ghost" disabled>requestSubmit</button>
+      <button id="resetBtn" class="ghost">Reset</button>
+    </div>
+    <p class="hint">Submitting marks the response with a local copy of the server
+      scorer and re-mounts the runner in review mode — the same round trip the
+      portal does, without a database.</p>
+
+    <label class="f">Message log</label>
+    <div id="log"></div>
+  </div>
+
+  <div class="stage">
+    <div class="bar">
+      <span class="pill" id="modePill">mode: attempt</span>
+      <span class="pill" id="statePill">state: —</span>
+      <span class="pill" id="scorePill">score: —</span>
+    </div>
+    <div class="frame-wrap" id="frame"></div>
+  </div>
+</main>
+
+<script src="/runners/lib/runner-host.js"></script>
+<script src="/runners/lib/numbase-gen.js"></script>
+<script>
+/* Sample activities. `config` is what a runner receives; `key` is what would
+   live in activity_keys and never leave the server. */
+const SAMPLES = {
+  mcq: {
+    entryUrl: '/runners/mcq/index.html',
+    config: {
+      title: 'Data Representation — quick check',
+      instructions: 'Choose the best answer for each question.',
+      shuffleOptions: true,
+      questions: [
+        { id: 'q1', marks: 1,
+          stem: 'How many distinct values can be represented with 8 bits?',
+          options: [ {id:'a',text:'8'}, {id:'b',text:'128'},
+                     {id:'c',text:'255'}, {id:'d',text:'256'} ] },
+        { id: 'q2', marks: 1,
+          stem: 'What is printed by this code?',
+          code: 'x = 0b1010\ny = 0x0A\nprint(x == y)',
+          options: [ {id:'a',text:'True',code:true}, {id:'b',text:'False',code:true},
+                     {id:'c',text:'TypeError',code:true}, {id:'d',text:'10',code:true} ] },
+        { id: 'q3', marks: 2, multiple: true,
+          stem: 'Which of these are valid hexadecimal digits? Select all that apply.',
+          options: [ {id:'a',text:'9'}, {id:'b',text:'A'},
+                     {id:'c',text:'G'}, {id:'d',text:'F'} ] }
+      ]
+    },
+    key: {
+      q1: { correct: ['d'], marks: 1,
+            explanation: '2^8 = 256 distinct values, 0 to 255 inclusive.' },
+      q2: { correct: ['a'], marks: 1,
+            explanation: '0b1010 and 0x0A are both the integer 10 — the literal notation does not change the value.' },
+      q3: { correct: ['a','b','d'], marks: 2, partial: true,
+            explanation: 'Hex digits are 0-9 and A-F. G is not one of them.' }
+    }
+  },
+  numbase: {
+    entryUrl: '/runners/numbase/index.html',
+    config: {
+      title: 'Binary & Hex — weekly test',
+      count: 6,
+      conversions: ['dec2bin','bin2dec','dec2hex','hex2dec','bin2hex'],
+      minValue: 5, maxValue: 255,
+      marksPerQuestion: 1,
+      timeLimitSecs: 300,
+      showPlaceValues: true
+    },
+    key: {}   // generated questions need no stored key
+  }
+};
+
+const $ = id => document.getElementById(id);
+let slot = null, current = 'mcq', savedState = null, lastResponse = null, lastScore = null;
+let pendingReview = null;   // queued review re-mount, cancelled by any new mount
+
+function log(dir, type, detail) {
+  const el = document.createElement('div');
+  el.innerHTML = '<span class="dir ' + (dir === '←' ? 'in' : 'out') + '">' + dir + '</span>' +
+                 '<b>' + type + '</b>' + (detail ? ' <span style="opacity:.7">' + detail + '</span>' : '');
+  $('log').prepend(el);
+}
+
+function loadSample() {
+  current = $('runner').value;
+  $('config').value = JSON.stringify(SAMPLES[current].config, null, 2);
+}
+
+/* ---- Local copies of the server scorers, so the harness can close the loop -- */
+function scoreMcq(config, key, response) {
+  const answers = response.answers || {};
+  const perQuestion = {}; let total = 0, max = 0;
+  for (const q of config.questions) {
+    const k = key[q.id] || {};
+    const marks = k.marks ?? q.marks ?? 1; max += marks;
+    const correctIds = k.correct || [];
+    const chosen = answers[q.id] || [];
+    const hits = chosen.filter(c => correctIds.includes(c)).length;
+    const misses = chosen.filter(c => !correctIds.includes(c)).length;
+    const exact = hits === correctIds.length && misses === 0 && correctIds.length > 0;
+    let awarded = 0;
+    if (exact) awarded = marks;
+    else if (k.partial && q.multiple && correctIds.length)
+      awarded = Math.max(0, Math.round(((hits - misses) / correctIds.length) * marks * 100) / 100);
+    total += awarded;
+    perQuestion[q.id] = { correct: exact, awarded, marks, chosen, correctIds,
+                          explanation: k.explanation };
+  }
+  return { total, max, perQuestion };
+}
+
+function scoreNumbase(config, seed, response) {
+  const questions = NumbaseGen.generate(config, seed);
+  const answers = response.answers || {};
+  const perQuestion = {}; let total = 0, max = 0;
+  for (const q of questions) {
+    const marks = q.marks || 1; max += marks;
+    const given = String(answers[q.id] ?? '');
+    const correct = NumbaseGen.isCorrect(q, given);
+    const awarded = correct ? marks : 0; total += awarded;
+    perQuestion[q.id] = { correct, awarded, marks, given,
+                          expected: NumbaseGen.expected(q, false) };
+  }
+  return { total, max, perQuestion, elapsedSecs: response.elapsedSecs };
+}
+
+function mount(mode) {
+  clearTimeout(pendingReview);
+  pendingReview = null;
+  if (slot) slot.destroy();
+  $('frame').innerHTML = '';
+  let config;
+  try { config = JSON.parse($('config').value); }
+  catch (e) { alert('Config is not valid JSON: ' + e.message); return; }
+
+  const seed = Number($('seed').value) || 1;
+  $('modePill').textContent = 'mode: ' + mode;
+
+  slot = mountRunner($('frame'), {
+    entryUrl: SAMPLES[current].entryUrl,
+    stepId: 'step1',
+    config,
+    state: mode === 'attempt' ? savedState : null,
+    context: { seed },
+    mode,
+    response: mode === 'review' ? lastResponse : null,
+    score: mode === 'review' ? lastScore : null,
+
+    onReady(caps) {
+      log('←', 'ready', JSON.stringify(caps));
+      $('capTag').textContent = 'caps: ' + (Object.keys(caps).filter(k => caps[k]).join(', ') || 'none');
+      $('submitBtn').disabled = mode !== 'attempt';
+    },
+    onState(state) {
+      savedState = state;
+      log('←', 'state', 'debounced save');
+      $('statePill').textContent = 'state: ' + (JSON.stringify(state).length) + ' bytes';
+    },
+    onSubmit(payload) {
+      log('←', 'submit', 'maxScore=' + payload.maxScore);
+      lastResponse = payload.response;
+      const cfg = JSON.parse($('config').value);
+      lastScore = current === 'mcq'
+        ? scoreMcq(cfg, SAMPLES.mcq.key, payload.response)
+        : scoreNumbase(cfg, Number($('seed').value) || 1, payload.response);
+      $('scorePill').textContent = 'score: ' + lastScore.total + ' / ' + lastScore.max;
+      $('scorePill').classList.add('ok');
+      log('→', 'scored (server-side)', lastScore.total + '/' + lastScore.max);
+      pendingReview = setTimeout(() => { pendingReview = null; mount('review'); }, 250);
+    },
+    onLog(entry) { log('←', 'log', entry.level + ': ' + entry.message); }
+  });
+  log('→', 'mount', SAMPLES[current].entryUrl + ' (' + mode + ')');
+}
+
+$('runner').addEventListener('change', () => {
+  loadSample(); savedState = null; lastResponse = null; lastScore = null;
+  $('scorePill').textContent = 'score: —'; $('scorePill').classList.remove('ok');
+  $('statePill').textContent = 'state: —';
+  mount('attempt');
+});
+$('mount').addEventListener('click', () => mount('attempt'));
+$('submitBtn').addEventListener('click', () => { log('→','requestSubmit',''); slot.requestSubmit(); });
+$('resetBtn').addEventListener('click', () => {
+  savedState = null; lastResponse = null; lastScore = null;
+  $('log').innerHTML = ''; $('scorePill').textContent = 'score: —';
+  $('scorePill').classList.remove('ok'); $('statePill').textContent = 'state: —';
+  mount('attempt');
+});
+
+loadSample();
+mount('attempt');
+</script>
+</body>
+</html>
