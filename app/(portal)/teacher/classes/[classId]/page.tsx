@@ -6,6 +6,7 @@ import { getClassWithMembers, getStudents } from '@/lib/queries';
 import { Card, CardBody, Empty, Page, PageHeader, Section } from '@/components/ui';
 import { BulkAddStudents } from './bulk-add';
 import { AddExistingStudents, MemberActions } from './member-actions';
+import { ResetClassPasswords } from './reset-class';
 
 export const metadata: Metadata = { title: 'Class' };
 export const dynamic = 'force-dynamic';
@@ -96,6 +97,16 @@ export default async function ClassPage({
           takenUsernames={takenUsernames}
         />
       </Section>
+
+      {members.length > 0 && (
+        <Section title="Passwords">
+          <ResetClassPasswords
+            classId={group.id}
+            classLabel={group.name}
+            studentCount={members.length}
+          />
+        </Section>
+      )}
     </Page>
   );
 }

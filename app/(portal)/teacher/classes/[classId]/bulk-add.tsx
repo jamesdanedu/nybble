@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { Alert, Badge, Button, Card, CardBody, Field, Textarea } from '@/components/ui';
+import { CredentialSlips } from '@/components/credential-slips';
 import { parseRoster, assignUsernames } from '@/lib/roster';
 import type { StudentCreateResult } from '@/app/api/admin/students/route';
 
@@ -17,7 +18,7 @@ import type { StudentCreateResult } from '@/app/api/admin/students/route';
  *
  * Passwords come back exactly once, in the response. They are not stored in
  * plain text anywhere, so if this page is closed before printing, the fix is a
- * password reset per student, not a lookup.
+ * reset — per student, or for the whole class — not a lookup.
  */
 export function BulkAddStudents({
   classId,
@@ -64,83 +65,20 @@ export function BulkAddStudents({
     setBusy(false);
   }
 
-  /* --- the printable slip ------------------------------------------------ */
+  /* --- the printable slips ---------------------------------------------- */
   if (result) {
     return (
       <Card>
         <CardBody>
-          <div className="mb-4 no-print">
-            <Alert tone="warn" title="Print or copy this now">
-              These passwords are shown once and are not stored. If you close this without keeping
-              them, you can still reset any student individually — but you cannot get these back.
-            </Alert>
-          </div>
-
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-[18px] font-semibold">
-              {classLabel} — {result.created.length} new account
-              {result.created.length === 1 ? '' : 's'}
-            </h3>
-            <div className="flex gap-2 no-print">
-              <Button variant="secondary" onClick={() => window.print()}>
-                Print
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() =>
-                  navigator.clipboard?.writeText(
-                    result.created
-                      .map((c) => `${c.displayName}\t${c.username}\t${c.password}`)
-                      .join('\n'),
-                  )
-                }
-              >
-                Copy
-              </Button>
-              <Button variant="quiet" onClick={() => setResult(null)}>
-                Done
-              </Button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[15px]">
-              <thead>
-                <tr className="border-b border-line text-left text-[13px] uppercase tracking-wider text-muted">
-                  <th className="py-2 pr-4 font-semibold">Name</th>
-                  <th className="py-2 pr-4 font-semibold">Username</th>
-                  <th className="py-2 font-semibold">Password</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.created.map((c) => (
-                  <tr key={c.username} className="border-b border-line">
-                    <td className="py-2 pr-4">{c.displayName}</td>
-                    <td className="py-2 pr-4 font-mono">{c.username}</td>
-                    <td className="py-2 font-mono">{c.password}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="mt-4 text-[14px] text-muted">
-            Each student is asked to choose their own password the first time they sign in.
-          </p>
-
-          {result.skipped.length > 0 && (
-            <div className="mt-5 no-print">
-              <Alert tone="error" title={`${result.skipped.length} not created`}>
-                <ul className="mt-1 list-disc pl-5">
-                  {result.skipped.map((s, i) => (
-                    <li key={i}>
-                      {s.displayName} — {s.reason}
-                    </li>
-                  ))}
-                </ul>
-              </Alert>
-            </div>
-          )}
+          <CredentialSlips
+            title={`${classLabel} — ${result.created.length} new account${
+              result.created.length === 1 ? '' : 's'
+            }`}
+            intro="Cut along the dashed lines and give each student their own slip."
+            credentials={result.created}
+            skipped={result.skipped}
+            onDone={() => setResult(null)}
+          />
         </CardBody>
       </Card>
     );
