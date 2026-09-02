@@ -1,5 +1,8 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { env } from '@/lib/env';
+import { createClient } from '@/lib/supabase/server';
 import { getSession, isStaff } from '@/lib/session';
 
 /**
@@ -37,7 +40,75 @@ const BUILT: Array<{ state: 'done' | 'next' | 'later'; text: string }> = [
   { state: 'later', text: 'PRIMM step sequences, AI-assisted feedback' },
 ];
 
-export default async function Home() {
+/**
+ * TEMPORARY DIAGNOSTIC — delete once the sign-in problem is understood.
+ *
+ * Reports why getSession() came back null, which is otherwise silent: the page
+ * simply renders signed-out and says nothing about whether the cookie was
+ * missing, the token was rejected, or the profile row could not be read.
+ *
+ * Reachable only at /?debug=1, and it reports cookie NAMES, never values — a
+ * session token pasted into a bug report is a session someone else can use.
+ */
+async function diagnose() {
+  const jar = await cookies();
+  const sbCookies = jar
+    .getAll()
+    .map((c) => c.name)
+    .filter((n) => n.startsWith('sb-'));
+
+  const lines: string[] = [
+    `env.configured        ${env.configured}`,
+    `supabase url set      ${env.supabaseUrl ? 'yes' : 'NO'}`,
+    `anon key set          ${env.supabaseAnonKey ? 'yes' : 'NO'}`,
+    `school slug           ${env.schoolSlug || '(unset)'}`,
+    `sb-* cookies seen     ${sbCookies.length ? sbCookies.join(', ') : 'NONE — the server received no session cookie'}`,
+  ];
+
+  if (!env.configured) {
+    lines.push('stopped               env not configured, so no lookup was attempted');
+    return lines;
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      lines.push(`auth.getUser()        REJECTED — ${error.message}`);
+      return lines;
+    }
+    if (!data.user) {
+      lines.push('auth.getUser()        returned no user (token absent or expired)');
+      return lines;
+    }
+    lines.push(`auth.getUser()        ok — ${data.user.id}`);
+
+    const { data: profile, error: pErr } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .maybeSingle();
+    if (pErr) {
+      lines.push(`profiles lookup       ERROR — ${pErr.message}`);
+    } else if (!profile) {
+      lines.push('profiles lookup       no row visible to this user (missing row, or RLS denied it)');
+    } else {
+      lines.push(
+        `profiles lookup       ok — role=${profile.role} archived=${profile.archived} must_change_password=${profile.must_change_password}`,
+      );
+    }
+  } catch (err) {
+    lines.push(`threw                 ${err instanceof Error ? err.message : String(err)}`);
+  }
+  return lines;
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ debug?: string }>;
+}) {
+  const debug = (await searchParams).debug === '1';
   const session = await getSession();
   if (session) {
     if (session.profile.must_change_password) redirect('/change-password');
@@ -46,6 +117,11 @@ export default async function Home() {
 
   return (
     <main className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16">
+      {debug && (
+        <pre className="mb-8 overflow-x-auto rounded-card bg-raised p-5 font-mono text-[13px] leading-relaxed text-ink">
+          {(await diagnose()).join('\n')}
+        </pre>
+      )}
       <div className="mb-1 flex flex-wrap items-center gap-4">
         <h1 className="font-display text-[54px] font-extrabold leading-none tracking-[-0.035em]">
           Nybble
