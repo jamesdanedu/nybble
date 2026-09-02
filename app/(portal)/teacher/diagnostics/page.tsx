@@ -30,7 +30,12 @@ export default async function DiagnosticsPage() {
   const checks = await runScorerChecks();
 
   const broken = checks.filter((c) => c.verdict === 'fail');
-  const firstFix = checks.find((c) => c.verdict !== 'ok' && c.fix)?.fix;
+  // A failure outranks a warning. The Configuration check can only ever say
+  // "this looks risky"; the probes below it say what actually happened, and
+  // their advice is the specific one. Leading with the warning buries it.
+  const firstFix =
+    checks.find((c) => c.verdict === 'fail' && c.fix)?.fix ??
+    checks.find((c) => c.verdict !== 'ok' && c.fix)?.fix;
 
   // One cause usually breaks several checks at once — an undeployed function
   // fails all three scorer probes. Printing its fix four times (banner plus

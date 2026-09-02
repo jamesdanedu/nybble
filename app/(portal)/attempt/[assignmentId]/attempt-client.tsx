@@ -130,15 +130,31 @@ export function AttemptClient({
         const res = await fetch(env.scoreFunctionUrl, {
           method: 'POST',
           headers: {
-            // No `apikey` header. An Edge Function authenticates from the
-            // Authorization bearer token alone; the extra header was never
-            // required, it is what broke the CORS preflight, and when the
-            // project uses the newer `sb_publishable_...` keys it is not a JWT
-            // at all — which the gateway can reject outright while every
-            // PostgREST call keeps working, because PostgREST accepts both key
-            // formats and the function gateway does not.
+            // Two DIFFERENT credentials, and the call needs both.
+            //
+            //   Authorization  WHO is asking — the student's own access token.
+            //                  The function reads their id out of it.
+            //   apikey         WHICH PROJECT is asking. The gateway checks
+            //                  this before the function runs; a user token
+            //                  does not satisfy it, because it is not an API
+            //                  key.
+            //
+            // This header was removed once, on the reasoning that an Edge
+            // Function authenticates from the bearer token alone. That is true
+            // of the older gateway and false of the current one, which answers
+            //
+            //   No credential matched any of the accepted auth mode(s):
+            //   "publishable", "secret"
+            //
+            // when no API key reaches it. Note what that message names: the
+            // NEW key formats only. A legacy `eyJ...` anon key does not
+            // satisfy it either, so NEXT_PUBLIC_SUPABASE_ANON_KEY has to be
+            // the `sb_publishable_...` key. PostgREST accepts both formats,
+            // which is exactly why the database can keep working while every
+            // submission fails.
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
+            apikey: env.supabaseAnonKey,
           },
           body: JSON.stringify({
             attemptId: attempt.id,

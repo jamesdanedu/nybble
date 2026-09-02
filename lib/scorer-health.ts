@@ -105,6 +105,18 @@ const GATEWAY_FIX =
   'coming from the platform, and the function\u2019s Logs tab in the dashboard will show whether ' +
   'the request reached it at all.';
 
+// The gateway says this, verbatim, when it accepts only the new API key
+// formats and is handed a legacy one — or none at all. It is worth matching on
+// because the remedy is specific and nothing else in this file implies it.
+const NEW_KEYS_ONLY = 'accepted auth mode';
+
+const NEW_KEYS_FIX =
+  'This project\u2019s function gateway accepts only the NEW API key formats. Take the ' +
+  'publishable key (sb_publishable_\u2026) and the secret key (sb_secret_\u2026) from Project ' +
+  'Settings \u2192 API Keys, set them as NEXT_PUBLIC_SUPABASE_ANON_KEY and ' +
+  'SUPABASE_SERVICE_ROLE_KEY in Vercel, and redeploy. A legacy eyJ\u2026 key keeps working for ' +
+  'the database, which is why everything except submitting looks fine.';
+
 const PLATFORM_401_FIX =
   'The refusal carried no message, so it did not come from the function (which always answers ' +
   'with { error }) nor from the gateway\u2019s JWT check (which answers with { message }). Open ' +
@@ -154,21 +166,29 @@ export async function runScorerChecks(): Promise<Check[]> {
   }
   const anonOk = anon.role === 'anon' || anon.role === 'publishable';
   const serviceOk = service.role === 'service_role' || service.role === 'secret';
+  const legacyKeys = anon.role === 'anon' || service.role === 'service_role';
   checks.push({
     name: 'Configuration',
-    verdict: env.configured && anonOk && serviceOk ? 'ok' : 'fail',
-    summary: env.configured
-      ? 'Supabase URL and keys are set.'
-      : 'Supabase is not configured — the portal has no database.',
+    verdict: !env.configured || !anonOk || !serviceOk ? 'fail' : legacyKeys ? 'warn' : 'ok',
+    summary: !env.configured
+      ? 'Supabase is not configured — the portal has no database.'
+      : legacyKeys
+        ? 'Keys are set, but at least one is a legacy JWT key.'
+        : 'Supabase URL and keys are set.',
     detail: [
       `NEXT_PUBLIC_SUPABASE_URL      ${env.supabaseUrl || 'not set'}`,
       `NEXT_PUBLIC_SUPABASE_ANON_KEY ${anon.shape}${anon.role ? `, role "${anon.role}"` : ''}`,
       `SUPABASE_SERVICE_ROLE_KEY     ${service.shape}${service.role ? `, role "${service.role}"` : ''}`,
       `scorer URL                    ${url}`,
     ].join('\n'),
-    fix: serviceOk
-      ? undefined
-      : 'SUPABASE_SERVICE_ROLE_KEY must be the secret / service_role key, not the publishable one.',
+    fix: !serviceOk
+      ? 'SUPABASE_SERVICE_ROLE_KEY must be the secret / service_role key, not the publishable one.'
+      : legacyKeys
+        ? 'Legacy keys still work for the database, but a project whose function gateway has moved ' +
+          'to the new key system will refuse them — and only submitting breaks, which makes it look ' +
+          'like a scorer fault. If the checks below fail, replace them with the sb_publishable_… and ' +
+          'sb_secret_… keys from Project Settings → API Keys.'
+        : undefined,
   });
 
   /* ---- 2. Is the function deployed? ------------------------------------ */
@@ -226,6 +246,7 @@ export async function runScorerChecks(): Promise<Check[]> {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${env.supabaseAnonKey}`,
+        apikey: env.supabaseAnonKey,
       },
       body: JSON.stringify({}),
     });
@@ -245,8 +266,9 @@ export async function runScorerChecks(): Promise<Check[]> {
       detail:
         `POST ${url}\nAuthorization: Bearer <anon key>\n\n` +
         `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
-      fix:
-        kind === 'gateway-401'
+      fix: body.includes(NEW_KEYS_ONLY)
+        ? NEW_KEYS_FIX
+        : kind === 'gateway-401'
           ? GATEWAY_FIX
           : kind === 'platform-401'
             ? PLATFORM_401_FIX
@@ -283,6 +305,7 @@ export async function runScorerChecks(): Promise<Check[]> {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
+          apikey: env.supabaseAnonKey,
         },
         body: JSON.stringify({
           attemptId: '00000000-0000-0000-0000-000000000000',
@@ -314,15 +337,17 @@ export async function runScorerChecks(): Promise<Check[]> {
           `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
         fix: worked
           ? undefined
-          : kind === 'not-deployed'
-            ? NOT_DEPLOYED_FIX
-            : kind === 'gateway-401'
-              ? GATEWAY_FIX
-              : kind === 'platform-401'
-                ? PLATFORM_401_FIX
-                : kind === 'function-401'
-                  ? 'The function refused your token. Check that the function belongs to this same Supabase project.'
-                  : undefined,
+          : body.includes(NEW_KEYS_ONLY)
+            ? NEW_KEYS_FIX
+            : kind === 'not-deployed'
+              ? NOT_DEPLOYED_FIX
+              : kind === 'gateway-401'
+                ? GATEWAY_FIX
+                : kind === 'platform-401'
+                  ? PLATFORM_401_FIX
+                  : kind === 'function-401'
+                    ? 'The function refused your token. Check that the function belongs to this same Supabase project.'
+                    : undefined,
       });
     } catch (e) {
       checks.push({
