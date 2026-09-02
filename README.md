@@ -137,6 +137,25 @@ network being down — so the portal can only say "the marking service did not
 answer". Open the browser console on the attempt page: a CORS error there means
 the deploy or `PORTAL_ORIGIN`, not the student's wifi.
 
+### Deploying `score` without the CLI
+
+The dashboard's Edge Functions editor works too, but `score` is four files with
+relative imports between them. Generate a single-file equivalent first:
+
+```bash
+node scripts/bundle-score.mjs > score.bundled.ts
+```
+
+Paste that as the function body, name the function exactly `score` (the portal
+calls `/functions/v1/score`), and leave JWT verification ON — it is the gateway
+check that stops a tokenless caller reaching the answer keys.
+
+That file is generated and must never be edited by hand. A hand-maintained
+single-file copy is a second implementation of the scorer that quietly stops
+matching the first, and the symptom is the same answer earning different marks
+depending on how the function happened to be deployed. Change the real files
+and re-run the script.
+
 ### First school and teacher
 
 ```sql
