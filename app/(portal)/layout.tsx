@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireStudentOrStaff, isStaff } from '@/lib/session';
+import { requireStudentOrStaff, isStaff, isAdmin } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { NavLinks, type NavItem } from '@/components/nav';
 
@@ -32,6 +32,12 @@ export default async function PortalLayout({ children }: { children: React.React
       { href: '/teacher/review', label: 'Review', count: count ?? 0 },
       { href: '/dashboard', label: 'My work' },
     ];
+
+    // Admin only. A teacher has no business renaming the school, and the page
+    // itself re-checks — hiding the link is a courtesy, not the control.
+    if (isAdmin(profile)) {
+      items.splice(items.length - 1, 0, { href: '/teacher/school', label: 'School' });
+    }
   } else {
     items = [{ href: '/dashboard', label: 'My work' }];
   }
