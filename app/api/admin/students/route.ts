@@ -70,13 +70,35 @@ export async function POST(request: NextRequest) {
   }
 
   // The school's slug forms the synthetic email domain.
-  const { data: school } = await admin
+  if (!profile.school_id) {
+    return NextResponse.json(
+      { error: 'Your profile has no school. Ask an admin to set one before adding students.' },
+      { status: 500 },
+    );
+  }
+  const { data: school, error: schoolError } = await admin
     .from('schools')
     .select('id, slug')
     .eq('id', profile.school_id)
-    .single();
-  if (!school) {
-    return NextResponse.json({ error: 'Your profile has no school.' }, { status: 500 });
+    .maybeSingle();
+  if (schoolError || !school) {
+    // The profile names a school and the service-role client cannot read it.
+    // Exactly two things do that, and the message names both rather than
+    // picking one: either the key is not really the service role (a
+    // publishable key is subject to row-level security, so it reads nothing
+    // and reports nothing), or the school row that school_id points at is
+    // gone. Include the id so the second is one query away from settled.
+    return NextResponse.json(
+      {
+        error:
+          `The server could not read school ${profile.school_id} with its admin key. ` +
+          'Either SUPABASE_SERVICE_ROLE_KEY is not the secret / service_role key ' +
+          '(a publishable key reads nothing and says nothing, because row-level ' +
+          'security applies to it), or that school row no longer exists.' +
+          (schoolError ? ` (${schoolError.message})` : ''),
+      },
+      { status: 500 },
+    );
   }
 
   // If a class was named, it must belong to the caller's school. The service
