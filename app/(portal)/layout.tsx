@@ -39,7 +39,7 @@ export default async function PortalLayout({ children }: { children: React.React
   return (
     <div className="min-h-screen">
       <header className="border-b border-line bg-surface no-print">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 sm:px-7">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
           <Link
             href={staff ? '/teacher' : '/dashboard'}
             className="text-[17px] font-bold tracking-tight"

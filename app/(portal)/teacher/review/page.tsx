@@ -20,7 +20,7 @@ export default async function ReviewQueuePage() {
   const queue = await getReviewQueue();
 
   return (
-    <Page wide>
+    <Page>
       <PageHeader
         title="Review queue"
         subtitle={

@@ -41,7 +41,7 @@ export default async function TeacherHome() {
   const nothingSetUp = (classes.length === 0 && (activityCount ?? 0) === 0);
 
   return (
-    <Page wide>
+    <Page>
       <PageHeader
         title={profile.display_name}
         subtitle="Everything you need before the bell."
