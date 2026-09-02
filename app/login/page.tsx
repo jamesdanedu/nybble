@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { env } from '@/lib/env';
+import { resolveSchoolForLogin } from '@/lib/schools';
 import { Alert, Card, CardBody } from '@/components/ui';
 import { LoginForm } from './login-form';
 
@@ -13,10 +14,16 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
 
-  // `?school=` lets one deployment serve more than one school without the
-  // student having to type `username@slug`. The slug is not secret — the whole
-  // security boundary is RLS on school_id, not knowledge of the slug.
-  const schoolSlug = (params.school ?? env.schoolSlug ?? '').trim().toLowerCase();
+  // Which school a bare username belongs to. Read from the database rather than
+  // from configuration: with one school in the deployment, that school IS the
+  // answer, and an environment variable disagreeing with it is a mistake rather
+  // than an intention. `?school=` still wins, and the env var remains the
+  // fallback for a deployment with no service role key to look anything up with.
+  //
+  // The slug is not secret — the security boundary is RLS on school_id, not
+  // knowledge of the slug.
+  const school = await resolveSchoolForLogin(params.school);
+  const schoolSlug = school.slug;
 
   // Only ever redirect within this app: an open redirect on a login page is a
   // gift to a phisher.
@@ -57,7 +64,33 @@ export default async function LoginPage({
               deployment, so nobody can sign in. See <code className="font-mono">.env.example</code>.
             </Alert>
           ) : (
-            <LoginForm schoolSlug={schoolSlug} schoolLabel={schoolSlug} next={next} />
+            <>
+              {school.choices.length > 1 && (
+                <div className="mb-5">
+                  <p className="mb-2 text-[14px] text-muted">
+                    {school.slug ? 'Signing in to' : 'Which school?'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {school.choices.map((c) => (
+                      <a
+                        key={c.id}
+                        href={`/login?school=${encodeURIComponent(c.slug)}${
+                          next !== '/' ? `&next=${encodeURIComponent(next)}` : ''
+                        }`}
+                        className={
+                          c.slug === school.slug
+                            ? 'inline-flex min-h-[44px] items-center rounded-full bg-accent px-4 text-[15px] font-semibold text-accent-ink'
+                            : 'inline-flex min-h-[44px] items-center rounded-full border border-line px-4 text-[15px] text-ink hover:border-accent'
+                        }
+                      >
+                        {c.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <LoginForm schoolSlug={schoolSlug} schoolLabel={school.label} next={next} />
+            </>
           )}
         </CardBody>
       </Card>
