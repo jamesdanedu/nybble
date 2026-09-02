@@ -1,0 +1,339 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 01 Output",
+      "topic": "Programming — Python",
+      "description": "Everything print() can do: strings, variables, both together, joining with +, tabs and blank lines, and formatted numbers. Six Parsons problems and an MCQ. No loops and no conditions yet, so nothing here is indented — the whole job is order.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Print a menu",
+          "weight": 1,
+          "config": {
+            "title": "Print a menu",
+            "instructions": "Put the four lines in the order the menu should appear on screen. Nothing is indented in this activity — every line starts at the left.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "print(\"MAIN MENU\")" },
+              { "id": "b", "text": "print(\"1. New game\")" },
+              { "id": "c", "text": "print(\"2. Load game\")" },
+              { "id": "d", "text": "print(\"3. Quit\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Python runs the lines from top to bottom, one after another, so the order you write the print statements in is exactly the order they appear on screen.",
+            "check": { "stdout": "MAIN MENU\n1. New game\n2. Load game\n3. Quit\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Print strings and variables together",
+          "weight": 1,
+          "config": {
+            "title": "Print strings and variables together",
+            "instructions": "A variable has to be given its value before anything can print it. Put the lines in an order where that is always true.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "name = \"Aoife\"" },
+              { "id": "b", "text": "print(\"Name:\", name)" },
+              { "id": "c", "text": "age = 17" },
+              { "id": "d", "text": "print(\"Age:\", age)" },
+              { "id": "e", "text": "print(\"Next year she will be\", age + 1)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "print() can take several things at once, separated by commas, and it puts a space between them for you. The comma also lets you mix a string and a number without converting anything. Move either print above the line that creates the variable it uses and Python stops with a NameError.",
+            "check": { "stdout": "Name: Aoife\nAge: 17\nNext year she will be 18\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Join strings with +",
+          "weight": 1,
+          "config": {
+            "title": "Join strings with +",
+            "instructions": "Build a full name out of two separate strings. Three of these lines are wrong — one of them looks almost right.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "first = \"Ada\"" },
+              { "id": "b", "text": "last = \"Lovelace\"" },
+              { "id": "c", "text": "full = first + \" \" + last" },
+              { "id": "d", "text": "print(\"Full name: \" + full)" },
+              { "id": "e", "text": "print(\"Letters:\", len(full))" },
+              { "id": "d1", "text": "full = first + last" },
+              { "id": "d2", "text": "print(\"Letters:\" + len(full))" },
+              { "id": "d3", "text": "full = first, \" \", last" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "+ glues strings together exactly as they are, so the space between the names has to be put there on purpose — first + last would give \"AdaLovelace\". + only works between two strings: \"Letters:\" + len(full) tries to add a number to a string and stops with a TypeError, which is why the last line uses a comma instead.",
+            "check": { "stdout": "Full name: Ada Lovelace\nLetters: 12\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Tabs and blank lines",
+          "weight": 1,
+          "config": {
+            "title": "Tabs and blank lines",
+            "instructions": "Lay out a small price list in columns. \\t is a tab and \\n is a new line — both go inside the quotes.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "print(\"Report\")" },
+              { "id": "b", "text": "print(\"======\")" },
+              { "id": "c", "text": "print(\"Item\\tPrice\")" },
+              { "id": "d", "text": "print(\"Tea\\t1.50\")" },
+              { "id": "e", "text": "print(\"Coffee\\t2.00\")" },
+              { "id": "f", "text": "print(\"\\nThank you\")" },
+              { "id": "d1", "text": "print(\"Item  Price\")" },
+              { "id": "d2", "text": "print(\"Item\\nPrice\")" },
+              { "id": "d3", "text": "print(\"\\tThank you\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "\\t is one tab character, so the columns line up however long the words are — two spaces typed by hand would not. \\n starts a new line, so \"\\nThank you\" leaves a blank line above the message. \\n in the middle of the heading would split it over two lines instead of making two columns.",
+            "check": { "stdout": "Report\n======\nItem\tPrice\nTea\t1.50\nCoffee\t2.00\n\nThank you\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Formatting numbers in a print",
+          "weight": 1,
+          "config": {
+            "title": "Formatting numbers in a print",
+            "instructions": "Print prices to exactly two decimal places using an f-string. Watch the f — one of the wrong lines is missing it.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "price = 2.5" },
+              { "id": "b", "text": "quantity = 3" },
+              { "id": "c", "text": "total = price * quantity" },
+              { "id": "d", "text": "print(f\"{quantity} coffees at €{price:.2f}\")" },
+              { "id": "e", "text": "print(f\"Total: €{total:.2f}\")" },
+              { "id": "d1", "text": "print(\"Total: €{total:.2f}\")" },
+              { "id": "d2", "text": "total = price + quantity" },
+              { "id": "d3", "text": "print(f\"Total: €{total:2f}\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "The f before the opening quote is what makes Python look inside the { }. Without it the line prints the curly brackets literally. :.2f means \"two digits after the point\", which is what turns 7.5 into 7.50; :2f without the dot means something else entirely. The total has to be worked out before the line that prints it.",
+            "check": { "stdout": "3 coffees at €2.50\nTotal: €7.50\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "A receipt, putting it all together",
+          "weight": 1,
+          "config": {
+            "title": "A receipt, putting it all together",
+            "instructions": "Everything from this section at once: variables, a repeated string, a tab, a formatted price and a blank line.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "shop = \"Nybble Cafe\"" },
+              { "id": "b", "text": "item = \"Latte\"" },
+              { "id": "c", "text": "price = 3.75" },
+              { "id": "d", "text": "print(shop)" },
+              { "id": "e", "text": "print(\"-\" * len(shop))" },
+              { "id": "f", "text": "print(f\"{item}\\t€{price:.2f}\")" },
+              { "id": "g", "text": "print(\"\\nThank you for your visit\")" },
+              { "id": "d1", "text": "print(\"-\" * shop)" },
+              { "id": "d2", "text": "print(item + \"\\t\" + price)" },
+              { "id": "d3", "text": "print(f\"{item}\\t€{price}\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "\"-\" * len(shop) repeats the dash once per character, so the underline is always exactly as wide as the name. Multiplying a string by another string is meaningless and stops the program. price is a number, so it cannot be joined with + — an f-string handles the mixing, and :.2f is what keeps the trailing zero on a price like 3.70.",
+            "check": { "stdout": "Nybble Cafe\n-----------\nLatte\t€3.75\n\nThank you for your visit\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "print() — the details",
+          "weight": 1,
+          "config": {
+            "title": "print() — the details",
+            "instructions": "Five questions on what print() does with commas, plus signs and escape characters.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What appears on screen?",
+                "code": "print(\"Total\", 42)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Total 42" },
+                  { "id": "b", "text": "Total42" },
+                  { "id": "c", "text": "Total,42" },
+                  { "id": "d", "text": "An error, because you cannot print a string and a number together" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What appears on screen?",
+                "code": "print(\"5\" + \"3\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "53" },
+                  { "id": "b", "text": "8" },
+                  { "id": "c", "text": "5 3" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Which line stops the program with a TypeError?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "print(\"Age: \" + 17)", "code": true },
+                  { "id": "b", "text": "print(\"Age:\", 17)", "code": true },
+                  { "id": "c", "text": "print(\"Age: \" + str(17))", "code": true },
+                  { "id": "d", "text": "print(f\"Age: {17}\")", "code": true }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What does \\t do inside a string?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Inserts a tab, so text after it lines up in a column" },
+                  { "id": "b", "text": "Inserts a new line" },
+                  { "id": "c", "text": "Prints the two characters backslash and t" },
+                  { "id": "d", "text": "Inserts exactly four spaces" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "How many lines does this print in total, counting the blank one?",
+                "code": "print(\"One\")\nprint(\"\\nTwo\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "3" },
+                  { "id": "b", "text": "2" },
+                  { "id": "c", "text": "4" },
+                  { "id": "d", "text": "1" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "A comma inside print() separates two things to print and puts a single space between them. It also means the number never has to be converted."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Both of those are strings, not numbers — the quotes make them text. + on two strings joins them, giving 53."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "+ cannot join a string to a number. str(17) turns it into text first, a comma sidesteps the problem, and an f-string does the conversion for you."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "\\t is a single tab character. It moves to the next tab stop, so columns line up no matter how long the words are — typed spaces would not."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "\"One\" is one line, the \\n makes a blank line, and \"Two\" is the third."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

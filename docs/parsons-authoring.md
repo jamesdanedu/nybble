@@ -35,10 +35,17 @@ Steps go in rising order, and that order is the teaching:
 | 3 | solution depth + 1 | 2–3 | Order, indentation, and telling right from nearly-right. |
 | 4 | solution depth + 1 | 2–3 | All of the above, over a program that extends one the student already solved. |
 
-Rung 1 only exists for sections whose programs are genuinely flat — output,
-input, assignment, maths. From conditionals onwards a program has a body, so
-those sections start at rung 2 and get their gentleness from length instead:
-`06-iteration.json` opens with a four-line loop and one indented line.
+Sections split into two kinds, and each skips a rung.
+
+**Straight-line sections** — output, input, assignment, maths operations — have
+no blocks at all, so `maxIndent` stays `0` throughout and rung 2 does not exist.
+They run rung 1, then go straight to rung 3 and let the distractors do the
+climbing.
+
+**Sections with a body** — conditionals onwards — cannot be flat, so rung 1 does
+not exist either. They start at rung 2 and get their gentleness from length:
+`05-conditionals.json` opens with a five-line if/else, `06-iteration.json` with
+a four-line loop and one indented line.
 
 Give `maxIndent` headroom on the later rungs. Clamping it to the exact depth is
 a scaffold — it quietly rules out the mistake of going a level too deep — so
@@ -57,7 +64,13 @@ this catalogue and add to it as classes go on:
 
 | Section | Distractor to use | The misconception |
 | --- | --- | --- |
+| Output | `print("Letters:" + len(word))` | `+` cannot join a string to a number |
+| Output | `print(f"...")` with the `f` removed | the braces only mean something in an f-string |
 | Input | `age = input("Age: ")` where arithmetic follows | `input()` always returns a string |
+| Input | `word.upper` without the brackets | a method has to be called, not just named |
+| Assignment | `total =+ 25` | reads as "assign positive 25" — runs, and is wrong |
+| Assignment | `b = a` before `a` has been copied | a swap needs somewhere to put the first value |
+| Maths | `radius * 2` where `radius ** 2` is meant | doubling is not squaring |
 | Assignment / maths | `average = a + b / 2` | precedence, missing brackets |
 | Conditionals | `if x = 5:` | assignment mistaken for comparison |
 | Conditionals | a second `if` where `elif` belongs | independent tests vs one decision |
@@ -104,16 +117,46 @@ hand-write the expected output: run the program once and paste what it actually
 produced, then read it to confirm that is what you meant. `check` is optional;
 without a `stdout` the step is still compiled, just not run.
 
-## 5. Conventions
+## 5. Is the key's order the only order?
+
+A straight-line program can easily hold two lines that could be written either
+way round — two setup values, or an assignment sitting beside a print that does
+not use it. The marker cannot see that. It matches the key, so a student who
+picks the other order loses marks for a program that works.
+
+`--order` finds them empirically rather than by guessing: it swaps each adjacent
+pair at the same indent, re-runs, and warns when the output is unchanged.
+
+```bash
+npm run check:parsons -- --order examples/python/*.json
+```
+
+It is off by default and warning-only, because the answer is usually to live
+with it. Under `partial` marking one transposed pair costs a single position in
+the longest common subsequence — about a tenth of the marks on a six-line
+problem — and forcing every program into a strictly unique order means
+interleaving prints between assignments in ways nobody writes by hand. Across
+sections 01–06 it reports 28 such pairs, and all of them are setup lines.
+
+What to do with a warning, in order of preference: make the second line actually
+use the first (`each = sweets // children` before the print that reports it);
+say the order in the instructions ("set both numbers up first"); or accept it.
+What not to do is contort the program — students read this code.
+
+## 6. Conventions
 
 - **One file per section**, `examples/python/NN-name.json`, numbered in
   checklist order:
 
   | | | | |
   | --- | --- | --- | --- |
-  | 01 output | 04 conditionals | 07 strings | 10 functions |
-  | 02 input | 05 — | 08 randomness | 11 file handling |
-  | 03 maths operations | 06 iteration | 09 lists and dictionaries | 12 time and date |
+  | 01 output | 04 maths operations | 07 strings | 10 functions |
+  | 02 input | 05 conditionals | 08 randomness | 11 file handling |
+  | 03 assignment | 06 iteration | 09 lists and dictionaries | 12 time and date |
+
+  Two checklist items sit under *Maths operations* but are really about
+  assignment, so they are taught in 03: interchanging two variables, and the
+  shorthand operators.
 
 - **`topic`** is `"Programming — Python"` for all of them, so the activity bank
   groups the year's work together. **`title`** is `"Python — NN Section"`.

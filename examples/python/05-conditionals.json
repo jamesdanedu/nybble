@@ -1,0 +1,353 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 05 Conditionals",
+      "topic": "Programming — Python",
+      "description": "The first section with a block in it, so indentation starts to matter: if, elif and else, the six comparison operators, and and/or/not. Six Parsons problems and an MCQ.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Old enough to vote",
+          "weight": 1,
+          "config": {
+            "title": "Old enough to vote",
+            "instructions": "Your first indented program. The two print lines belong inside the if and the else — use the indent buttons to put them there.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "age = int(input(\"How old are you? \"))" },
+              { "id": "b", "text": "if age >= 18:" },
+              { "id": "c", "text": "print(\"You can vote\")" },
+              { "id": "d", "text": "else:" },
+              { "id": "e", "text": "print(\"Not yet\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The colon at the end of a line means a block follows, and the indent is what says which lines are in it. else lines up with its if at indent 0 — it is not inside the if, it is the other half of the same decision. Exactly one of the two messages ever prints.",
+            "check": { "stdin": "17\n", "stdout": "How old are you? Not yet\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Pass, near miss or fail",
+          "weight": 1,
+          "config": {
+            "title": "Pass, near miss or fail",
+            "instructions": "Three outcomes from one mark. The order of the tests decides the answer, so think about which one has to be asked first.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "mark = int(input(\"Mark: \"))" },
+              { "id": "b", "text": "if mark >= 40:" },
+              { "id": "c", "text": "print(\"Pass\")" },
+              { "id": "d", "text": "elif mark >= 30:" },
+              { "id": "e", "text": "print(\"Near miss\")" },
+              { "id": "f", "text": "else:" },
+              { "id": "g", "text": "print(\"Fail\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 }
+            ],
+            "distractors": [],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Python tries the tests from the top and stops at the first one that is true, so the higher threshold has to be asked first. The other way round, a mark of 90 would match >= 30 and be reported as a near miss. if, elif and else all sit at the same indent, because together they are one decision with three branches.",
+            "check": { "stdin": "35\n", "stdout": "Mark: Near miss\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Check a password",
+          "weight": 1,
+          "config": {
+            "title": "Check a password",
+            "instructions": "One of the wrong lines is the single most common mistake in a first conditional. The last line has to run whatever happens.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "password = input(\"Password: \")" },
+              { "id": "b", "text": "if password == \"nybble\":" },
+              { "id": "c", "text": "print(\"Welcome\")" },
+              { "id": "d", "text": "else:" },
+              { "id": "e", "text": "print(\"Access denied\")" },
+              { "id": "f", "text": "print(\"Goodbye\")" },
+              { "id": "d1", "text": "if password = \"nybble\":" },
+              { "id": "d2", "text": "if password != \"nybble\":" },
+              { "id": "d3", "text": "elif password == \"nybble\":" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "== asks a question; = gives a value, and Python refuses it in an if with a syntax error. != would swap the two messages over. An elif cannot come first — there has to be an if above it for it to be an alternative to. \"Goodbye\" is back at indent 0, outside the whole decision, so it prints either way.",
+            "check": { "stdin": "nybble\n", "stdout": "Password: Welcome\nGoodbye\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Two conditions at once",
+          "weight": 1,
+          "config": {
+            "title": "Two conditions at once",
+            "instructions": "Go for a walk only if it is warm enough AND it is not raining. Both parts have to be true.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "temperature = float(input(\"Temperature: \"))" },
+              { "id": "b", "text": "raining = input(\"Is it raining? \") == \"yes\"" },
+              { "id": "c", "text": "if temperature > 15 and not raining:" },
+              { "id": "d", "text": "print(\"Go for a walk\")" },
+              { "id": "e", "text": "else:" },
+              { "id": "f", "text": "print(\"Stay in\")" },
+              { "id": "d1", "text": "if temperature > 15 or not raining:" },
+              { "id": "d2", "text": "if temperature > 15 and raining:" },
+              { "id": "d3", "text": "raining = input(\"Is it raining? \")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "and needs both sides true; or would send you out in the rain as long as it was warm. not flips True to False, so \"not raining\" is true exactly when it is dry. The comparison on the second line is doing real work: input() gives back the text \"yes\", and == turns that into a True or False that not can be used on.",
+            "check": { "stdin": "19\nno\n", "stdout": "Temperature: Is it raining? Go for a walk\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "A decision inside a decision",
+          "weight": 1,
+          "config": {
+            "title": "A decision inside a decision",
+            "instructions": "The distinction is only worth checking for someone who has already passed, so that if goes inside the first one. This needs two levels of indent.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "mark = int(input(\"Mark: \"))" },
+              { "id": "b", "text": "if mark >= 40:" },
+              { "id": "c", "text": "print(\"Pass\")" },
+              { "id": "d", "text": "if mark >= 85:" },
+              { "id": "e", "text": "print(\"With distinction\")" },
+              { "id": "f", "text": "else:" },
+              { "id": "g", "text": "print(\"Fail\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 2 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 }
+            ],
+            "distractors": [],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The indent is the only thing saying which if the else belongs to. At indent 0 it pairs with the outer if, so it means \"did not pass\". Move it in to indent 1 and it would pair with the inner if instead, and every passing mark under 85 would be reported as a fail.",
+            "check": { "stdin": "91\n", "stdout": "Mark: Pass\nWith distinction\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Ticket prices",
+          "weight": 1,
+          "config": {
+            "title": "Ticket prices",
+            "instructions": "Everything so far in one program: input, arithmetic, or, elif, and a line that always runs. One of the wrong lines turns the decision into two separate ones.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "price = float(input(\"Price: \"))" },
+              { "id": "b", "text": "age = int(input(\"Age: \"))" },
+              { "id": "c", "text": "if age < 16 or age >= 65:" },
+              { "id": "d", "text": "price = price * 0.5" },
+              { "id": "e", "text": "print(\"Concession applied\")" },
+              { "id": "f", "text": "elif age < 26:" },
+              { "id": "g", "text": "price = price * 0.8" },
+              { "id": "h", "text": "print(\"Student rate applied\")" },
+              { "id": "i", "text": "print(f\"You pay €{price:.2f}\")" },
+              { "id": "d1", "text": "if age < 16 and age >= 65:" },
+              { "id": "d2", "text": "if age < 26:" },
+              { "id": "d3", "text": "price = price - 0.5" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 1 },
+              { "id": "i", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 9,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "No one is both under 16 and over 65, so and there would give everybody full price. elif is what stops a 14-year-old getting the concession and then the student rate on top — a second plain if would run its own test regardless of what the first one decided. price * 0.5 takes half off; price - 0.5 takes fifty cent off. The last line is at indent 0, so the price is printed whichever branch ran, or none of them.",
+            "check": { "stdin": "20\n19\n", "stdout": "Price: Age: Student rate applied\nYou pay €16.00\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Comparisons and booleans",
+          "weight": 1,
+          "config": {
+            "title": "Comparisons and booleans",
+            "instructions": "Five questions on the comparison operators, True and False, and how and, or and not combine them.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "print(10 == 5 + 5)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "True", "code": true },
+                  { "id": "b", "text": "False", "code": true },
+                  { "id": "c", "text": "10" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What happens when this line runs?",
+                "code": "if score = 10:",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "A syntax error — a condition needs ==, not =" },
+                  { "id": "b", "text": "It works and tests whether score is 10" },
+                  { "id": "c", "text": "It works and sets score to 10" },
+                  { "id": "d", "text": "It works but is always False" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "age is 30. Which of these is False?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "age != 30", "code": true },
+                  { "id": "b", "text": "age >= 30", "code": true },
+                  { "id": "c", "text": "age <= 30", "code": true },
+                  { "id": "d", "text": "age == 30", "code": true }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "mark is 50. What is printed?",
+                "code": "if mark > 80:\n    print(\"A\")\nelif mark > 40:\n    print(\"B\")\nelif mark > 20:\n    print(\"C\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "B" },
+                  { "id": "b", "text": "B and then C" },
+                  { "id": "c", "text": "C" },
+                  { "id": "d", "text": "Nothing" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What is printed?",
+                "code": "print(not (3 > 1 or 2 > 5))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "False", "code": true },
+                  { "id": "b", "text": "True", "code": true },
+                  { "id": "c", "text": "An error, because or needs two comparisons of the same kind" },
+                  { "id": "d", "text": "Nothing is printed" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "5 + 5 is worked out first, giving 10, and 10 == 10 is True. A comparison is an expression whose value is True or False, so it can be printed like any other value."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Python will not accept an assignment where a condition belongs, so it stops before the program runs at all. In some other languages this is legal and causes a bug that is very hard to find."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "!= means \"is not equal to\", and 30 is equal to 30, so it is False. Both >= and <= are True, because either one is satisfied by being equal."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Python stops at the first test that is true. 50 is not over 80, is over 40, so B prints and the rest of the chain is skipped — that is what makes elif different from three separate ifs."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "3 > 1 is True, so the or is True whatever the other side says. not True is False."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

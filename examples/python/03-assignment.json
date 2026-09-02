@@ -1,0 +1,309 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 03 Assignment",
+      "topic": "Programming — Python",
+      "description": "What = actually does: take the value on the right, put it in the box on the left. Reassignment, building a value up step by step, swapping two variables, and the shorthand operators. Five Parsons problems and an MCQ. Order matters more here than anywhere else in the early checklist.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "A score that changes",
+          "weight": 1,
+          "config": {
+            "title": "A score that changes",
+            "instructions": "Follow one variable as it is given new values. Each print has to report the value at that moment, so the order is fixed.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "score = 0" },
+              { "id": "b", "text": "print(\"Starting score:\", score)" },
+              { "id": "c", "text": "score = score + 10" },
+              { "id": "d", "text": "print(\"After a goal:\", score)" },
+              { "id": "e", "text": "score = score - 3" },
+              { "id": "f", "text": "print(\"After a penalty:\", score)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "score = score + 10 is not a claim that the two sides are equal — it works out the right-hand side using the old value, then stores the answer back in score. A variable holds one value at a time, so each print shows whatever was put there most recently.",
+            "check": { "stdout": "Starting score: 0\nAfter a goal: 10\nAfter a penalty: 7\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Build up a message",
+          "weight": 1,
+          "config": {
+            "title": "Build up a message",
+            "instructions": "Each line adds a little more to the same variable. Only the finished message is printed.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "message = \"Hello\"" },
+              { "id": "b", "text": "message = message + \", world\"" },
+              { "id": "c", "text": "message = message + \"!\"" },
+              { "id": "d", "text": "print(message)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The same variable is read and then written on every line, so each one depends on the one above it. Swap the middle two and the message comes out as \"Hello!, world\" — still a working program, just the wrong one.",
+            "check": { "stdout": "Hello, world!\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Shorthand operators",
+          "weight": 1,
+          "config": {
+            "title": "Shorthand operators",
+            "instructions": "+= and friends are a shorter way of writing the same thing as p1. One of the wrong lines runs perfectly well and still gives the wrong answer — look closely at it.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "total = 100" },
+              { "id": "b", "text": "total += 25" },
+              { "id": "c", "text": "print(\"After the deposit:\", total)" },
+              { "id": "d", "text": "total -= 40" },
+              { "id": "e", "text": "print(\"After the withdrawal:\", total)" },
+              { "id": "f", "text": "total *= 2" },
+              { "id": "g", "text": "print(\"After doubling:\", total)" },
+              { "id": "d1", "text": "total =+ 25" },
+              { "id": "d2", "text": "total = += 25" },
+              { "id": "d3", "text": "total++" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "total += 25 means exactly total = total + 25. The dangerous one is total =+ 25, with the symbols the wrong way round: Python reads it as \"assign positive 25\", so it runs without complaint and quietly throws the old total away. total++ does not exist in Python at all, and total = += 25 is not valid anywhere.",
+            "check": { "stdout": "After the deposit: 125\nAfter the withdrawal: 85\nAfter doubling: 170\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Swap two variables",
+          "weight": 1,
+          "config": {
+            "title": "Swap two variables",
+            "instructions": "Get the two values to change places. You need somewhere to put the first value while its box is being overwritten — that is what temp is for. The three middle lines have exactly one correct order.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "a = 5" },
+              { "id": "b", "text": "b = 9" },
+              { "id": "c", "text": "print(\"Before:\", a, b)" },
+              { "id": "d", "text": "temp = a" },
+              { "id": "e", "text": "a = b" },
+              { "id": "f", "text": "b = temp" },
+              { "id": "g", "text": "print(\"After:\", a, b)" },
+              { "id": "d1", "text": "b = a" },
+              { "id": "d2", "text": "temp = a + b" },
+              { "id": "d3", "text": "print(\"After:\", b, a)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "Take a copy of a first. The moment a = b runs, the old value of a is gone for good — so without the copy, b = a would just put b's own value back and both variables would end up as 9. The last distractor is the tempting shortcut: printing them the other way round makes the output look right without swapping anything at all.",
+            "check": { "stdout": "Before: 5 9\nAfter: 9 5\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "A bank balance",
+          "weight": 1,
+          "config": {
+            "title": "A bank balance",
+            "instructions": "Everything from this section at once, with an input feeding into it.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "balance = 500" },
+              { "id": "b", "text": "deposit = int(input(\"Deposit: \"))" },
+              { "id": "c", "text": "balance += deposit" },
+              { "id": "d", "text": "print(\"Balance now:\", balance)" },
+              { "id": "e", "text": "fee = 2" },
+              { "id": "f", "text": "balance -= fee" },
+              { "id": "g", "text": "print(\"After the fee:\", balance)" },
+              { "id": "d1", "text": "balance =+ deposit" },
+              { "id": "d2", "text": "balance += fee" },
+              { "id": "d3", "text": "deposit = input(\"Deposit: \")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "balance =+ deposit would set the balance to the deposit and lose the 500 that was already there. A fee has to come off, so it is -=, not +=. And without int() the deposit is text, so += would try to join a string to a number and stop the program.",
+            "check": { "stdin": "150\n", "stdout": "Deposit: Balance now: 650\nAfter the fee: 648\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "What = really means",
+          "weight": 1,
+          "config": {
+            "title": "What = really means",
+            "instructions": "Five questions on assignment, reassignment and the shorthand operators.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "x = 4\ny = x\nx = 10\nprint(y)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "4" },
+                  { "id": "b", "text": "10" },
+                  { "id": "c", "text": "14" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "Which line means the same as count = count + 1?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "count += 1", "code": true },
+                  { "id": "b", "text": "count =+ 1", "code": true },
+                  { "id": "c", "text": "count++", "code": true },
+                  { "id": "d", "text": "count == count + 1", "code": true }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "total starts at 80. What is it after this line?",
+                "code": "total =+ 5",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "5" },
+                  { "id": "b", "text": "85" },
+                  { "id": "c", "text": "80" },
+                  { "id": "d", "text": "The program stops with a syntax error" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "a is 1 and b is 2. What are they after these two lines?",
+                "code": "a = b\nb = a",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Both are 2" },
+                  { "id": "b", "text": "a is 2 and b is 1 — they swapped" },
+                  { "id": "c", "text": "Both are 1" },
+                  { "id": "d", "text": "a is 1 and b is 2 — nothing changed" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What is the difference between = and == ?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "= stores a value in a variable; == asks whether two values are the same" },
+                  { "id": "b", "text": "They mean the same thing; == is just clearer" },
+                  { "id": "c", "text": "= is for numbers and == is for strings" },
+                  { "id": "d", "text": "== stores a value; = compares two values" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "y = x copies the value 4 across at that moment. Changing x afterwards does not reach back and change y — the two variables are separate boxes."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "+= is the shorthand. == is a comparison and changes nothing, ++ does not exist in Python, and =+ is a different thing altogether."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Python reads it as total = (+5), so the old 80 is thrown away. It is valid Python, which is exactly what makes it such an awkward bug to find."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "The first line overwrites a with 2, so the original 1 is gone. The second line then copies that same 2 back into b. A swap needs a third variable to hold the first value."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "= is an instruction to store. == is a question, and its answer is True or False — which is what an if statement needs."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
