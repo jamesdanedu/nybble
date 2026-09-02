@@ -178,9 +178,28 @@ export function AttemptClient({
           setIndex((i) => Math.min(i + 1, steps.length - 1));
         }
         setBusy(false);
-      } catch {
+      } catch (e) {
+        // A fetch that REJECTS, rather than returning !ok, means the browser
+        // never got a usable response at all. Two very different causes arrive
+        // here identically, because a blocked preflight is deliberately opaque
+        // to script: the student really is offline, or the scorer's CORS
+        // headers turned the request away (not deployed, wrong PORTAL_ORIGIN,
+        // a header missing from Access-Control-Allow-Headers). The old message
+        // guessed "check the connection", which sent a student chasing a
+        // problem that was never theirs.
+        console.error(
+          `[nybble] submit failed: no usable response from ${env.scoreFunctionUrl}. ` +
+            'If the browser console shows a CORS error above this line, the score ' +
+            'Edge Function is either not deployed (`supabase functions deploy score`) ' +
+            `or PORTAL_ORIGIN does not include this page's origin (${
+              typeof window === 'undefined' ? '?' : window.location.origin
+            }).`,
+          e,
+        );
         setError(
-          'Could not reach the marking service. Your answers are saved — check the connection and press Submit again.',
+          typeof navigator !== 'undefined' && navigator.onLine === false
+            ? 'You appear to be offline. Your answers are saved — reconnect and press Submit again.'
+            : 'The marking service did not answer. Your answers are saved, so nothing is lost. Press Submit again, and tell your teacher if it keeps happening.',
         );
         setBusy(false);
       }

@@ -17,20 +17,55 @@ import * as mcq from './mcq.ts';
 import * as numbase from './numbase.ts';
 import * as parsons from './parsons.ts';
 
-const CORS = {
-  'Access-Control-Allow-Origin': Deno.env.get('PORTAL_ORIGIN') ?? '*',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// The portal calls this with a plain fetch carrying Content-Type, Authorization
+// and `apikey`. Content-Type: application/json alone makes the request
+// non-simple, so the browser sends a preflight first and every one of those
+// header names has to appear here — `apikey` included. It did not, so the
+// preflight failed and the POST was never sent. The browser reports that as a
+// rejected promise, indistinguishable in the portal from the network being
+// down, which is why it surfaced as "could not reach the marking service" on a
+// perfectly healthy deployment. x-client-info is listed too, so that switching
+// the portal to supabase-js `functions.invoke()` does not reintroduce this.
+const ALLOW_HEADERS = 'authorization, content-type, apikey, x-client-info';
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  });
+// PORTAL_ORIGIN may be a comma-separated list. Vercel gives every preview
+// deployment its own hostname, so pinning one origin means the scorer works in
+// production and fails everywhere else — with the same opaque error, because
+// a blocked preflight never reaches the function's own logs. Unset means '*',
+// which is safe here: this endpoint authorises by JWT, not by cookie, so a
+// hostile page that copied the URL still has no token to send.
+const ALLOWED_ORIGINS = (Deno.env.get('PORTAL_ORIGIN') ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+function corsFor(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? '';
+  const allowOrigin = ALLOWED_ORIGINS.length === 0
+    ? '*'
+    : ALLOWED_ORIGINS.includes(origin)
+      ? origin // echo it, so several origins can be allowed at once
+      : ALLOWED_ORIGINS[0]; // a mismatch: name the expected origin in the error
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': ALLOW_HEADERS,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    // The response varies by request Origin, so it must not be cached against
+    // one origin and replayed for another.
+    'Vary': 'Origin',
+  };
+}
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  const CORS = corsFor(req);
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+    });
+
+  if (req.method === 'OPTIONS') return new Response('ok', { status: 204, headers: CORS });
   if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405);
 
   const authHeader = req.headers.get('Authorization') ?? '';

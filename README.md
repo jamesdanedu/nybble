@@ -124,6 +124,19 @@ Set only `PORTAL_ORIGIN`. `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
 `SUPABASE_SERVICE_ROLE_KEY` are injected into every Edge Function automatically
 and the `SUPABASE_` prefix is reserved — trying to set them fails.
 
+`PORTAL_ORIGIN` accepts a comma-separated list, and every Vercel preview
+deployment has its own hostname. Pin one origin and the scorer works in
+production and nowhere else. Leave it unset to allow any origin, which is safe
+here: the endpoint authorises by JWT, not by cookie, so a page that copied the
+URL still has no token to send.
+
+**Until `score` is deployed, students cannot submit.** The failure is
+deliberately opaque to the browser — a missing function returns a 404 with no
+CORS headers, and a blocked preflight is indistinguishable in script from the
+network being down — so the portal can only say "the marking service did not
+answer". Open the browser console on the attempt page: a CORS error there means
+the deploy or `PORTAL_ORIGIN`, not the student's wifi.
+
 ### First school and teacher
 
 ```sql
