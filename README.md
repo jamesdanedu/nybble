@@ -40,6 +40,7 @@ public/
     parsons/index.html            Parsons problem runner (drag, tap, keyboard)
 docs/runner-contract.md           the protocol spec
 docs/activity-format.md           the activity file format you author against
+docs/primm.md                     the plan for PRIMM step sequences
 test/harness.test.mjs             end-to-end checks through a real browser
 test/deploy.test.mjs              checks that survive real static hosting
 test/vercel-sim.py                local stand-in for Vercel's static host
@@ -163,7 +164,7 @@ the whole class from *Lost the passwords?* at the bottom of the class page.
 ## What is deliberately not here yet
 
 - Uploading a CSV file (you can paste CSV text today, but not pick a file)
-- `parsons`, `freetext` and `pyodide` runners
+- The `freetext` and `pyrun` runners PRIMM needs — see `docs/primm.md`
 - The authoring UI — activities are seeded by SQL for now
 
 ## Known sharp edges
