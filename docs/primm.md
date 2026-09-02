@@ -69,11 +69,17 @@ works fine today only because no activity has more than one kind of step in it.
 
 | | | |
 |---|---|---|
-| `freetext` runner | Predict, Make | new |
-| `pyrun` runner | Run, Modify | new, and the bulk of the work |
-| `context.prior` | Investigate | contract addition |
-| resubmission lock | Predict | scorer fix |
-| pending-manual marks | results page | scoring fix |
+| `freetext` runner | Predict, Make | **shipped** |
+| `context.prior` | Investigate, Make | **shipped** |
+| `pyrun` runner | Run, Modify | still to do, and the bulk of the work |
+| resubmission lock | Predict | still to do — scorer fix |
+| pending-manual marks | results page | still to do — scoring fix |
+
+With the first two in, a **four-step** PRIMM works today: Predict and Make on
+`freetext`, Investigate on `mcq`, and Run as an authored "here is what it
+prints" step, also on `freetext`. `examples/primm-total.json` is exactly that,
+and imports clean. What `pyrun` adds is the student running and changing the
+code themselves rather than being told what it did.
 
 `docs/runner-contract.md:124` names these as `freetext` and `pyodide`. Keep
 `freetext`; rename `pyodide` to `pyrun`, because the engine is an
@@ -287,9 +293,9 @@ property `reviews` was split from `attempts` to preserve.
 
 ## Order of work
 
-1. **`freetext` + `context.prior`.** A real four-step PRIMM runs end to end, with
-   Run as a static "here is the output" step. Small, and it unblocks authoring
-   the first activity while the rest is decided.
+1. ~~**`freetext` + `context.prior`.**~~ **Done.** A four-step PRIMM runs end to
+   end; `examples/primm-total.json` is the worked example, and the runner is
+   covered in `test/harness.test.mjs` alongside the others.
 2. **The engine spike.** Throwaway, inside the real sandbox, against the decision
    rule above.
 3. **`pyrun`**, plus harness coverage matching the existing runners in

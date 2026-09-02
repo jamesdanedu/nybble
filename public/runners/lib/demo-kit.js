@@ -61,6 +61,34 @@
       key: {}   // generated questions need no stored key
     },
 
+    freetext: {
+      runnerId: 'freetext',
+      entryUrl: '/runners/freetext/index.html',
+      name: 'Written answer',
+      // A PRIMM Make step, so the sample exercises the two things that make
+      // this runner more than a textarea: the shared code snippet, and an
+      // earlier step quoted back out of context.prior.
+      context: {
+        code: 'def total(numbers):\n    runningTotal = 0\n    for n in numbers:\n        runningTotal = runningTotal + n\n    return runningTotal\n\nprint(total([3, 1, 4]))',
+        prior: {
+          predict: { text: 'I think it prints 8, because it adds the numbers up.' }
+        }
+      },
+      config: {
+        title: 'Make',
+        prompt: 'Write a function of your own that finds the LARGEST number in a list, ' +
+                'using the same accumulator pattern as the one above.\n\n' +
+                'Explain in a sentence why your starting value works.',
+        instructions: 'Your teacher marks this one by hand.',
+        showContextCode: true,
+        placeholder: 'def largest(numbers):',
+        rows: 8,
+        minChars: 40,
+        showPrior: { stepId: 'predict', label: 'What you predicted', field: 'text' }
+      },
+      key: {}   // hand-marked; there is no answer to hide
+    },
+
     parsons: {
       runnerId: 'parsons',
       entryUrl: '/runners/parsons/index.html',
@@ -239,6 +267,13 @@
     if (s.runnerId === 'mcq') return scoreMcq(config, s.key, response);
     if (s.runnerId === 'numbase') return scoreNumbase(config, seed, response);
     if (s.runnerId === 'parsons') return scoreParsons(config, s.key, response);
+    // freetext is registered scorer:'manual'. The Edge Function returns a null
+    // total for those and routes the attempt to the review queue, so the demo
+    // shows the same thing rather than inventing a mark nobody awarded.
+    if (s.runnerId === 'freetext') {
+      return { total: null, max: null, manual: true, perQuestion: {},
+               chars: String((response && response.text) || '').trim().length };
+    }
     throw new Error('no demo scorer for ' + s.runnerId);
   }
 

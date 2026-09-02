@@ -13,6 +13,7 @@ import {
 } from '@/components/runner-frame';
 import type { ActivityStep, Assignment, Attempt, StepScore } from '@/lib/types';
 import { formatScore } from '@/lib/format';
+import { priorResponses } from '@/lib/step-context';
 
 interface Props {
   assignment: Pick<Assignment, 'id' | 'mode' | 'due_at' | 'release_feedback' | 'time_limit_secs'>;
@@ -44,9 +45,13 @@ export function AttemptClient({
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const [answered, setAnswered] = useState<Set<string>>(
-    () => new Set(Object.keys(attempt.step_responses ?? {})),
+  // Seeded from the server, then added to as the student submits, so a step
+  // mounted later in this same page session can see what the earlier ones
+  // answered. That is what `context.prior` below is built from.
+  const [responses, setResponses] = useState<Record<string, unknown>>(
+    () => ({ ...((attempt.step_responses as Record<string, unknown>) ?? {}) }),
   );
+  const answered = useMemo(() => new Set(Object.keys(responses)), [responses]);
   // Start on the first step with no response — a resumed attempt lands exactly
   // where the student left off.
   const [index, setIndex] = useState(() => {
@@ -155,9 +160,7 @@ export function AttemptClient({
           return;
         }
 
-        const nextAnswered = new Set(answered);
-        nextAnswered.add(step.id);
-        setAnswered(nextAnswered);
+        setResponses((prev) => ({ ...prev, [step.id]: payload.response ?? {} }));
 
         // Practice mode and `release_feedback: immediate` get the mark back
         // straight away; everything else gets `{ recorded: true }`.
@@ -204,8 +207,12 @@ export function AttemptClient({
         setBusy(false);
       }
     },
-    [supabase, attempt.id, step, steps.length, answered, router],
+    [supabase, attempt.id, step, steps.length, router],
   );
+
+  // Rules and rationale live in lib/step-context.ts — the same helper feeds
+  // the review page, so the two can never drift apart on what a runner sees.
+  const prior = useMemo(() => priorResponses(steps, index, responses), [steps, index, responses]);
 
   const goNext = useCallback(() => {
     setPracticeScore(null);
@@ -295,7 +302,7 @@ export function AttemptClient({
         // Every step gets the same shared context — that is the PRIMM
         // mechanism. `seed` rides along so generated question sets and
         // shuffles are reproducible for this attempt.
-        context={{ ...sharedContext, seed: attempt.seed }}
+        context={{ ...sharedContext, seed: attempt.seed, prior }}
         state={(attempt.step_state ?? {})[step.id] ?? null}
         mode="attempt"
         title={step.title ?? activityTitle}

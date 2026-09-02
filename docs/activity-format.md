@@ -188,6 +188,65 @@ to ordering, so weighting it higher is defensible.
 
 ---
 
+## `freetext`
+
+A prompt and a box. Registered `scorer: 'manual'`, so there is **no key** — every
+submission goes to the teacher review queue and waits for a human. It carries
+PRIMM's Predict and Make phases.
+
+```jsonc
+"config": {
+  "title": "Make",
+  "prompt": "Write a function of your own that finds the largest number in a list.",
+  "instructions": "Your teacher marks this one by hand.",
+  "showContextCode": true,      // render shared_context.code above the box
+  "placeholder": "def largest(numbers):",
+  "rows": 8,
+  "minChars": 40,               // blocks submit below this; 0 = just non-empty
+  "maxChars": 0,                // 0 = no limit; otherwise stops typing past it
+  "showPrior": {                // quote an earlier step back at the student
+    "stepId": "predict",
+    "label": "What you predicted",
+    "field": "text"
+  }
+}
+
+"key": {}                       // nothing to hide: a human decides the mark
+```
+
+### `showPrior`
+
+This is the PRIMM mechanism. A Make step can show what the student wrote at
+Predict, so they are made to compare the two rather than quietly forgetting
+what they guessed. It reads `context.prior` — see `docs/runner-contract.md`.
+
+`stepId` must name a step **earlier in the same activity**; the importer rejects
+a forward reference, a self-reference and an id that does not exist, because all
+three fail silently in front of a student otherwise. `field` is the key of that
+step's response to display, and defaults to `text` — which is what another
+`freetext` step returns. If the named step has no response yet, the block is
+simply not drawn.
+
+### Response
+
+```jsonc
+{ "text": "def largest(numbers):\n    …" }
+```
+
+### Marking
+
+None, here. The scorer records `{ total: null, max: <step weight>, manual: true }`
+and the attempt shows up in Teacher → Review, where the per-step rubric box takes
+the mark and the comment. Two consequences worth knowing when you set weights:
+
+- A `weight: 0` step (PRIMM's Run) costs the teacher nothing and contributes
+  nothing — it exists to make the student look at something.
+- Until a teacher marks it, a hand-marked step contributes 0 to the attempt's
+  auto-score while still counting toward the maximum, so an activity that mixes
+  hand- and auto-marked steps reads low until it is reviewed.
+
+---
+
 ## Writing these with an LLM
 
 The schema is deliberately flat and boring so you can paste this document into a

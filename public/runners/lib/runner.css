@@ -140,6 +140,48 @@ input.r-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; bor
 input.r-input.correct { border-color: var(--correct); background: var(--correct-soft); }
 input.r-input.wrong { border-color: var(--wrong); background: var(--wrong-soft); }
 
+textarea.r-textarea {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+  resize: vertical;
+  display: block;
+}
+textarea.r-textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+/* An earlier step's answer, quoted back. Deliberately distinct from the
+   student's current box: in PRIMM's Make phase both are on screen at once and
+   confusing the two defeats the point. */
+.r-prior {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--muted);
+  background: var(--surface-2);
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+}
+.r-prior strong { display: block; margin-bottom: 2px; font-size: 12px;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.r-prior p { margin: 0 0 6px; }
+.r-prior p:last-child { margin-bottom: 0; }
+
+/* A submitted written answer in review mode. */
+.r-answer {
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  white-space: normal;
+}
+.r-answer p { margin: 0 0 8px; }
+.r-answer p:last-child { margin-bottom: 0; }
+
 .r-foot {
   display: flex;
   align-items: center;

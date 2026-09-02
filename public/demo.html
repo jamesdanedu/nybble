@@ -115,7 +115,7 @@ function start() {
     entryUrl: sample.entryUrl,
     stepId: 'step1',
     config: sample.config,
-    context: { seed: seed },
+    context: Object.assign({ seed: seed }, sample.context || {}),
     mode: 'attempt',
     onSubmit: function (payload) {
       lastResponse = payload.response;
@@ -127,6 +127,25 @@ function start() {
 }
 
 function showResult() {
+  // A hand-marked runner (freetext, and pyrun's Make step later) has no mark to
+  // show — the Edge Function returns a null total and queues it for a teacher.
+  // Printing "null / null" here would read as a broken page rather than as the
+  // thing that actually happened.
+  if (lastScore.manual || lastScore.total === null) {
+    document.getElementById('result').innerHTML =
+      '<div class="result">' +
+        '<h2>Sent to your teacher</h2>' +
+        '<p>There is no automatic mark for a written answer. Your teacher reads ' +
+        'it and marks it by hand.</p>' +
+        '<div class="actions">' +
+          '<button id="again">Try again</button>' +
+          '<button class="ghost" id="home">Back to Nybble</button>' +
+        '</div>' +
+      '</div>';
+    wireResultButtons();
+    return;
+  }
+
   var pct = lastScore.max ? Math.round((lastScore.total / lastScore.max) * 100) : 0;
   var msg = pct === 100 ? 'Full marks.'
           : pct >= 70  ? 'Solid — check the ones you missed below.'
@@ -142,6 +161,10 @@ function showResult() {
         '<button class="ghost" id="home">Back to Nybble</button>' +
       '</div>' +
     '</div>';
+  wireResultButtons();
+}
+
+function wireResultButtons() {
   document.getElementById('again').onclick = function () {
     seed = Math.floor(Math.random() * 2000000000);
     window.__seed = seed;
@@ -159,7 +182,7 @@ function review() {
     entryUrl: sample.entryUrl,
     stepId: 'step1',
     config: sample.config,
-    context: { seed: seed },
+    context: Object.assign({ seed: seed }, sample.context || {}),
     mode: 'review',
     response: lastResponse,
     score: lastScore

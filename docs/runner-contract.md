@@ -24,7 +24,9 @@ Runner.start({
     // config  — public settings the teacher authored (never the key)
     // state   — whatever you last passed to saveState(), for resuming
     // context — activity.shared_context, e.g. the code snippet a PRIMM
-    //           sequence is about; identical across every step
+    //           sequence is about; identical across every step. Plus
+    //           `seed` (see below) and `prior`, the responses to the
+    //           steps before this one.
     // mode    — 'attempt' | 'review' | 'preview'
     // response/score — populated in review mode so you can render the
     //           student's answer with the marking alongside it
@@ -133,3 +135,38 @@ An activity is an ordered list of steps, each a runner instance:
 Every step receives the same `context`, so the whole sequence is about one
 snippet. A plain quiz is just a one-step activity — there is no separate code
 path for it.
+
+## `context.prior`
+
+A step also receives the responses to the steps **before** it, keyed by step id:
+
+```js
+onInit({ context }) {
+  context.code    // shared_context, the same for every step
+  context.seed    // this attempt's seed
+  context.prior   // { predict: { text: "I think it prints 6" } }
+}
+```
+
+Without this, PRIMM does not work. Its whole mechanism is the student being
+made to confront the gap between what they predicted and what actually
+happened, and that requires the later step to be able to quote the earlier one
+back at them. Every step used to be amnesiac.
+
+Three rules:
+
+- **Responses only, never scores.** A score may be withheld until a teacher
+  releases feedback; putting one in `context` would route around that.
+- **Earlier steps only.** A step never sees ahead of itself — the same rule the
+  portal's step buttons enforce for navigation.
+- **Answered steps only.** An unanswered earlier step is absent rather than
+  present-and-empty, so a runner can tell "not done" from "left blank".
+
+`prior` is populated identically in `review` mode, so a replayed step shows the
+teacher what the student saw.
+
+This adds no trust surface. These are the student's own answers, already in
+their own browser, and nothing a runner does with them is believed by the
+scorer. The shape is built by `priorResponses()` in `lib/step-context.ts`,
+which both the attempt player and the review page call — one place, so the two
+cannot drift.

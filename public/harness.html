@@ -70,6 +70,7 @@
       <option value="mcq">mcq — Multiple Choice</option>
       <option value="numbase">numbase — Number Base Conversion</option>
       <option value="parsons">parsons — Parsons Problem</option>
+      <option value="freetext">freetext — Written Answer</option>
     </select>
 
     <label class="f" for="seed">Attempt seed (context.seed)</label>
@@ -141,7 +142,7 @@ function mount(mode) {
     stepId: 'step1',
     config,
     state: mode === 'attempt' ? savedState : null,
-    context: { seed },
+    context: Object.assign({ seed }, SAMPLES[current].context || {}),
     mode,
     response: mode === 'review' ? lastResponse : null,
     score: mode === 'review' ? lastScore : null,
@@ -162,9 +163,14 @@ function mount(mode) {
       const cfg = JSON.parse($('config').value);
       lastScore = DemoKit.scoreStep(current, cfg, Number($('seed').value) || 1,
                                     payload.response);
-      $('scorePill').textContent = 'score: ' + lastScore.total + ' / ' + lastScore.max;
+      // A manual runner returns a null total on purpose: nobody has marked it
+      // yet. Showing "null / null" would read as a bug rather than as a queue.
+      const shown = lastScore.manual || lastScore.total === null
+        ? 'with teacher'
+        : lastScore.total + ' / ' + lastScore.max;
+      $('scorePill').textContent = 'score: ' + shown;
       $('scorePill').classList.add('ok');
-      log('→', 'scored (server-side)', lastScore.total + '/' + lastScore.max);
+      log('→', 'scored (server-side)', shown);
       pendingReview = setTimeout(() => { pendingReview = null; mount('review'); }, 250);
     },
     onLog(entry) { log('←', 'log', entry.level + ': ' + entry.message); }
