@@ -97,7 +97,7 @@ const VARIANT: Record<Variant, string> = {
 };
 
 const BUTTON_BASE =
-  'inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg border px-4 ' +
+  'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border px-5 ' +
   'text-[15px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
 
 export function Button({
@@ -141,7 +141,7 @@ export function Field({
 }
 
 const CONTROL =
-  'w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-[16px] text-ink ' +
+  'w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[16px] text-ink ' +
   'placeholder:text-muted focus:border-accent focus:outline-none';
 
 export function Input({ className, ...rest }: ComponentProps<'input'>) {

@@ -26,6 +26,10 @@
   --warn-soft: #fdf1dc;
   --danger: #a3231f;
   --danger-soft: #fbe9e8;
+  /* Third activity accent. Green and amber were already spoken for by the
+     scorer's pass/needs-review language, so Parsons needed its own. */
+  --info: #3f6d8a;
+  --info-soft: #e6eef4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,6 +47,8 @@
     --warn-soft: #2c2417;
     --danger: #ef8b86;
     --danger-soft: #2e1c1b;
+    --info: #7fb4d4;
+    --info-soft: #1b2831;
   }
 }
 

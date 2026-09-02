@@ -33,13 +33,16 @@ const config: Config = {
         'warn-soft': 'var(--warn-soft)',
         danger: 'var(--danger)',
         'danger-soft': 'var(--danger-soft)',
+        info: 'var(--info)',
+        'info-soft': 'var(--info-soft)',
       },
       fontFamily: {
         sans: ['var(--font-sans)'],
+        display: ['var(--font-display)', 'var(--font-sans)'],
         mono: ['var(--font-mono)'],
       },
       borderRadius: {
-        card: '12px',
+        card: '22px',
       },
     },
   },
