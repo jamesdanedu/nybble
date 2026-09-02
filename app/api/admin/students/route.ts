@@ -82,18 +82,19 @@ export async function POST(request: NextRequest) {
     .eq('id', profile.school_id)
     .maybeSingle();
   if (schoolError || !school) {
-    // Reaching here means the SERVICE-ROLE client could not read a school the
-    // caller's own session can already see — the portal header is showing its
-    // name. That is not a data problem, it is a key problem: a publishable or
-    // anon key in SUPABASE_SERVICE_ROLE_KEY is subject to row-level security,
-    // so it reads nothing and says nothing. Say so, rather than blaming the
-    // profile.
+    // The profile names a school and the service-role client cannot read it.
+    // Exactly two things do that, and the message names both rather than
+    // picking one: either the key is not really the service role (a
+    // publishable key is subject to row-level security, so it reads nothing
+    // and reports nothing), or the school row that school_id points at is
+    // gone. Include the id so the second is one query away from settled.
     return NextResponse.json(
       {
         error:
-          'The server could not read your school with its admin key. ' +
-          'Check SUPABASE_SERVICE_ROLE_KEY in the deployment environment — it ' +
-          'must be the secret / service_role key, not the publishable one.' +
+          `The server could not read school ${profile.school_id} with its admin key. ` +
+          'Either SUPABASE_SERVICE_ROLE_KEY is not the secret / service_role key ' +
+          '(a publishable key reads nothing and says nothing, because row-level ' +
+          'security applies to it), or that school row no longer exists.' +
           (schoolError ? ` (${schoolError.message})` : ''),
       },
       { status: 500 },
