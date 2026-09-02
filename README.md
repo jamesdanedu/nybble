@@ -17,7 +17,7 @@ lib/                              Supabase clients, session, activity importer
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
 examples/lccs-week1.json          a real activity file to import
-vercel.json                       pins framework: nextjs, plus headers
+vercel.json                       headers only — Next owns the build now
 supabase/
   config.toml                     keeps verify_jwt on for the scorer
   migrations/0001_init.sql        schema + RLS + guard triggers
