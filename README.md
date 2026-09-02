@@ -146,6 +146,21 @@ network being down — so the portal can only say "the marking service did not
 answer". Open the browser console on the attempt page: a CORS error there means
 the deploy or `PORTAL_ORIGIN`, not the student's wifi.
 
+### If the gateway only accepts the new API keys
+
+A project whose Edge Function gateway has moved to Supabase's newer key system
+answers every call with
+
+    No credential matched any of the accepted auth mode(s): "publishable", "secret"
+
+and a legacy `eyJ…` key does not satisfy it. PostgREST still accepts both
+formats, so the database keeps working and only submitting breaks — which
+reads as a fault in the scorer rather than in the keys. Take the publishable
+and secret keys from Project Settings → API Keys and set them as
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+Teacher → Status reports this by name.
+
 ### Deploying `score` without the CLI
 
 The dashboard's Edge Functions editor works too, but `score` is four files with
