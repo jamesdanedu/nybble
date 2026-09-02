@@ -1,0 +1,428 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 06 Iteration",
+      "topic": "Programming — Python",
+      "description": "Loops, from a four-line countdown to a nested times table. Eight Parsons problems on a rising ladder — order, then indentation, then distractors drawn from the mistakes students actually make — and a short MCQ for the parts of the checklist that have no order to restore.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Count from 1 to 5",
+          "weight": 1,
+          "config": {
+            "title": "Count from 1 to 5",
+            "instructions": "Put the lines in order. Two of them sit outside the loop and one sits inside it — use the indent buttons to show which.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "print(\"Counting:\")" },
+              { "id": "b", "text": "for i in range(1, 6):" },
+              { "id": "c", "text": "print(i)" },
+              { "id": "d", "text": "print(\"Done\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Only print(i) is indented, so only that line repeats. \"Done\" is back at indent 0, so it runs once, after the loop has finished. range(1, 6) stops before 6, which is why it counts 1 to 5.",
+            "check": { "stdout": "Counting:\n1\n2\n3\n4\n5\nDone\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Total the numbers 1 to 10",
+          "weight": 1,
+          "config": {
+            "title": "Total the numbers 1 to 10",
+            "instructions": "Build the running total. Think about which line has to run before the loop starts, and which has to wait until it is over.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "total = 0" },
+              { "id": "b", "text": "for n in range(1, 11):" },
+              { "id": "c", "text": "total = total + n" },
+              { "id": "d", "text": "print(\"The total is\", total)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "total = 0 has to come before the loop. Inside the loop it would reset to 0 on every pass and the answer would always be 10. The print has to come after the loop, or it would print ten times.",
+            "check": { "stdout": "The total is 55\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Count the vowels in a word",
+          "weight": 1,
+          "config": {
+            "title": "Count the vowels in a word",
+            "instructions": "Loop over the letters of a word and count the vowels. Careful — three of these lines do not belong in the program at all.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "word = input(\"Enter a word: \")" },
+              { "id": "b", "text": "vowels = 0" },
+              { "id": "c", "text": "for letter in word:" },
+              { "id": "d", "text": "if letter in \"aeiou\":" },
+              { "id": "e", "text": "vowels = vowels + 1" },
+              { "id": "f", "text": "print(word, \"has\", vowels, \"vowels\")" },
+              { "id": "d1", "text": "for letter in range(word):" },
+              { "id": "d2", "text": "if letter == \"aeiou\":" },
+              { "id": "d3", "text": "vowels = vowels + letter" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 2 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "A string can be looped over directly — range() is for counting numbers, not for strings. \"in\" asks whether the letter is one of the characters of \"aeiou\"; \"==\" would ask whether the single letter equals the whole five-character string, which is never true. The counter goes up by 1, not by the letter.",
+            "check": { "stdin": "programming\n", "stdout": "Enter a word: programming has 3 vowels\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Find the highest mark",
+          "weight": 1,
+          "config": {
+            "title": "Find the highest mark",
+            "instructions": "Work through the list and keep hold of the biggest value you have seen so far. Three of the lines are wrong.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "marks = [72, 45, 91, 60]" },
+              { "id": "b", "text": "highest = marks[0]" },
+              { "id": "c", "text": "for m in marks:" },
+              { "id": "d", "text": "if m > highest:" },
+              { "id": "e", "text": "highest = m" },
+              { "id": "f", "text": "print(\"Highest mark:\", highest)" },
+              { "id": "d1", "text": "if highest > m:" },
+              { "id": "d2", "text": "for m in range(marks):" },
+              { "id": "d3", "text": "marks = m" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 2 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "Start \"highest\" at the first mark rather than at 0, so the program still works for a list of negative numbers. The test has to be m > highest — the other way round keeps the first value forever. Only \"highest\" changes inside the loop; the list itself is left alone.",
+            "check": { "stdout": "Highest mark: 91\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Search a list, and stop when you find it",
+          "weight": 1,
+          "config": {
+            "title": "Search a list, and stop when you find it",
+            "instructions": "Search the list for a name. Stop as soon as it turns up, and say so if it never does. The else belongs to the for loop, not to the if.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "names = [\"Aoife\", \"Ben\", \"Cara\"]" },
+              { "id": "b", "text": "target = input(\"Who are you looking for? \")" },
+              { "id": "c", "text": "for name in names:" },
+              { "id": "d", "text": "if name == target:" },
+              { "id": "e", "text": "print(\"Found\", target)" },
+              { "id": "f", "text": "break" },
+              { "id": "g", "text": "else:" },
+              { "id": "h", "text": "print(target, \"is not in the list\")" },
+              { "id": "d1", "text": "continue" },
+              { "id": "d2", "text": "if target in name:" },
+              { "id": "d3", "text": "while name in names:" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 2 },
+              { "id": "f", "indent": 2 },
+              { "id": "g", "indent": 0 },
+              { "id": "h", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 8,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "A for loop can have an else. Because the else sits at indent 0, level with the for, it belongs to the loop: it runs only when the loop finished on its own, without a break. That is exactly \"the name was never found\". break leaves the loop immediately; continue would only skip to the next name and the search would keep going.",
+            "check": { "stdin": "Ben\n", "stdout": "Who are you looking for? Found Ben\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Average the valid readings only",
+          "weight": 1,
+          "config": {
+            "title": "Average the valid readings only",
+            "instructions": "A sensor sometimes reports a negative reading, which is a fault. Skip those, and average the rest.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "readings = [12, -1, 8, -5, 20, 0]" },
+              { "id": "b", "text": "total = 0" },
+              { "id": "c", "text": "count = 0" },
+              { "id": "d", "text": "for r in readings:" },
+              { "id": "e", "text": "if r < 0:" },
+              { "id": "f", "text": "continue" },
+              { "id": "g", "text": "total = total + r" },
+              { "id": "h", "text": "count = count + 1" },
+              { "id": "i", "text": "print(\"Average:\", total / count)" },
+              { "id": "d1", "text": "break" },
+              { "id": "d2", "text": "total = total + count" },
+              { "id": "d3", "text": "print(\"Average:\", total / len(readings))" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 2 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 1 },
+              { "id": "i", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 9,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "continue abandons this one reading and goes straight to the next; break would abandon the whole loop at the first fault and the last three readings would never be seen. The two lines after the if are back at indent 1, so they run for the good readings only. Dividing by len(readings) would count the faulty readings too — that is what the separate counter is for.",
+            "check": { "stdout": "Average: 10.0\n" }
+          }
+        },
+        {
+          "id": "p7",
+          "runner_id": "parsons",
+          "title": "Add up numbers until the user enters 0",
+          "weight": 1,
+          "config": {
+            "title": "Add up numbers until the user enters 0",
+            "instructions": "You do not know in advance how many numbers there will be, so this one is a while loop. It is deliberately an infinite loop — the break is what makes it stop.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "total = 0" },
+              { "id": "b", "text": "while True:" },
+              { "id": "c", "text": "number = int(input(\"Enter a number (0 to stop): \"))" },
+              { "id": "d", "text": "if number == 0:" },
+              { "id": "e", "text": "break" },
+              { "id": "f", "text": "total = total + number" },
+              { "id": "g", "text": "print(\"Total:\", total)" },
+              { "id": "d1", "text": "while number != 0:" },
+              { "id": "d2", "text": "number = input(\"Enter a number (0 to stop): \")" },
+              { "id": "d3", "text": "continue" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 2 },
+              { "id": "f", "indent": 1 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "while True: on its own never ends — the break inside it is the only way out, and that is a perfectly normal way to write a loop that has to read a value before it can decide whether to stop. \"while number != 0:\" cannot go first, because number does not exist yet. input() always hands back a string, so it needs int() around it or total = total + number would fail.",
+            "check": { "stdin": "5\n3\n0\n", "stdout": "Enter a number (0 to stop): Enter a number (0 to stop): Enter a number (0 to stop): Total: 8\n" }
+          }
+        },
+        {
+          "id": "p8",
+          "runner_id": "parsons",
+          "title": "A five by five times table",
+          "weight": 1,
+          "config": {
+            "title": "A five by five times table",
+            "instructions": "Two loops, one inside the other. The inner loop prints one row across the screen; the outer loop starts the next row. Watch the two bare print() calls — they do different jobs.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "size = 5" },
+              { "id": "b", "text": "for row in range(1, size + 1):" },
+              { "id": "c", "text": "for col in range(1, size + 1):" },
+              { "id": "d", "text": "print(row * col, end=\"\\t\")" },
+              { "id": "e", "text": "print()" },
+              { "id": "d1", "text": "print(row * col)" },
+              { "id": "d2", "text": "for col in range(1, size):" },
+              { "id": "d3", "text": "print(end=\"\\t\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 2 },
+              { "id": "e", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "end=\"\\t\" replaces the newline print normally adds with a tab, so the row builds up across the screen. The bare print() at indent 1 runs once per row, after the inner loop has finished, and that is what moves down to the next line. Without end=\"\\t\" every number would land on its own line, and range(1, size) would stop at 4 and lose a column.",
+            "check": { "stdout": "1\t2\t3\t4\t5\t\n2\t4\t6\t8\t10\t\n3\t6\t9\t12\t15\t\n4\t8\t12\t16\t20\t\n5\t10\t15\t20\t25\t\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Loops — the bits with no order to restore",
+          "weight": 1,
+          "config": {
+            "title": "Loops — the bits with no order to restore",
+            "instructions": "Five short questions on the parts of the loops checklist that a Parsons problem cannot test.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "How many times does the body of this loop run?",
+                "code": "for i in range(1, 10):\n    print(i)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "8" },
+                  { "id": "b", "text": "9" },
+                  { "id": "c", "text": "10" },
+                  { "id": "d", "text": "11" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What does the pass statement do?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Nothing at all — it is a placeholder for somewhere Python insists on a statement" },
+                  { "id": "b", "text": "Skips the rest of this pass of the loop and goes on to the next one" },
+                  { "id": "c", "text": "Leaves the loop immediately" },
+                  { "id": "d", "text": "Hands a value back out of a function" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A for loop has an else attached to it. When does the else block run?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "When the loop runs right through without meeting a break" },
+                  { "id": "b", "text": "Every time the loop finishes, break or no break" },
+                  { "id": "c", "text": "Only when the loop was left early by a break" },
+                  { "id": "d", "text": "Only when the thing being looped over was empty" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Which of these loops never stops on its own?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "count = 1\nwhile count < 5:\n    print(count)", "code": true },
+                  { "id": "b", "text": "count = 1\nwhile count < 5:\n    count = count + 1", "code": true },
+                  { "id": "c", "text": "for count in range(5):\n    print(count)", "code": true },
+                  { "id": "d", "text": "while True:\n    break", "code": true }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What does this print?",
+                "code": "print(not (5 > 3 and 2 > 4))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "True", "code": true },
+                  { "id": "b", "text": "False", "code": true },
+                  { "id": "c", "text": "An error, because not cannot be used on brackets" },
+                  { "id": "d", "text": "Nothing is printed" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["b"],
+              "marks": 1,
+              "explanation": "range(1, 10) starts at 1 and stops before 10, so it produces 1 to 9 — nine values."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "pass does nothing. It exists because Python will not accept an empty block, so it fills one in while you write the rest. Skipping to the next pass of the loop is continue; leaving the loop is break."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "The else on a loop means \"the loop ran out\" rather than \"the loop was cut short\". Hitting a break skips it, which is what makes it useful for a search that found nothing."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Nothing in the body of the first loop ever changes count, so count < 5 stays true forever. The second changes count, so it stops. while True: is infinite in itself, but the break in option d gets straight back out."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "5 > 3 is True and 2 > 4 is False, so the and is False. not False is True."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

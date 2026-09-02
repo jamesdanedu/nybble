@@ -2,15 +2,6 @@
 // here — the runner is told nothing but `config.lines`, so it cannot know which
 // lines are distractors or what the correct order is.
 //
-// ⚠ NOT YET WIRED INTO THE DISPATCH. Add exactly one import and one case to
-// supabase/functions/score/index.ts:
-//
-//     import * as parsons from './parsons.ts';
-//     ...
-//     case 'parsons':
-//       stepScore = parsons.score(step.config ?? {}, stepKey, response as any);
-//       break;
-//
 // key shape (see docs/activity-format.md):
 //   {
 //     "solution": [{ "id": "l1", "indent": 0 }, ...],
