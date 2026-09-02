@@ -1,0 +1,347 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 12 Time and date",
+      "topic": "Programming — Python",
+      "description": "The datetime module: building a date, pulling it apart, formatting it for a human, reading one back out of typed text, doing arithmetic on it, and coping when the text is not a date at all. Six Parsons problems and an MCQ. The last one uses the time module to measure how long a piece of code takes.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "A date and its parts",
+          "weight": 1,
+          "config": {
+            "title": "A date and its parts",
+            "instructions": "Build a date, then read the three numbers back out of it. The import names what you want from the module.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "from datetime import datetime" },
+              { "id": "b", "text": "birthday = datetime(2008, 5, 17)" },
+              { "id": "c", "text": "print(\"Year:\", birthday.year)" },
+              { "id": "d", "text": "print(\"Month:\", birthday.month)" },
+              { "id": "e", "text": "print(\"Day:\", birthday.day)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The arguments go biggest first — year, month, day — which is the opposite of the way the date is usually written here. year, month and day are attributes, not methods, so none of them takes brackets.",
+            "check": { "stdout": "Year: 2008\nMonth: 5\nDay: 17\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Formatting a date for a human",
+          "weight": 1,
+          "config": {
+            "title": "Formatting a date for a human",
+            "instructions": "strftime turns a date into a string, using a pattern of codes. Three different patterns on the same date.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "from datetime import datetime" },
+              { "id": "b", "text": "exam = datetime(2026, 6, 10, 9, 30)" },
+              { "id": "c", "text": "print(exam.strftime(\"%d/%m/%Y\"))" },
+              { "id": "d", "text": "print(exam.strftime(\"%H:%M\"))" },
+              { "id": "e", "text": "print(exam.strftime(\"%A\"))" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Two more numbers on the end of datetime() are the hour and the minute. %d, %m and %Y are day, month and four-digit year; %H and %M are hours and minutes; %A gives the name of the weekday, which the computer works out for you. Anything in the pattern that is not a code — the slashes and the colon — is printed as it stands.",
+            "check": { "stdout": "10/06/2026\n09:30\nWednesday\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Reading a date the user typed",
+          "weight": 1,
+          "config": {
+            "title": "Reading a date the user typed",
+            "instructions": "strptime goes the other way from strftime: text in, date out. The pattern says how to read it, so it has to match what was typed.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "from datetime import datetime" },
+              { "id": "b", "text": "text = input(\"Date (dd/mm/yyyy): \").strip()" },
+              { "id": "c", "text": "booking = datetime.strptime(text, \"%d/%m/%Y\")" },
+              { "id": "d", "text": "print(\"Month:\", booking.month)" },
+              { "id": "e", "text": "print(\"Formatted:\", booking.strftime(\"%d %B %Y\"))" },
+              { "id": "d1", "text": "booking = datetime.strftime(text, \"%d/%m/%Y\")" },
+              { "id": "d2", "text": "booking = datetime(text)" },
+              { "id": "d3", "text": "print(\"Month:\", booking.month())" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The p in strptime is for parse — text into a date. strftime is for format — a date into text — so it cannot be handed a string to start with. Once the text is a real date the program can do date things with it, like ask for the month or print it a different way: %B is the month's name where %m is its number. And month is an attribute, so month() with brackets fails.",
+            "check": { "stdin": "17/05/2008\n", "stdout": "Date (dd/mm/yyyy): Month: 5\nFormatted: 17 May 2008\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "How many days between?",
+          "weight": 1,
+          "config": {
+            "title": "How many days between?",
+            "instructions": "Subtracting one date from another gives a length of time, not a number. Adding needs a timedelta, which says what unit you mean.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "from datetime import datetime, timedelta" },
+              { "id": "b", "text": "start = datetime(2026, 9, 1)" },
+              { "id": "c", "text": "end = datetime(2026, 12, 20)" },
+              { "id": "d", "text": "days = (end - start).days" },
+              { "id": "e", "text": "print(\"Days of term:\", days)" },
+              { "id": "f", "text": "finish = start + timedelta(days=7)" },
+              { "id": "g", "text": "print(\"One week in:\", finish.strftime(\"%d/%m/%Y\"))" },
+              { "id": "d1", "text": "days = end - start" },
+              { "id": "d2", "text": "finish = start + 7" },
+              { "id": "d3", "text": "days = (start - end).days" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "end - start gives a timedelta; .days pulls the whole number of days out of it. Without .days the program still runs and prints something like \"110 days, 0:00:00\" — a wrong-looking answer rather than an error. Subtracting the other way round gives -110. And a date plus a plain 7 is meaningless: seven what? timedelta(days=7) is where the unit is stated.",
+            "check": { "stdout": "Days of term: 110\nOne week in: 08/09/2026\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "When it is not a date at all",
+          "weight": 1,
+          "config": {
+            "title": "When it is not a date at all",
+            "instructions": "strptime stops the program if the text does not match the pattern. try and except let you deal with that instead of crashing.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "from datetime import datetime" },
+              { "id": "b", "text": "text = input(\"Date (dd/mm/yyyy): \").strip()" },
+              { "id": "c", "text": "try:" },
+              { "id": "d", "text": "entered = datetime.strptime(text, \"%d/%m/%Y\")" },
+              { "id": "e", "text": "print(\"That is a\", entered.strftime(\"%A\"))" },
+              { "id": "f", "text": "except ValueError:" },
+              { "id": "g", "text": "print(\"That is not a date in the right format\")" },
+              { "id": "d1", "text": "except ValueError" },
+              { "id": "d2", "text": "entered = datetime.strptime(text)" },
+              { "id": "d3", "text": "if ValueError:" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "Everything that might fail goes in the try block, and the except block runs only if it does. Both lines are inside the try, because printing the weekday makes no sense if the date was never built. except lines up with try, at indent 0, exactly as else lines up with if — and like if, both need their colon. strptime always needs the pattern as well as the text.",
+            "check": { "stdin": "hello\n", "stdout": "Date (dd/mm/yyyy): That is not a date in the right format\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "How long did that take?",
+          "weight": 1,
+          "config": {
+            "title": "How long did that take?",
+            "instructions": "time.time() gives the number of seconds since a fixed moment in 1970. Take it twice and subtract to measure how long something took.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "import time" },
+              { "id": "b", "text": "start = time.time()" },
+              { "id": "c", "text": "total = 0" },
+              { "id": "d", "text": "for n in range(1000000):" },
+              { "id": "e", "text": "total = total + n" },
+              { "id": "f", "text": "elapsed = time.time() - start" },
+              { "id": "g", "text": "print(\"Total:\", total)" },
+              { "id": "h", "text": "print(\"Took less than five seconds:\", elapsed < 5)" },
+              { "id": "d1", "text": "elapsed = time.time()" },
+              { "id": "d2", "text": "start = time.sleep()" },
+              { "id": "d3", "text": "elapsed = start - time.time()" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 },
+              { "id": "h", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 8,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The first reading has to be taken before the work starts and the second after it finishes, at indent 0, once the loop is over. time.time() on its own is a moment, not a duration — a duration is the difference between two of them, and taking it in the wrong order gives a negative. sleep() pauses the program rather than telling you the time.",
+            "check": { "stdout": "Total: 499999500000\nTook less than five seconds: True\n", "timeoutMs": 15000 }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Dates, patterns and durations",
+          "weight": 1,
+          "config": {
+            "title": "Dates, patterns and durations",
+            "instructions": "Five questions on datetime, formatting codes and time arithmetic.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "Which way round does this go?",
+                "code": "datetime.strptime(\"25/12/2026\", \"%d/%m/%Y\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Text in, a date object out" },
+                  { "id": "b", "text": "A date object in, text out" },
+                  { "id": "c", "text": "Text in, text out" },
+                  { "id": "d", "text": "A date object in, a number out" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What does %B give in a strftime pattern?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "The month's name, such as May" },
+                  { "id": "b", "text": "The month's number, such as 05" },
+                  { "id": "c", "text": "The weekday's name, such as Monday" },
+                  { "id": "d", "text": "The two-digit year" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "start and end are both datetimes. What is end - start?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "A timedelta — a length of time, with .days inside it" },
+                  { "id": "b", "text": "A whole number of days" },
+                  { "id": "c", "text": "A datetime somewhere between the two" },
+                  { "id": "d", "text": "An error — datetimes cannot be subtracted" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "The user types \"hello\" and the program calls strptime on it. What happens without a try block?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "The program stops with a ValueError" },
+                  { "id": "b", "text": "The date comes back as today's date" },
+                  { "id": "c", "text": "The date comes back as None" },
+                  { "id": "d", "text": "Nothing — strptime ignores text it cannot read" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "Which line moves a date one week forward?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "later = start + timedelta(days=7)", "code": true },
+                  { "id": "b", "text": "later = start + 7", "code": true },
+                  { "id": "c", "text": "later = start.day + 7", "code": true },
+                  { "id": "d", "text": "later = start + datetime(7)", "code": true }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "strptime parses: it reads text and builds a date. strftime formats, going the other way. The p and the f are the only difference in the names."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "%B is the month's name and %m is its number. %A is the weekday name, so the capital letters matter as much as the letters themselves."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Subtracting two datetimes gives a timedelta. Printing it directly shows something like \"110 days, 0:00:00\", so you usually want .days out of it."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "A ValueError, and the program stops there. That is why user-entered dates belong inside a try block."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "timedelta says what the 7 means. A plain number cannot be added to a date, and start.day + 7 gives a number rather than a date — and would give 38 at the end of a month."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

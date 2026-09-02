@@ -1,0 +1,317 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 11 File handling",
+      "topic": "Programming — Python",
+      "description": "Opening a file, writing to it, closing it, and reading it back — a whole file, a single line, or line by line — plus the with statement that closes the file for you. Five Parsons problems and an MCQ. Every program here makes its own file first, so each one runs on its own.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Write a file and close it",
+          "weight": 1,
+          "config": {
+            "title": "Write a file and close it",
+            "instructions": "Open, write, close. The \"w\" is the mode — it means writing, and it empties the file first.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "file = open(\"notes.txt\", \"w\")" },
+              { "id": "b", "text": "file.write(\"First line\\n\")" },
+              { "id": "c", "text": "file.write(\"Second line\\n\")" },
+              { "id": "d", "text": "file.close()" },
+              { "id": "e", "text": "print(\"Saved to notes.txt\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Nothing can be written before the file is opened or after it is closed. write() does not add a line ending the way print() does, so the \\n has to be written yourself — leave it out and both lines end up jammed together. Until close() runs, what you wrote may still be sitting in memory rather than on the disk.",
+            "check": { "stdout": "Saved to notes.txt\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Read the whole file back",
+          "weight": 1,
+          "config": {
+            "title": "Read the whole file back",
+            "instructions": "The first two lines make the file using with, which closes it for you. The rest opens it the long way so you can look at .closed afterwards.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "with open(\"colours.txt\", \"w\") as f:" },
+              { "id": "b", "text": "f.write(\"red\\ngreen\\nblue\\n\")" },
+              { "id": "c", "text": "file = open(\"colours.txt\", \"r\")" },
+              { "id": "d", "text": "contents = file.read()" },
+              { "id": "e", "text": "file.close()" },
+              { "id": "f", "text": "print(contents)" },
+              { "id": "g", "text": "print(\"Closed?\", file.closed)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "with open(...) as f: opens the file for the indented block and closes it the moment the block ends, even if something goes wrong inside. \"r\" is the mode for reading. read() gives the whole file as one string, newlines and all — which is why printing it leaves a blank line at the end. .closed is not a method: it is an attribute, so it takes no brackets.",
+            "check": { "stdout": "red\ngreen\nblue\n\nClosed? True\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Total the numbers in a file",
+          "weight": 1,
+          "config": {
+            "title": "Total the numbers in a file",
+            "instructions": "Looping a file gives you one line at a time. Each line arrives as text with a newline on the end.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "with open(\"marks.txt\", \"w\") as f:" },
+              { "id": "b", "text": "f.write(\"60\\n70\\n80\\n\")" },
+              { "id": "c", "text": "total = 0" },
+              { "id": "d", "text": "with open(\"marks.txt\", \"r\") as f:" },
+              { "id": "e", "text": "for line in f:" },
+              { "id": "f", "text": "total = total + int(line)" },
+              { "id": "g", "text": "print(\"Total:\", total)" },
+              { "id": "d1", "text": "total = total + line" },
+              { "id": "d2", "text": "for line in f.read():" },
+              { "id": "d3", "text": "f.close()" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 2 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "int() copes with the trailing newline, so no strip() is needed here — but without it, + would try to add text to a number. Looping the file itself gives whole lines; looping f.read() gives one character at a time, because that is a single string. And with closes the file already, so a close() inside the block would shut it in the middle of the reading.",
+            "check": { "stdout": "Total: 210\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "One line at a time",
+          "weight": 1,
+          "config": {
+            "title": "One line at a time",
+            "instructions": "readline() takes exactly one line and remembers where it stopped, so calling it again gives the next one. Watch the newline it brings with it.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "with open(\"story.txt\", \"w\") as f:" },
+              { "id": "b", "text": "f.write(\"Once upon a time\\nThe end\\n\")" },
+              { "id": "c", "text": "with open(\"story.txt\", \"r\") as f:" },
+              { "id": "d", "text": "first = f.readline()" },
+              { "id": "e", "text": "second = f.readline()" },
+              { "id": "f", "text": "print(\"First line:\", first.strip())" },
+              { "id": "g", "text": "print(\"Second line:\", second.strip())" },
+              { "id": "d1", "text": "first = f.read()" },
+              { "id": "d2", "text": "first = f.readlines()" },
+              { "id": "d3", "text": "print(\"First line:\", first)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "Three near-identical names, three different results: readline() gives one line as a string, read() gives the entire file as one string, and readlines() gives a list of all the lines. Reading with read() first would leave nothing for the second call. strip() takes the newline off the end — without it, print adds its own on top and the output gains a blank line.",
+            "check": { "stdout": "First line: Once upon a time\nSecond line: The end\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Save a list, then count it back",
+          "weight": 1,
+          "config": {
+            "title": "Save a list, then count it back",
+            "instructions": "Write a list out one name per line, then open the file again and count what is there. Two loops, each inside its own with.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "names = [\"Aoife\", \"Ben\", \"Cara\"]" },
+              { "id": "b", "text": "with open(\"names.txt\", \"w\") as f:" },
+              { "id": "c", "text": "for name in names:" },
+              { "id": "d", "text": "f.write(name + \"\\n\")" },
+              { "id": "e", "text": "count = 0" },
+              { "id": "f", "text": "with open(\"names.txt\", \"r\") as f:" },
+              { "id": "g", "text": "for line in f:" },
+              { "id": "h", "text": "count = count + 1" },
+              { "id": "i", "text": "print(\"Wrote and read back\", count, \"names\")" },
+              { "id": "d1", "text": "f.write(name)" },
+              { "id": "d2", "text": "count = count + line" },
+              { "id": "d3", "text": "f.close()" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 2 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 2 },
+              { "id": "i", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 9,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The \\n on the end of each name is what makes them three lines rather than one long word — without it the count comes back as 1. The counter goes up by one per line, not by the line itself. And the file has to be written and closed before the second with can read it, which is why the writing block ends before the reading block starts.",
+            "check": { "stdout": "Wrote and read back 3 names\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Modes, methods and closing",
+          "weight": 1,
+          "config": {
+            "title": "Modes, methods and closing",
+            "instructions": "Five questions on file modes and the three ways of reading.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "A file already contains data. What does opening it with \"w\" do?",
+                "code": "f = open(\"data.txt\", \"w\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Empties it — everything that was in it is lost" },
+                  { "id": "b", "text": "Adds new writing after what is already there" },
+                  { "id": "c", "text": "Refuses to open, because the file exists" },
+                  { "id": "d", "text": "Opens it for reading only" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What does readlines() give back?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "A list, one item per line" },
+                  { "id": "b", "text": "The next line, as a string" },
+                  { "id": "c", "text": "The whole file as one string" },
+                  { "id": "d", "text": "The number of lines in the file" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Why write it this way rather than calling open() and close() yourself?",
+                "code": "with open(\"notes.txt\", \"r\") as f:",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "The file is closed automatically, even if an error happens inside the block" },
+                  { "id": "b", "text": "It reads the file faster" },
+                  { "id": "c", "text": "It is the only way to read a file in Python" },
+                  { "id": "d", "text": "It stops other programs from opening the file" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "The file holds the single line 42. What goes wrong here?",
+                "code": "with open(\"n.txt\") as f:\n    total = f.readline() + 1",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "A TypeError — readline() gives a string, and int() is needed" },
+                  { "id": "b", "text": "Nothing; total ends up as 43" },
+                  { "id": "c", "text": "total ends up as \"421\"" },
+                  { "id": "d", "text": "The file cannot be opened without a mode" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "After a file has been closed, what does f.closed give?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "True", "code": true },
+                  { "id": "b", "text": "False", "code": true },
+                  { "id": "c", "text": "An error — the file is gone" },
+                  { "id": "d", "text": "The name of the file" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "\"w\" empties the file the moment it opens. Use \"a\" to add to the end of what is already there — mixing the two up loses work that cannot be got back."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "readlines() gives a list of every line, readline() gives one line, and read() gives the whole file as a single string. The names are almost identical and the results are not."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "with closes the file when the block ends, whatever happens inside it. A close() you wrote yourself gets skipped when an error jumps past it."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Everything read from a file is text, exactly like input(). It needs int() before it can be used in arithmetic."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "closed is an attribute holding True or False, not a method — so it takes no brackets. f.closed() would try to call it and fail."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

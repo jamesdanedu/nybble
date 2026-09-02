@@ -28,6 +28,11 @@
  *
  *   "check": { "stdin": "5\n0\n", "stdout": "Total: 5\n", "timeoutMs": 5000 }
  *
+ * Where the output is not fixed — anything using random or the clock — give a
+ * `stdoutPattern` regular expression instead of `stdout`. The program is run in
+ * a temp directory, so a file-handling solution writing by bare name is
+ * harmless.
+ *
  * With --order it goes further and proves the key's order is the only order
  * that produces that output, by swapping each adjacent pair and re-running.
  *
@@ -142,7 +147,7 @@ function compile(source, dir, name) {
   return { file };
 }
 
-function execute(file, check) {
+function execute(file, check, dir) {
   try {
     return {
       stdout: execFileSync(PYTHON, [file], {
@@ -150,6 +155,10 @@ function execute(file, check) {
         timeout: Number(check.timeoutMs) || DEFAULT_TIMEOUT_MS,
         encoding: 'utf8',
         stdio: 'pipe',
+        // A file-handling solution opens files by bare name. Run it in the
+        // temp directory so what it writes is thrown away with everything
+        // else, rather than landing in the repository.
+        cwd: dir,
       }),
     };
   } catch (e) {
@@ -160,6 +169,12 @@ function execute(file, check) {
     return { error: `the solution raised at run time:\n${dim(tail(e))}` };
   }
 }
+
+/* A step is run when its key says what the output should be: exactly, with
+ * `stdout`, or by shape, with `stdoutPattern` — the latter for a program whose
+ * output is not fixed, such as anything using random or the clock. */
+const isChecked = (check) =>
+  !!check && (check.stdout !== undefined || check.stdoutPattern !== undefined);
 
 /* --- is the key's order the only order? ----------------------------------
  * A straight-line program — and the early checklist sections are full of them
@@ -188,7 +203,7 @@ function interchangeableLines(config, solution, check, dir, name) {
     const { file, error } = compile(source, dir, `${name}-swap${i}`);
     if (error) continue;                       // the swap breaks it, which is the point
 
-    const out = execute(file, check);
+    const out = execute(file, check, dir);
     if (out.error || out.stdout !== check.stdout) continue;
 
     problems.push({ level: 'warn', msg: `lines ${a.id} and ${b.id} can be swapped and the `
@@ -203,17 +218,33 @@ function behaviourChecks(config, key, solution, source, dir, name, checkOrder) {
   if (error) return [{ level: 'error', msg: error }];
 
   const check = key.check;
-  if (!check || check.stdout === undefined) return [];
+  if (!isChecked(check)) return [];
 
-  const out = execute(file, check);
+  const out = execute(file, check, dir);
   if (out.error) return [{ level: 'error', msg: out.error }];
-  if (out.stdout !== check.stdout) {
-    return [{ level: 'error', msg: 'output does not match check.stdout:\n'
-      + `${dim('expected')} ${JSON.stringify(check.stdout)}\n`
-      + `${dim('got     ')} ${JSON.stringify(out.stdout)}` }];
+
+  if (check.stdout !== undefined) {
+    if (out.stdout !== check.stdout) {
+      return [{ level: 'error', msg: 'output does not match check.stdout:\n'
+        + `${dim('expected')} ${JSON.stringify(check.stdout)}\n`
+        + `${dim('got     ')} ${JSON.stringify(out.stdout)}` }];
+    }
+    // Only an exact expected output can tell a swap apart from the original.
+    return checkOrder ? interchangeableLines(config, solution, check, dir, name) : [];
   }
 
-  return checkOrder ? interchangeableLines(config, solution, check, dir, name) : [];
+  let re;
+  try {
+    re = new RegExp(check.stdoutPattern);
+  } catch (e) {
+    return [{ level: 'error', msg: `check.stdoutPattern is not a valid regular expression: ${e.message}` }];
+  }
+  if (!re.test(out.stdout)) {
+    return [{ level: 'error', msg: 'output does not match check.stdoutPattern:\n'
+      + `${dim('pattern')} ${JSON.stringify(check.stdoutPattern)}\n`
+      + `${dim('got    ')} ${JSON.stringify(out.stdout)}` }];
+  }
+  return [];
 }
 
 /* --- main ---------------------------------------------------------------- */
@@ -280,7 +311,7 @@ async function main() {
             ...staticChecks(config, key, solution),
             ...behaviourChecks(config, key, solution, source, dir, safeName, checkOrder),
           ];
-          if (key.check && key.check.stdout !== undefined) ran++;
+          if (isChecked(key.check)) ran++;
 
           const failed = problems.filter((p) => p.level === 'error');
           const warned = problems.filter((p) => p.level === 'warn');
@@ -288,7 +319,7 @@ async function main() {
           warnings += warned.length;
 
           const mark = failed.length ? red('✗') : warned.length ? yellow('!') : green('✓');
-          const ranNote = key.check && key.check.stdout !== undefined ? dim(' · output checked') : '';
+          const ranNote = isChecked(key.check) ? dim(' · output checked') : '';
           console.log(`  ${mark} ${label}${ranNote}`);
           for (const p of problems) {
             const tag = p.level === 'error' ? red('error') : yellow('warn ');
