@@ -1,5 +1,17 @@
 import type { Metadata, Viewport } from 'next';
+import { Bricolage_Grotesque } from 'next/font/google';
 import './globals.css';
+
+/**
+ * Display face. Self-hosted by next/font rather than a <link> to Google: the
+ * portal has to work on a school network that may block third-party font hosts,
+ * and a swap-in halfway through a lesson is a distraction.
+ */
+const display = Bricolage_Grotesque({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={display.variable}>
       <body className="min-h-screen bg-page text-ink antialiased">{children}</body>
     </html>
   );
