@@ -65,6 +65,17 @@ export function isStaff(profile: Profile): boolean {
   return profile.role === 'teacher' || profile.role === 'admin';
 }
 
+/** Admin only. Editing the school record is not a teacher's job. */
+export function isAdmin(profile: Profile): boolean {
+  return profile.role === 'admin';
+}
+
+export async function requireAdminSession(): Promise<Session> {
+  const session = await requireStaffSession();
+  if (!isAdmin(session.profile)) redirect('/teacher');
+  return session;
+}
+
 export async function requireStaffSession(): Promise<Session> {
   const session = await requireStudentOrStaff();
   if (!isStaff(session.profile)) redirect('/dashboard');
