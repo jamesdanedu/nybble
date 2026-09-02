@@ -16,7 +16,9 @@ app/                              Next.js portal (App Router)
 lib/                              Supabase clients, session, activity importer
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
+scripts/check-parsons.mjs         reassembles every Parsons key and runs it
 examples/lccs-week1.json          a real activity file to import
+examples/python/                  the LCCS Python checklist, a file per section
 vercel.json                       headers only — Next owns the build now
 supabase/
   config.toml                     keeps verify_jwt on for the scorer
@@ -26,6 +28,7 @@ supabase/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
     numbase.ts                    number base scorer (+ generator copy)
+    parsons.ts                    Parsons scorer (LCS order + indent)
 public/
   demo.html                       clean student-facing demo of one activity
   harness.html                    dev harness — same runners, with the message log
@@ -40,7 +43,9 @@ public/
     parsons/index.html            Parsons problem runner (drag, tap, keyboard)
 docs/runner-contract.md           the protocol spec
 docs/activity-format.md           the activity file format you author against
+docs/parsons-authoring.md         how the Python Parsons ladder is built
 test/harness.test.mjs             end-to-end checks through a real browser
+test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/deploy.test.mjs              checks that survive real static hosting
 test/vercel-sim.py                local stand-in for Vercel's static host
 ```

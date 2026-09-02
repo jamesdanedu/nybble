@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "import:activities": "node scripts/import-activities.mjs"
+    "import:activities": "node scripts/import-activities.mjs",
+    "check:parsons": "node scripts/check-parsons.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
