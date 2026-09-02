@@ -38,6 +38,10 @@ export default async function PortalLayout({ children }: { children: React.React
     if (isAdmin(profile)) {
       items.splice(items.length - 1, 0, { href: '/teacher/school', label: 'School' });
     }
+
+    // Staff-visible, not admin-only: the teacher standing in the room while a
+    // class cannot submit is the person who needs it, and it changes nothing.
+    items.splice(items.length - 1, 0, { href: '/teacher/diagnostics', label: 'Status' });
   } else {
     items = [{ href: '/dashboard', label: 'My work' }];
   }
