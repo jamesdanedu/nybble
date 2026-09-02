@@ -135,13 +135,21 @@ values ('<auth-user-uuid>', '<school-uuid>', 'teacher', 'josullivan', 'J. O''Sul
 
 Student logins are `username` + password, mapped internally to
 `<username>@<school-slug>.portal.invalid`. Students never see that address.
-Account creation and password resets go through a teacher-only Edge Function
-using the service role — that function is not written yet.
+
+Account creation and password resets are teacher-only API routes
+(`app/api/admin/students`) behind `requireStaff()`, which verifies the caller
+with their own session before handing out a service-role client.
+
+**Passwords are shown exactly once and are never stored in plain text.** Both
+routes answer with a set of credentials that the class page renders as cut-out
+slips — one card per student with the site address, username and password, laid
+out to guillotine and hand round, plus Copy and Download CSV. If that sheet is
+lost there is no lookup: reset one student from the button beside their name, or
+the whole class from *Lost the passwords?* at the bottom of the class page.
 
 ## What is deliberately not here yet
 
-- The Next.js portal itself (login, class management, assignment list, review queue)
-- The account-admin Edge Function (create students, reset passwords, CSV import)
+- Uploading a CSV file (you can paste CSV text today, but not pick a file)
 - `parsons`, `freetext` and `pyodide` runners
 - The authoring UI — activities are seeded by SQL for now
 

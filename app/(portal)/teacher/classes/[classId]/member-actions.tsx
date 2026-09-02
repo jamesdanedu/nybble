@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { Alert, Button } from '@/components/ui';
+import type { ResetResult } from '@/app/api/admin/students/reset/route';
 import { addExistingStudents, removeStudent } from '../actions';
 
 /**
@@ -23,7 +24,9 @@ export function MemberActions({
   const [pending, start] = useTransition();
   const [confirming, setConfirming] = useState<null | 'remove' | 'reset'>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [newPassword, setNewPassword] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState<{ username: string; password: string } | null>(
+    null,
+  );
 
   async function doReset() {
     setMessage(null);
@@ -37,15 +40,18 @@ export function MemberActions({
       setMessage(body.error ?? 'Could not reset the password.');
       return;
     }
-    setNewPassword(body.password as string);
+    const { reset } = body as ResetResult;
+    setNewPassword({ username: reset[0].username, password: reset[0].password });
     setConfirming(null);
   }
 
   if (newPassword) {
     return (
       <div className="text-right">
-        <p className="text-[13px] text-muted">New password for {displayName}</p>
-        <p className="font-mono text-[17px] font-semibold">{newPassword}</p>
+        <p className="text-[13px] text-muted">
+          New password for {displayName} ({newPassword.username})
+        </p>
+        <p className="font-mono text-[17px] font-semibold">{newPassword.password}</p>
         <button
           type="button"
           className="text-[13px] text-muted underline"
