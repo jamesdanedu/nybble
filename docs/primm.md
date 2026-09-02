@@ -10,6 +10,31 @@ This document is the plan for supporting it. It is a design record, not a
 tutorial: it says what we are building, what we deliberately are not, and which
 question is still open.
 
+## Is this doable? Yes
+
+Four of the five phases are straightforward, and the step machinery they run on
+is already built. Only the two code-execution phases carry any real unknown, and
+the unknown there is *which engine*, not *whether*.
+
+| Phase | What it needs | Risk |
+|---|---|---|
+| Predict | `freetext` — a prompt and a textarea | none |
+| Run | in-browser Python | the only open question |
+| Investigate | `mcq` — already shipped | none |
+| Modify | in-browser Python | same question |
+| Make | `freetext`, hand-marked | none |
+
+If the engine spike below goes badly in both directions, PRIMM still ships in a
+degraded form: **Run** becomes an authored "here is what this prints" step, with
+the output written into the activity file, and **Modify** becomes a hand-marked
+`freetext` step where the student writes their changed version. Both keep the
+pedagogy — the student still confronts their prediction, still changes working
+code — and both lose the liveness that makes the phases worth automating. The
+third option, relaxing the runner sandbox for this one runner, is a real
+tradeoff and is deliberately not the first thing to reach for.
+
+Nothing in the plan requires a schema change or a portal redeploy.
+
 ## PRIMM is not a runner
 
 The tempting shape is one `primm` runner holding all five phases. We are not
