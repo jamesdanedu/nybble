@@ -62,15 +62,25 @@ function describeKey(key: string | undefined): { shape: string; role: string | n
  */
 export type ScorerReply =
   | 'not-deployed'   // 404 — nothing is listening on this path
-  | 'gateway-401'    // 401 with no `error` field: rejected before our code ran
-  | 'function-401'   // 401 from our code: the caller is not a valid user
+  | 'platform-401'   // 401, no body at all: refused above the function, reason unstated
+  | 'gateway-401'    // 401 with { message }: the gateway said why
+  | 'function-401'   // 401 with { error }: our code declined the caller
   | 'reached'        // our code ran and answered on its own terms
   | 'unexpected';
 
 function classify(status: number, body: string): ScorerReply {
-  if (status === 404 && !body.includes('"error"')) return 'not-deployed';
-  if (status === 401) return body.includes('"error"') ? 'function-401' : 'gateway-401';
-  if (body.includes('"error"') || status < 300) return 'reached';
+  const ours = body.includes('"error"');
+  if (status === 404 && !ours) return 'not-deployed';
+  if (status === 401) {
+    if (ours) return 'function-401';
+    // A 401 that says NOTHING is a different animal from one that says
+    // "Invalid JWT". The gateway's own JWT rejection is chatty; an empty body
+    // means something above the function refused without explaining, and the
+    // "Verify JWT" toggle is not necessarily the thing that did it.
+    const silent = body === '<empty body>' || !body.includes('"');
+    return silent ? 'platform-401' : 'gateway-401';
+  }
+  if (ours || status < 300) return 'reached';
   return 'unexpected';
 }
 
@@ -80,10 +90,47 @@ const NOT_DEPLOYED_FIX =
 
 // Starts with the action. The summary above it already says what is wrong, and
 // a fix that re-states the diagnosis makes the reader hunt for the verb.
+//
+// It also has to survive being read by someone who has ALREADY done the
+// obvious thing. An earlier version said only "turn Verify JWT off", which was
+// useless advice to send to someone looking at a toggle that was already off —
+// exactly the confidently-wrong sentence this page exists to replace. So name
+// the toggle, and say what it means if it is already off.
 const GATEWAY_FIX =
-  'Turn "Verify JWT" off on the score function. The function authorises callers itself — it checks ' +
-  'the bearer token with auth.getUser() and matches the attempt to that user — so this costs a ' +
-  'layer of defence in depth, not the authorisation itself.';
+  'Check "Verify JWT with legacy secret" on the score function (Settings). If it is ON, turn it ' +
+  'off: the function authorises callers itself — it checks the bearer token with auth.getUser() ' +
+  'and matches the attempt to that user — so this costs a layer of defence in depth, not the ' +
+  'authorisation itself. If it is already OFF, nothing above the function should be rejecting ' +
+  'anything, so compare this check with the signed-in call below: if both fail the refusal is ' +
+  'coming from the platform, and the function\u2019s Logs tab in the dashboard will show whether ' +
+  'the request reached it at all.';
+
+const PLATFORM_401_FIX =
+  'The refusal carried no message, so it did not come from the function (which always answers ' +
+  'with { error }) nor from the gateway\u2019s JWT check (which answers with { message }). Open ' +
+  'the function\u2019s Logs tab in the Supabase dashboard: if no invocation is recorded, the ' +
+  'request was stopped before it arrived, and the response headers above name what stopped it.';
+
+/**
+ * Headers worth showing on a refusal. When something upstream of the function
+ * says no without explaining, these are usually the only evidence of who did.
+ */
+const TELLING_HEADERS = [
+  'content-type',
+  'www-authenticate',
+  'server',
+  'x-sb-error-code',
+  'x-sb-edge-region',
+  'sb-gateway-version',
+  'x-served-by',
+];
+
+function describeHeaders(res: Response): string {
+  const lines = TELLING_HEADERS.map((h) => [h, res.headers.get(h)] as const)
+    .filter(([, v]) => v)
+    .map(([h, v]) => `${h}: ${v}`);
+  return lines.length ? lines.join('\n') : '<no identifying headers>';
+}
 
 /** Read a response without letting a huge or non-JSON body wreck the page. */
 async function readBody(res: Response): Promise<string> {
@@ -191,16 +238,21 @@ export async function runScorerChecks(): Promise<Check[]> {
         'function-401': 'The gateway passes tokens through to the function.',
         reached: 'The gateway passes tokens through to the function.',
         'gateway-401': 'The gateway rejected a valid project token before the function ran.',
+        'platform-401': 'Something above the function refused, without saying why.',
         'not-deployed': 'Nothing is deployed at this path.',
         unexpected: `Unexpected reply (${res.status}).`,
       }[kind],
-      detail: `POST ${url}\nAuthorization: Bearer <anon key>\n\nstatus ${res.status}\n${body}`,
+      detail:
+        `POST ${url}\nAuthorization: Bearer <anon key>\n\n` +
+        `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
       fix:
         kind === 'gateway-401'
           ? GATEWAY_FIX
-          : kind === 'not-deployed'
-            ? NOT_DEPLOYED_FIX
-            : undefined,
+          : kind === 'platform-401'
+            ? PLATFORM_401_FIX
+            : kind === 'not-deployed'
+              ? NOT_DEPLOYED_FIX
+              : undefined,
     });
   } catch (e) {
     checks.push({
@@ -251,6 +303,7 @@ export async function runScorerChecks(): Promise<Check[]> {
           : {
               'not-deployed': 'Nothing is deployed at this path.',
               'gateway-401': 'The gateway refused your token before the function ran.',
+              'platform-401': 'Something above the function refused your token, without saying why.',
               'function-401': 'The function itself refused your token.',
               reached: `The function ran but replied ${res.status}.`,
               unexpected: `Unexpected reply (${res.status}).`,
@@ -258,16 +311,18 @@ export async function runScorerChecks(): Promise<Check[]> {
         detail:
           `POST ${url}\nAuthorization: Bearer <your access token>\n` +
           `body {"attemptId":"00000000-…-000000000000","stepId":"health-check","response":{}}\n\n` +
-          `status ${res.status}\n${body}`,
+          `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
         fix: worked
           ? undefined
           : kind === 'not-deployed'
             ? NOT_DEPLOYED_FIX
             : kind === 'gateway-401'
               ? GATEWAY_FIX
-              : kind === 'function-401'
-                ? 'The function refused your token. Check that the function belongs to this same Supabase project.'
-                : undefined,
+              : kind === 'platform-401'
+                ? PLATFORM_401_FIX
+                : kind === 'function-401'
+                  ? 'The function refused your token. Check that the function belongs to this same Supabase project.'
+                  : undefined,
       });
     } catch (e) {
       checks.push({
