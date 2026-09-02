@@ -14,6 +14,20 @@ import { getSession, isStaff } from '@/lib/session';
  * one; the app wins, so the static page is gone and its content lives here.
  */
 
+/**
+ * Always rendered per request, never prerendered.
+ *
+ * This page branches on the session, so it has to read cookies — but it only
+ * reaches the code that reads them when Supabase is configured. With the env
+ * vars absent at build time, `getSession()` returns at its `configured` guard
+ * before touching `cookies()`, Next sees no dynamic API, and prerenders `/` as
+ * a static file. That file then greets a signed-in user with a Sign in button
+ * for the life of the deployment, because it physically cannot see their
+ * cookies. Which of the two you get depends on whether the build machine had
+ * the env vars — the front door should not be deciding that by accident.
+ */
+export const dynamic = 'force-dynamic';
+
 const BUILT: Array<{ state: 'done' | 'next' | 'later'; text: string }> = [
   { state: 'done',  text: 'Postgres schema, multi-tenant row level security, guard triggers' },
   { state: 'done',  text: 'Runner contract — new activity types without redeploying the portal' },
