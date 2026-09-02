@@ -8,7 +8,7 @@
  * keys is worse than no checker, so each trap gets a fixture that must fail.
  */
 import { spawnSync } from 'node:child_process';
-import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import assert from 'node:assert';
 import os from 'node:os';
 import path from 'node:path';
@@ -173,6 +173,52 @@ expect('--order stays quiet when the order really is forced',
     check: { stdout: 'Hello, world\n' },
   }),
   { flags: ['--order'], code: 0, absent: 'can be swapped' });
+
+/* stdoutPattern, for a program whose output is not fixed. */
+expect('stdoutPattern accepts output that matches the shape',
+  file('pattern-ok', {
+    lines: [
+      { id: 'a', text: 'import random' },
+      { id: 'b', text: 'print("rolled", random.randint(1, 6))' },
+    ],
+    solution: [{ id: 'a', indent: 0 }, { id: 'b', indent: 0 }],
+    check: { stdoutPattern: '^rolled [1-6]\n$' },
+  }),
+  { code: 0, contains: 'output checked' });
+
+expect('stdoutPattern rejects output that does not',
+  file('pattern-bad', {
+    lines: [
+      { id: 'a', text: 'import random' },
+      { id: 'b', text: 'print("rolled", random.randint(10, 20))' },
+    ],
+    solution: [{ id: 'a', indent: 0 }, { id: 'b', indent: 0 }],
+    check: { stdoutPattern: '^rolled [1-6]\n$' },
+  }),
+  { code: 1, contains: 'does not match check.stdoutPattern' });
+
+/* A file-handling solution opens files by bare name. If the checker ran it in
+ * the repository, every run would litter the working tree. */
+const SIDE_EFFECT = 'checker-side-effect.txt';
+expect('a solution that writes a file writes it somewhere disposable',
+  file('writes-a-file', {
+    lines: [
+      { id: 'a', text: `with open("${SIDE_EFFECT}", "w") as f:` },
+      { id: 'b', text: 'f.write("hello\\n")' },
+      { id: 'c', text: 'print("written")' },
+    ],
+    solution: [{ id: 'a', indent: 0 }, { id: 'b', indent: 1 }, { id: 'c', indent: 0 }],
+    maxIndent: 1,
+    check: { stdout: 'written\n' },
+  }),
+  { code: 0, contains: 'output checked' });
+
+if (existsSync(path.join(process.cwd(), SIDE_EFFECT))) {
+  failures++;
+  console.log(`✗ ...and not into the working directory\n    ${SIDE_EFFECT} was left in ${process.cwd()}`);
+} else {
+  console.log('✓ ...and not into the working directory');
+}
 
 // --------------------------------------------------------------------------
 expect('the real Iteration activity is sound',

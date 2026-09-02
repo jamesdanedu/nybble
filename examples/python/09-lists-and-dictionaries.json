@@ -1,0 +1,392 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 09 Lists and dictionaries",
+      "topic": "Programming — Python",
+      "description": "The two collections: a list, where things are found by position, and a dictionary, where they are found by name. Creating, adding, removing, sorting, slicing, combining, splitting a string into a list, changing every item, and lists inside lists. Seven Parsons problems and an MCQ.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "A list and its positions",
+          "weight": 1,
+          "config": {
+            "title": "A list and its positions",
+            "instructions": "Make a list, then look at it in four different ways.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "colours = [\"red\", \"green\", \"blue\"]" },
+              { "id": "b", "text": "print(\"The list:\", colours)" },
+              { "id": "c", "text": "print(\"First:\", colours[0])" },
+              { "id": "d", "text": "print(\"Last:\", colours[-1])" },
+              { "id": "e", "text": "print(\"How many:\", len(colours))" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Printing the list itself shows the square brackets and the quotes — that is Python showing you the structure, not the way you would present it to a user. Positions work exactly as they do on a string: the first is 0 and -1 is the last, so you never have to write len(colours) - 1.",
+            "check": { "stdout": "The list: ['red', 'green', 'blue']\nFirst: red\nLast: blue\nHow many: 3\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Add, remove, sort",
+          "weight": 1,
+          "config": {
+            "title": "Add, remove, sort",
+            "instructions": "Three methods that change the list itself. The order they run in decides what is printed at the end.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "names = [\"Cara\", \"Aoife\"]" },
+              { "id": "b", "text": "names.append(\"Ben\")" },
+              { "id": "c", "text": "names.remove(\"Cara\")" },
+              { "id": "d", "text": "names.sort()" },
+              { "id": "e", "text": "print(names)" },
+              { "id": "f", "text": "print(\"Length:\", len(names))" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "These three are not like the string methods. append(), remove() and sort() change the list in place and hand nothing back, so you never write names = names.sort() — that would leave names holding None. remove() takes the value to remove, not its position.",
+            "check": { "stdout": "['Aoife', 'Ben']\nLength: 2\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Change every item",
+          "weight": 1,
+          "config": {
+            "title": "Change every item",
+            "instructions": "Build a second list from the first, leaving the original alone. Two of the wrong lines quietly change the wrong list.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "prices = [10, 20, 30]" },
+              { "id": "b", "text": "doubled = []" },
+              { "id": "c", "text": "for p in prices:" },
+              { "id": "d", "text": "doubled.append(p * 2)" },
+              { "id": "e", "text": "print(\"Before:\", prices)" },
+              { "id": "f", "text": "print(\"After:\", doubled)" },
+              { "id": "d1", "text": "doubled = prices" },
+              { "id": "d2", "text": "doubled.append(p)" },
+              { "id": "d3", "text": "prices.append(p * 2)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The new list starts empty and is filled one item at a time. doubled = prices does not make a copy — it gives the same list a second name, so changing one appears to change the other. Appending to prices while looping over prices is worse: the loop keeps finding new items and never ends.",
+            "check": { "stdout": "Before: [10, 20, 30]\nAfter: [20, 40, 60]\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Split a line into a list",
+          "weight": 1,
+          "config": {
+            "title": "Split a line into a list",
+            "instructions": "Turn one typed line into a list, then search it. What goes inside split() is the character to cut on.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "line = input(\"Names, separated by commas: \")" },
+              { "id": "b", "text": "names = line.split(\",\")" },
+              { "id": "c", "text": "print(\"Found\", len(names), \"names\")" },
+              { "id": "d", "text": "if \"Ben\" in names:" },
+              { "id": "e", "text": "print(\"Ben is in the list\")" },
+              { "id": "f", "text": "else:" },
+              { "id": "g", "text": "print(\"No Ben here\")" },
+              { "id": "d1", "text": "names = line.split()" },
+              { "id": "d2", "text": "names = split(line, \",\")" },
+              { "id": "d3", "text": "if names == \"Ben\":" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "split(\",\") cuts at every comma. split() with nothing in the brackets cuts at spaces instead, so a line typed without spaces would come back as one single item. split belongs to the string, so it goes after it with a dot. And `in` asks whether the list contains the name; == would compare the whole list against one string, which is never true.",
+            "check": { "stdin": "Aoife,Ben,Cara\n", "stdout": "Names, separated by commas: Found 3 names\nBen is in the list\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "A dictionary of marks",
+          "weight": 1,
+          "config": {
+            "title": "A dictionary of marks",
+            "instructions": "A dictionary stores a value under a name rather than a position. Adding and changing look identical — the difference is only whether the name was already there.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "marks = {\"Aoife\": 72, \"Ben\": 45}" },
+              { "id": "b", "text": "marks[\"Cara\"] = 91" },
+              { "id": "c", "text": "marks[\"Ben\"] = 58" },
+              { "id": "d", "text": "del marks[\"Aoife\"]" },
+              { "id": "e", "text": "print(marks)" },
+              { "id": "f", "text": "print(\"Ben scored\", marks[\"Ben\"])" },
+              { "id": "g", "text": "print(\"Students:\", len(marks))" },
+              { "id": "d1", "text": "marks = [\"Aoife\", 72]" },
+              { "id": "d2", "text": "marks.append(\"Cara\", 91)" },
+              { "id": "d3", "text": "marks.remove(\"Aoife\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "Curly brackets and name: value pairs make a dictionary; square brackets would make a list of four unrelated items. Inserting a new student and changing an existing one are the same line — marks[name] = value — which is why the order of those two lines matters for what gets printed. Removing is del, not remove(), and there is no append() on a dictionary because there is no end to append to.",
+            "check": { "stdout": "{'Ben': 58, 'Cara': 91}\nBen scored 58\nStudents: 2\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Loop through a dictionary",
+          "weight": 1,
+          "config": {
+            "title": "Loop through a dictionary",
+            "instructions": "Looping a dictionary gives you the names, one at a time. To reach the value you look it up.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "stock = {\"apples\": 4, \"pears\": 0, \"plums\": 7}" },
+              { "id": "b", "text": "for item in stock:" },
+              { "id": "c", "text": "if stock[item] == 0:" },
+              { "id": "d", "text": "print(item, \"- out of stock\")" },
+              { "id": "e", "text": "else:" },
+              { "id": "f", "text": "print(item, \"-\", stock[item], \"left\")" },
+              { "id": "d1", "text": "for item in stock():" },
+              { "id": "d2", "text": "if item == 0:" },
+              { "id": "d3", "text": "print(item, \"-\", stock, \"left\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 2 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 2 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The loop variable holds the name, not the value — so item is \"apples\" and stock[item] is 4. Testing item == 0 compares a word against a number and is never true. The else lines up with the if, one level inside the loop, so a line is printed for every fruit either way.",
+            "check": { "stdout": "apples - 4 left\npears - out of stock\nplums - 7 left\n" }
+          }
+        },
+        {
+          "id": "p7",
+          "runner_id": "parsons",
+          "title": "Combining, slicing, and a list of lists",
+          "weight": 1,
+          "config": {
+            "title": "Combining, slicing, and a list of lists",
+            "instructions": "Everything left in one program. A list can hold other lists, and then it takes two positions to reach an item.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "first = [1, 2, 3]" },
+              { "id": "b", "text": "second = [4, 5, 6]" },
+              { "id": "c", "text": "both = first + second" },
+              { "id": "d", "text": "print(\"Combined:\", both)" },
+              { "id": "e", "text": "print(\"Middle two:\", both[2:4])" },
+              { "id": "f", "text": "grid = [first, second]" },
+              { "id": "g", "text": "print(\"Row 0, item 1:\", grid[0][1])" },
+              { "id": "d1", "text": "both = first.append(second)" },
+              { "id": "d2", "text": "print(\"Middle two:\", both[2:5])" },
+              { "id": "d3", "text": "print(\"Row 0, item 1:\", grid[1])" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "+ on two lists joins them into a new one. append() would put the whole second list inside the first as a single item, and because it returns nothing, both would end up as None. A slice stops before the second number, so [2:4] is two items. grid[0] is a whole row; the second pair of brackets picks an item out of it.",
+            "check": { "stdout": "Combined: [1, 2, 3, 4, 5, 6]\nMiddle two: [3, 4]\nRow 0, item 1: 2\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Lists, dictionaries and what they return",
+          "weight": 1,
+          "config": {
+            "title": "Lists, dictionaries and what they return",
+            "instructions": "Five questions on the two collections and the methods that change them.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "scores = [4, 8, 15]\nprint(scores[1])",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "8" },
+                  { "id": "b", "text": "4" },
+                  { "id": "c", "text": "15" },
+                  { "id": "d", "text": "[4]" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is printed?",
+                "code": "names = [\"Cara\", \"Ben\"]\nnames = names.sort()\nprint(names)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "None" },
+                  { "id": "b", "text": "['Ben', 'Cara']" },
+                  { "id": "c", "text": "['Cara', 'Ben']" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Which line adds a new student to a dictionary called marks?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "marks[\"Dara\"] = 66", "code": true },
+                  { "id": "b", "text": "marks.append(\"Dara\", 66)", "code": true },
+                  { "id": "c", "text": "marks.add(\"Dara\", 66)", "code": true },
+                  { "id": "d", "text": "marks[\"Dara\", 66]", "code": true }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What is printed?",
+                "code": "line = \"a,b,c\"\nprint(len(line.split(\",\")))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "3" },
+                  { "id": "b", "text": "5" },
+                  { "id": "c", "text": "1" },
+                  { "id": "d", "text": "2" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "stock is a dictionary. What does item hold on each pass of this loop?",
+                "code": "for item in stock:",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "The key — the name each value is stored under" },
+                  { "id": "b", "text": "The value stored under each key" },
+                  { "id": "c", "text": "Both, as a pair" },
+                  { "id": "d", "text": "The position, counting from 0" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Position 1 is the second item, because counting starts at 0."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "sort() rearranges the list in place and hands nothing back, so storing its result overwrites the list with None. The fix is to call names.sort() on its own line."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Storing under a new key is how you add to a dictionary — the same line that would change an existing one. There is no append() or add(): a dictionary has no order to append to."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Splitting on the commas gives three items. len() then counts the items in the list, not the characters in the string."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Looping a dictionary gives the keys. To reach the value you look it up with stock[item]."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

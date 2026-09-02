@@ -21,8 +21,8 @@ order?* "Print a tab" is one line, so it isn't a Parsons problem.
 | Loops, conditionals, functions, file handling, building a list, the accumulator pattern, input → process → output | `len()` / `upper()` / `strip()`, what `pass` does, operator precedence, `randint` vs `randrange`, slicing syntax, spotting an infinite loop |
 
 So the unit of work is **one activity per checklist section**, mixing `parsons`
-and `mcq` steps in the one file. `06-iteration.json` ends with a five-question
-MCQ for exactly the items the eight Parsons problems could not reach.
+and `mcq` steps in the one file. Every file in `examples/python/` ends with a
+five-question MCQ for exactly the items its Parsons problems could not reach.
 
 ## 2. The ladder inside each section
 
@@ -70,19 +70,29 @@ this catalogue and add to it as classes go on:
 | Input | `word.upper` without the brackets | a method has to be called, not just named |
 | Assignment | `total =+ 25` | reads as "assign positive 25" — runs, and is wrong |
 | Assignment | `b = a` before `a` has been copied | a swap needs somewhere to put the first value |
+| Maths | `average = a + b / 2` | precedence, missing brackets |
 | Maths | `radius * 2` where `radius ** 2` is meant | doubling is not squaring |
-| Assignment / maths | `average = a + b / 2` | precedence, missing brackets |
 | Conditionals | `if x = 5:` | assignment mistaken for comparison |
 | Conditionals | a second `if` where `elif` belongs | independent tests vs one decision |
 | Iteration | `total = 0` placed inside the loop | the accumulator resets every pass |
 | Iteration | `for letter in range(word):` | `range()` is for numbers, not strings |
 | Iteration | `break` where `continue` belongs | abandoning the loop vs abandoning one pass |
 | Iteration | `range(1, 10)` for ten passes | the stop value is excluded |
+| Strings | `word.length` | Python has `len(word)`, not a `.length` |
+| Strings | `first[1]` for the initial | counting starts at 0 |
+| Randomness | `options[random.randint(0, 3)]` | `randint` includes both ends, so it can run off a 3-item list |
+| Randomness | `random.seed()` with no argument | seeds from the clock — the opposite of repeatable |
 | Lists | `scores = scores + item` | `+` concatenates lists; `append()` adds one item |
+| Lists | `names = names.sort()` | `sort()` changes in place and returns `None` |
 | Lists | `for i in range(names):` | needs `len(names)`, or just loop the list |
+| Dictionaries | `marks.append("Dara", 66)` | a dictionary is added to by key, not appended |
 | Functions | a `print()` where a `return` belongs | showing a value vs handing it back |
 | Functions | `return` inside the loop that should follow it | returning on the first pass |
+| Functions | `def f(a=1, b):` | a defaulted argument cannot precede a plain one |
 | File handling | `f.close()` inside the read loop | closing before the reading is done |
+| File handling | `f.read()` where `f.readline()` is meant | three near-identical names, three different results |
+| Time | `days = end - start` without `.days` | a timedelta prints, so the bug looks like an answer |
+| Time | `start + 7` | seven what? a date needs a `timedelta` |
 
 Two rules the checker enforces, because both are invisible on screen:
 
@@ -115,7 +125,25 @@ out of the browser with everything else secret:
 Include the `input()` prompts in `stdout` — they are printed too. Don't
 hand-write the expected output: run the program once and paste what it actually
 produced, then read it to confirm that is what you meant. `check` is optional;
-without a `stdout` the step is still compiled, just not run.
+without one the step is still compiled, just not run.
+
+Where the output is **not fixed** — anything using `random` or the clock — give
+a `stdoutPattern` regular expression instead:
+
+```jsonc
+"check": { "stdoutPattern": "^You rolled a [1-6]\n$" }
+```
+
+That still catches a solution that runs but produces nonsense, which
+compiling alone does not. Prefer an exact `stdout` when you can get one:
+`random.seed(42)` at the top of a problem makes the run repeatable, and seeding
+is on the checklist anyway. `--order` only works against an exact `stdout`,
+since a pattern cannot tell a swap from the original.
+
+Programs are run in a temp directory, so a file-handling solution that opens
+`notes.txt` by bare name writes it somewhere disposable rather than into the
+repository. Give each such problem its own file name and have it **create the
+file it reads**, so every step runs on its own and in any order.
 
 ## 5. Is the key's order the only order?
 
@@ -136,7 +164,9 @@ with it. Under `partial` marking one transposed pair costs a single position in
 the longest common subsequence — about a tenth of the marks on a six-line
 problem — and forcing every program into a strictly unique order means
 interleaving prints between assignments in ways nobody writes by hand. Across
-sections 01–06 it reports 28 such pairs, and all of them are setup lines.
+all twelve sections it reports 53 such pairs out of 72 problems, and every one
+of them is setup lines — two values being prepared, or an assignment sitting
+beside a print that does not use it.
 
 What to do with a warning, in order of preference: make the second line actually
 use the first (`each = sweets // children` before the print that reports it);
