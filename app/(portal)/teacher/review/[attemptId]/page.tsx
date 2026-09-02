@@ -56,7 +56,7 @@ export default async function ReviewAttemptPage({
   const late = Object.values(stepScores).some((s) => s?.late);
 
   return (
-    <Page wide>
+    <Page>
       <PageHeader
         title={student?.display_name ?? 'Unknown student'}
         subtitle={

@@ -29,7 +29,7 @@ export default async function ActivitiesPage() {
   }
 
   return (
-    <Page wide>
+    <Page>
       <PageHeader
         title="Activities"
         subtitle="The bank for your school. Import a file to add to it."

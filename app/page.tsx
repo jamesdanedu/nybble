@@ -31,7 +31,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-1 flex items-baseline gap-3">
         <h1 className="text-4xl font-bold tracking-tight">Nybble</h1>
         <span className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-muted">

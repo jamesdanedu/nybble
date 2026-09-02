@@ -17,17 +17,9 @@ export function cx(...parts: (string | false | null | undefined)[]) {
 
 /* --- layout ------------------------------------------------------------- */
 
-export function Page({
-  children,
-  wide = false,
-}: {
-  children: ReactNode;
-  wide?: boolean;
-}) {
+export function Page({ children }: { children: ReactNode }) {
   return (
-    <main className={cx('mx-auto w-full px-5 pb-24 pt-6 sm:px-7', wide ? 'max-w-6xl' : 'max-w-4xl')}>
-      {children}
-    </main>
+    <main className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pb-24 pt-6">{children}</main>
   );
 }
 
