@@ -37,16 +37,17 @@ function file(name, { lines, solution, distractors = [], maxIndent = 3, check })
   return p;
 }
 
-function run(p) {
-  const r = spawnSync(process.execPath, [CHECKER, p], { encoding: 'utf8' });
+function run(p, flags = []) {
+  const r = spawnSync(process.execPath, [CHECKER, ...flags, p], { encoding: 'utf8' });
   return { code: r.status, out: (r.stdout || '') + (r.stderr || '') };
 }
 
-function expect(name, p, { code, contains }) {
-  const { code: got, out } = run(p);
+function expect(name, p, { code, contains, flags = [], absent }) {
+  const { code: got, out } = run(p, flags);
   try {
     assert.strictEqual(got, code, `expected exit ${code}, got ${got}\n${out}`);
     if (contains) assert.ok(out.includes(contains), `expected output to mention "${contains}"\n${out}`);
+    if (absent) assert.ok(!out.includes(absent), `expected output NOT to mention "${absent}"\n${out}`);
     console.log(`✓ ${name}`);
   } catch (e) {
     failures++;
@@ -138,6 +139,40 @@ expect('two solution lines with the same text warn but do not fail',
     check: { stdout: 'go\ngo\n' },
   }),
   { code: 0, contains: 'marker matches ids' });
+
+/* --order: two lines that could be written either way round. Both of these are
+ * plain assignments the other does not depend on, so the swap still runs and
+ * still prints the same thing — which is exactly what the marker cannot see. */
+const INTERCHANGEABLE = {
+  lines: [
+    { id: 'a', text: 'width = 3' },
+    { id: 'b', text: 'height = 4' },
+    { id: 'c', text: 'print(width * height)' },
+  ],
+  solution: [{ id: 'a', indent: 0 }, { id: 'b', indent: 0 }, { id: 'c', indent: 0 }],
+  check: { stdout: '12\n' },
+};
+
+expect('--order spots two lines that could be written either way round',
+  file('either-way', INTERCHANGEABLE),
+  { flags: ['--order'], code: 0, contains: 'can be swapped' });
+
+expect('without --order the same file says nothing about it',
+  file('either-way-quiet', INTERCHANGEABLE),
+  { code: 0, absent: 'can be swapped' });
+
+expect('--order stays quiet when the order really is forced',
+  // Each line needs the one above it, so no swap survives.
+  file('forced-order', {
+    lines: [
+      { id: 'a', text: 'message = "Hello"' },
+      { id: 'b', text: 'message = message + ", world"' },
+      { id: 'c', text: 'print(message)' },
+    ],
+    solution: [{ id: 'a', indent: 0 }, { id: 'b', indent: 0 }, { id: 'c', indent: 0 }],
+    check: { stdout: 'Hello, world\n' },
+  }),
+  { flags: ['--order'], code: 0, absent: 'can be swapped' });
 
 // --------------------------------------------------------------------------
 expect('the real Iteration activity is sound',

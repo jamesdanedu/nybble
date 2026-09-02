@@ -24,6 +24,10 @@ supabase/
   config.toml                     keeps verify_jwt on for the scorer
   migrations/0001_init.sql        schema + RLS + guard triggers
   migrations/0002_profile_guard.sql  self-update guard as a trigger, not a subquery
+  migrations/0003_grants.sql      table privileges for `authenticated`
+  migrations/0004_school_admin.sql   school administration
+  migrations/0005_service_role_grants.sql  the same, for `service_role`
+  migrations/0006_parsons_runner.sql  registers the parsons runner (see the file)
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer

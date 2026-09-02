@@ -28,6 +28,9 @@
  *
  *   "check": { "stdin": "5\n0\n", "stdout": "Total: 5\n", "timeoutMs": 5000 }
  *
+ * With --order it goes further and proves the key's order is the only order
+ * that produces that output, by swapping each adjacent pair and re-running.
+ *
  * Exits non-zero if anything failed, so it can sit in CI beside --dry-run.
  * ======================================================================== */
 
@@ -54,6 +57,8 @@ ${bold('nybble parsons checker')}
 
 Options
   --show        print the reassembled program for every step
+  --order       also check that the key's order is the only order that works
+                (swaps each adjacent pair and re-runs; slower, warnings only)
   -h, --help    this
 
 Environment
@@ -124,51 +129,101 @@ function staticChecks(config, key, solution) {
 }
 
 /* --- the interpreter ----------------------------------------------------- */
-function runPython(source, check, dir, name) {
+const tail = (e) => String(e.stderr || e.message).trim().split('\n').slice(-3).join('\n');
+
+function compile(source, dir, name) {
   const file = path.join(dir, `${name}.py`);
   writeFileSync(file, source, 'utf8');
-
   try {
     execFileSync(PYTHON, ['-m', 'py_compile', file], { stdio: 'pipe' });
   } catch (e) {
-    const detail = String(e.stderr || e.message).trim().split('\n').slice(-3).join('\n');
-    return [{ level: 'error', msg: `the solution is not valid Python:\n${dim(detail)}` }];
+    return { error: `the solution is not valid Python:\n${dim(tail(e))}` };
   }
+  return { file };
+}
 
-  if (!check || check.stdout === undefined) return [];
-
-  let stdout;
+function execute(file, check) {
   try {
-    stdout = execFileSync(PYTHON, [file], {
-      input: check.stdin ?? '',
-      timeout: Number(check.timeoutMs) || DEFAULT_TIMEOUT_MS,
-      encoding: 'utf8',
-      stdio: 'pipe',
-    });
+    return {
+      stdout: execFileSync(PYTHON, [file], {
+        input: check.stdin ?? '',
+        timeout: Number(check.timeoutMs) || DEFAULT_TIMEOUT_MS,
+        encoding: 'utf8',
+        stdio: 'pipe',
+      }),
+    };
   } catch (e) {
     if (e.code === 'ETIMEDOUT' || e.signal === 'SIGTERM') {
-      return [{ level: 'error', msg: 'the solution never finished — an unguarded infinite loop, '
-        + 'or a check.stdin that runs out before the loop stops' }];
+      return { error: 'the solution never finished — an unguarded infinite loop, '
+        + 'or a check.stdin that runs out before the loop stops' };
     }
-    const detail = String(e.stderr || e.message).trim().split('\n').slice(-3).join('\n');
-    return [{ level: 'error', msg: `the solution raised at run time:\n${dim(detail)}` }];
+    return { error: `the solution raised at run time:\n${dim(tail(e))}` };
   }
+}
 
-  if (stdout !== check.stdout) {
+/* --- is the key's order the only order? ----------------------------------
+ * A straight-line program — and the early checklist sections are full of them
+ * — can easily hold two lines that could be written either way round. The
+ * marker does not know that: it matches the key, so a student who picks the
+ * other order loses marks for a program that works.
+ *
+ * Rather than guess from the text, swap each adjacent pair sitting at the same
+ * indent and run it. If the output is unchanged, the pair is interchangeable
+ * and the author has to decide whether to live with it. Off by default because
+ * a transposed pair costs only a little under partial marking, and forcing
+ * every program into a strictly unique order distorts the code students read.
+ * ---------------------------------------------------------------------- */
+function interchangeableLines(config, solution, check, dir, name) {
+  const problems = [];
+  for (let i = 0; i < solution.length - 1; i++) {
+    const a = solution[i], b = solution[i + 1];
+    // Across a change of indent a swap is a different program, not the same
+    // one written differently.
+    if (Number(a.indent || 0) !== Number(b.indent || 0)) continue;
+
+    const swapped = solution.slice();
+    swapped[i] = b;
+    swapped[i + 1] = a;
+    const { source } = reassemble(config, swapped);
+    const { file, error } = compile(source, dir, `${name}-swap${i}`);
+    if (error) continue;                       // the swap breaks it, which is the point
+
+    const out = execute(file, check);
+    if (out.error || out.stdout !== check.stdout) continue;
+
+    problems.push({ level: 'warn', msg: `lines ${a.id} and ${b.id} can be swapped and the `
+      + 'program still produces the same output, so a student who writes them the other way '
+      + 'round loses marks for an answer that works' });
+  }
+  return problems;
+}
+
+function behaviourChecks(config, key, solution, source, dir, name, checkOrder) {
+  const { file, error } = compile(source, dir, name);
+  if (error) return [{ level: 'error', msg: error }];
+
+  const check = key.check;
+  if (!check || check.stdout === undefined) return [];
+
+  const out = execute(file, check);
+  if (out.error) return [{ level: 'error', msg: out.error }];
+  if (out.stdout !== check.stdout) {
     return [{ level: 'error', msg: 'output does not match check.stdout:\n'
       + `${dim('expected')} ${JSON.stringify(check.stdout)}\n`
-      + `${dim('got     ')} ${JSON.stringify(stdout)}` }];
+      + `${dim('got     ')} ${JSON.stringify(out.stdout)}` }];
   }
-  return [];
+
+  return checkOrder ? interchangeableLines(config, solution, check, dir, name) : [];
 }
 
 /* --- main ---------------------------------------------------------------- */
 async function main() {
   const argv = process.argv.slice(2);
   const files = [];
-  let show = false;
+  let show = false, checkOrder = false;
   for (const a of argv) {
     if (a === '--show') show = true;
+    else if (a === '--order') checkOrder = true;
     else if (a === '-h' || a === '--help') { usage(); process.exit(0); }
     else if (a.startsWith('-')) { console.error(red('✗ ') + `Unknown option ${a}. Try --help.`); process.exit(1); }
     else files.push(a);
@@ -220,9 +275,10 @@ async function main() {
             continue;
           }
 
+          const safeName = `${activity.title}-${step.id}`.replace(/[^\w-]+/g, '_');
           const problems = [
             ...staticChecks(config, key, solution),
-            ...runPython(source, key.check, dir, `${activity.title}-${step.id}`.replace(/[^\w-]+/g, '_')),
+            ...behaviourChecks(config, key, solution, source, dir, safeName, checkOrder),
           ];
           if (key.check && key.check.stdout !== undefined) ran++;
 

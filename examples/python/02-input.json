@@ -1,0 +1,287 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 02 Input",
+      "topic": "Programming — Python",
+      "description": "Reading from the user with input(), and the thing that catches everyone: input() always hands back a string, so a number has to be converted before it can be used as one. Five Parsons problems and an MCQ. Still nothing indented.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Ask for a name",
+          "weight": 1,
+          "config": {
+            "title": "Ask for a name",
+            "instructions": "Greet the user, ask their name, then use it. The prompt is part of the input() line — there is no separate print for it.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "print(\"Hello!\")" },
+              { "id": "b", "text": "name = input(\"What is your name? \")" },
+              { "id": "c", "text": "print(\"Nice to meet you,\", name)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 3,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The text inside input() is printed as the prompt, and the program waits there until the user presses Enter. Whatever they typed is then stored in name, which is why the greeting has to come after it.",
+            "check": { "stdin": "Aoife\n", "stdout": "Hello!\nWhat is your name? Nice to meet you, Aoife\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Add two numbers the user types",
+          "weight": 1,
+          "config": {
+            "title": "Add two numbers the user types",
+            "instructions": "Read two whole numbers and add them. int() around the input is what makes them numbers rather than text.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "first = int(input(\"First number: \"))" },
+              { "id": "b", "text": "second = int(input(\"Second number: \"))" },
+              { "id": "c", "text": "total = first + second" },
+              { "id": "d", "text": "print(\"The total is\", total)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Read the line from the inside out: input() collects the text, int() turns it into a whole number, and the = stores it. Without int() the + would join \"12\" and \"30\" into \"1230\" instead of adding them.",
+            "check": { "stdin": "12\n30\n", "stdout": "First number: Second number: The total is 42\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Average two marks",
+          "weight": 1,
+          "config": {
+            "title": "Average two marks",
+            "instructions": "Marks can have a decimal point, so these need float() rather than int(). Three of the lines are wrong — one of them forgets the brackets that decide the order.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "mark1 = float(input(\"First mark: \"))" },
+              { "id": "b", "text": "mark2 = float(input(\"Second mark: \"))" },
+              { "id": "c", "text": "average = (mark1 + mark2) / 2" },
+              { "id": "d", "text": "print(\"Average:\", average)" },
+              { "id": "d1", "text": "mark1 = input(\"First mark: \")" },
+              { "id": "d2", "text": "average = mark1 + mark2 / 2" },
+              { "id": "d3", "text": "average = (mark1 + mark2) // 2" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "float() copes with 62.5 where int() would refuse it. The brackets matter: without them Python divides mark2 by 2 first and then adds mark1, because division is done before addition. // would throw away everything after the decimal point, so an average of 67.0 would come out as 67.",
+            "check": { "stdin": "62.5\n71.5\n", "stdout": "First mark: Second mark: Average: 67.0\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Take a word apart",
+          "weight": 1,
+          "config": {
+            "title": "Take a word apart",
+            "instructions": "Read a word and report on it. Two of the wrong lines use a function that exists — but in the wrong way.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "word = input(\"Enter a word: \")" },
+              { "id": "b", "text": "print(\"You typed:\", word)" },
+              { "id": "c", "text": "print(\"In capitals:\", word.upper())" },
+              { "id": "d", "text": "print(\"It has\", len(word), \"letters\")" },
+              { "id": "d1", "text": "print(\"In capitals:\", upper(word))" },
+              { "id": "d2", "text": "print(\"In capitals:\", word.upper)" },
+              { "id": "d3", "text": "print(\"It has \" + len(word) + \" letters\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "upper() belongs to the string, so it is written after it with a dot: word.upper(). The brackets are what actually run it — word.upper without them prints a description of the method rather than the capitals. len() is the other way round: it is a plain function, so the word goes inside its brackets, and because it gives back a number it needs a comma rather than a +.",
+            "check": { "stdin": "nybble\n", "stdout": "Enter a word: You typed: nybble\nIn capitals: NYBBLE\nIt has 6 letters\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Work out a bill",
+          "weight": 1,
+          "config": {
+            "title": "Work out a bill",
+            "instructions": "Three inputs of three different kinds — text, a whole number and a decimal — and a formatted total at the end.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "item = input(\"Item: \")" },
+              { "id": "b", "text": "quantity = int(input(\"How many? \"))" },
+              { "id": "c", "text": "price = float(input(\"Price each: \"))" },
+              { "id": "d", "text": "total = quantity * price" },
+              { "id": "e", "text": "print(f\"{quantity} x {item} = €{total:.2f}\")" },
+              { "id": "d1", "text": "quantity = input(\"How many? \")" },
+              { "id": "d2", "text": "total = quantity + price" },
+              { "id": "d3", "text": "print(f\"{quantity} x {item} = €{total}\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "The item stays a string because it is never used as a number. The quantity is whole, so int(); the price has a decimal point, so float(). quantity * price is what a bill is — adding them would be meaningless. Without :.2f a total of 11.25 is fine but a total of 11.2 would print as 11.2 rather than 11.20.",
+            "check": { "stdin": "Latte\n3\n3.75\n", "stdout": "Item: How many? Price each: 3 x Latte = €11.25\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "input() — what type do you get?",
+          "weight": 1,
+          "config": {
+            "title": "input() — what type do you get?",
+            "instructions": "Five questions on input() and converting what it gives you.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What type of value does input() always give back?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "A string, whatever the user typed" },
+                  { "id": "b", "text": "A whole number if the user typed digits, a string otherwise" },
+                  { "id": "c", "text": "Whatever type the variable already held" },
+                  { "id": "d", "text": "A number, always" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "The user types 12 and then 30. What appears on screen?",
+                "code": "a = input(\"First: \")\nb = input(\"Second: \")\nprint(a + b)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "1230" },
+                  { "id": "b", "text": "42" },
+                  { "id": "c", "text": "12 30" },
+                  { "id": "d", "text": "An error, because you cannot add two inputs" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "The user types 7.5. Which line stores it as a number the program can do arithmetic with?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "weight = float(input(\"Weight: \"))", "code": true },
+                  { "id": "b", "text": "weight = int(input(\"Weight: \"))", "code": true },
+                  { "id": "c", "text": "weight = input(\"Weight: \")", "code": true },
+                  { "id": "d", "text": "weight = str(input(\"Weight: \"))", "code": true }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Where does the prompt \"How old are you? \" get printed from?",
+                "code": "age = int(input(\"How old are you? \"))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "input() prints it before waiting for the user" },
+                  { "id": "b", "text": "int() prints it" },
+                  { "id": "c", "text": "It is not printed — it is only a comment for the programmer" },
+                  { "id": "d", "text": "It needs a separate print() line before it" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "The user types seventeen instead of 17. What happens?",
+                "code": "age = int(input(\"Age: \"))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "The program stops with a ValueError" },
+                  { "id": "b", "text": "age is set to 17" },
+                  { "id": "c", "text": "age is set to 0" },
+                  { "id": "d", "text": "age is set to the string \"seventeen\"" }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Always a string. That is the single most common source of bugs in a first program: the value looks like a number on screen but behaves like text."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Both are strings, so + joins them end to end. int() around each input is what would make it 42."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "float() handles a decimal point. int() would refuse 7.5 outright, and the other two leave it as text."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "The prompt belongs to input(), which prints it and then waits. int() only converts what comes back."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "int() can only convert text that actually looks like a whole number. Anything else stops the program with a ValueError."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
