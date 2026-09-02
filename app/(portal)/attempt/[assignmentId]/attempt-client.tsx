@@ -130,9 +130,15 @@ export function AttemptClient({
         const res = await fetch(env.scoreFunctionUrl, {
           method: 'POST',
           headers: {
+            // No `apikey` header. An Edge Function authenticates from the
+            // Authorization bearer token alone; the extra header was never
+            // required, it is what broke the CORS preflight, and when the
+            // project uses the newer `sb_publishable_...` keys it is not a JWT
+            // at all — which the gateway can reject outright while every
+            // PostgREST call keeps working, because PostgREST accepts both key
+            // formats and the function gateway does not.
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
-            apikey: env.supabaseAnonKey,
           },
           body: JSON.stringify({
             attemptId: attempt.id,
@@ -144,12 +150,28 @@ export function AttemptClient({
         const body = (await res.json().catch(() => ({}))) as ScoreResponse;
 
         if (!res.ok) {
+          // TWO different services answer on this URL, and they do not agree on
+          // how to report a failure. Our own code always replies { error }. The
+          // Supabase gateway rejects a bad token BEFORE the function runs and
+          // replies { message } or { msg }. Reading only `error` turned every
+          // gateway rejection into "check the connection" — wrong, and nothing
+          // a student or a teacher could act on.
+          const detail =
+            (body as Record<string, unknown>).error ??
+            (body as Record<string, unknown>).message ??
+            (body as Record<string, unknown>).msg ??
+            null;
+          console.error(`[nybble] scorer returned ${res.status} from ${env.scoreFunctionUrl}`, body);
           setError(
             body.error === 'attempt already submitted'
               ? 'This attempt has already been handed up.'
-              : body.error
-                ? `Could not save your answer: ${body.error}`
-                : 'Could not save your answer. Check the connection and press Submit again — nothing was lost.',
+              : res.status === 401
+                ? `The marking service would not accept your sign-in${
+                    detail ? ` (${String(detail)})` : ''
+                  }. Sign out and back in; if it keeps happening, tell your teacher.`
+                : detail
+                  ? `Could not save your answer: ${String(detail)}`
+                  : `Could not save your answer (error ${res.status}). Your work is saved — press Submit again, and tell your teacher if it keeps happening.`,
           );
           setBusy(false);
           return;
