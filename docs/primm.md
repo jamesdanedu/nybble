@@ -71,6 +71,7 @@ works fine today only because no activity has more than one kind of step in it.
 |---|---|---|
 | `freetext` runner | Predict, Make | **shipped** |
 | `context.prior` | Investigate, Make | **shipped** |
+| engine decision | Run, Modify | **settled — Skulpt**, see below |
 | `pyrun` runner | Run, Modify | still to do, and the bulk of the work |
 | resubmission lock | Predict | still to do — scorer fix |
 | pending-manual marks | results page | still to do — scoring fix |
@@ -167,68 +168,107 @@ cases. Two configurations of the same runner:
 
 The engine is deliberately not named here.
 
-## The open question: which Python engine
+## The engine: Skulpt
 
-**This is unresolved and gated on a spike.** The sandbox is what decides it.
+**Decided by spike, not by preference.** Both candidates were run inside the real
+runner sandbox — mounted through the production `runner-host.js`, with nothing
+relaxed — against the four criteria set out for this decision. Skulpt wins on
+two of them, ties on one, and Pyodide is disqualified on the one that was always
+going to be decisive.
 
-The runner iframe is `allow-scripts allow-forms allow-popups` with **no
-`allow-same-origin`** (`runner-host.js:31`). That is a deliberate, correct
-choice — it is why a runner cannot reach the portal's Supabase session — and it
-constrains the engine severely:
+### What the sandbox actually permits
 
-- **Opaque origin, so every storage API throws.** `localStorage`, IndexedDB,
-  Cache Storage. Nothing persists across iframe loads except the browser's own
-  HTTP cache.
-- **No `SharedArrayBuffer`.** Cross-origin isolation needs `allow-same-origin`
-  plus COEP. This removes Pyodide's interrupt buffer, which is the supported way
-  to stop running code.
-- **Web Workers from an opaque origin are uncertain** and vary by browser. This
-  needs measuring, not assuming.
+Measured from inside the iframe rather than assumed. These constrain every
+future runner, not just this one:
 
-The consequence that matters pedagogically: with neither a worker nor a
-`SharedArrayBuffer`, `while True:` freezes the iframe with no way out except the
-host destroying it. In a room of fifteen-year-olds that happens in week one.
+| | |
+|---|---|
+| `localStorage`, `indexedDB`, `caches` | all throw `SecurityError` |
+| `SharedArrayBuffer` | absent; `crossOriginIsolated` false |
+| Worker from a URL | refused — *"cannot be accessed from origin 'null'"* |
+| Worker from a Blob URL, classic | **works** |
+| Worker from a Blob URL, **module** | **fails**, even a trivial one |
+| `fetch()` to the runner's own site | fails — the opaque origin makes it cross-origin |
+| `fetch()` to an origin sending CORS headers | works |
+| `<script src>` and classic `importScripts` | work; not subject to CORS |
 
-### The candidates
+The fourth and sixth rows are the ones that decided this. Note the sixth
+carefully: **a runner that fetches anything from JavaScript needs CORS headers
+on whatever serves it**, because the sandbox's opaque origin makes even a
+same-site request cross-origin. Loading via `<script src>` sidesteps this
+entirely, which is why Skulpt never hits it and Pyodide does.
+
+(`location.origin` inside the frame reports the site's origin and is
+misleading — the storage exceptions and the worker error are the authoritative
+signal that the document origin is opaque.)
+
+### The four criteria
 
 | | Skulpt | Pyodide |
 |---|---|---|
-| Size | ~1.5 MB, vendorable into `public/runners/lib/` | ~10 MB+, realistically CDN-only |
-| Caching | irrelevant, it ships with the repo | none available — opaque origin |
-| Stopping runaway code | `Sk.execLimit`, main thread | needs SAB or a worker |
-| Python fidelity | a subset | real CPython |
-| `test/harness.test.mjs` | runs offline under `test/vercel-sim.py` | needs network |
+| **1. Size** (gzipped, measured) | **228 KB** | **6.03 MB** — 27× more |
+| **1. Init cost** | 12 ms cold, 6 ms warm | ~2.0 s, and ~2.0 s again warm |
+| **2. Stops a runaway loop** | **yes** — `TimeLimitError` at 3007 ms | **no** — froze until the 45 s timeout |
+| **3. Frame survives the abort** | **yes** — ran `print(6*7)` → `42` next | **no** — frame never recovered |
+| **4. LCCS coverage** | **14/14** | **14/14** |
 
-That last row is not a detail. Every other runner in this repo is tested
-end-to-end against a local static server with no network access. An engine that
-cannot be tested that way breaks the testing story for all of them.
+Criterion 4 is the surprise, and it removes the only real argument for Pyodide.
+The battery — f-strings, list comprehensions, dictionaries, string methods,
+`try`/`except`, `while` accumulators, default arguments, `enumerate`/`zip`,
+`sorted(key=…)`, classes, `//` and `%` and `round`, seeded `random`, list
+methods, and `input()` — is the Leaving Cert Python surface, and both engines
+ran it byte-identical with identical results. **The fidelity tradeoff everyone
+assumes when choosing Skulpt does not bite at this level.** It would bite on
+`numpy` or `matplotlib`; those are not on the course.
 
-### The spike
+The size figures are transfer bytes, gzipped, measured from the files
+themselves. Attempts to throttle the network at the browser did not reach the
+sandboxed subframe, so rather than present fake measurements: at a contended
+1.5 Mbps that is roughly 1.2 s of transfer for Skulpt against about 33 s for
+Pyodide, and at a modest 4 Mbps about 0.5 s against 12 s. That is arithmetic on
+measured sizes, not a stopwatch. The HTTP cache does spare the repeat download
+— it is the only cache available, since every storage API throws — but
+Pyodide's ~2 s is mostly wasm instantiation and unpacking the stdlib, and it is
+paid on **every** mount, warm cache or not. That was measured: 2052 ms cold,
+2007 ms warm.
 
-Before either runner is written, build a throwaway page — `public/spike.html`,
-deleted afterwards — mounted through the **real** `runner-host.js` sandbox, not
-a relaxed one. Load each engine and record:
+### Why Pyodide could not be rescued
 
-1. **Cold load time** on a throttled connection, and again on reload, to see
-   what the HTTP cache actually saves under an opaque origin.
-2. **Does a runaway loop stop?** Run `while True: pass` and confirm the engine
-   aborts it. For Skulpt that means `Sk.execLimit` firing; for Pyodide it means
-   establishing whether a worker can even be constructed there.
-3. **Does the iframe survive it?** After the abort, can the student edit and run
-   again, or is the frame dead?
-4. **LCCS coverage.** Run a page of representative Leaving Cert code — f-strings,
-   list comprehensions, `input()`, dictionaries, `try/except`, string methods —
-   and note what each engine refuses.
+Pyodide fails criterion 2 on the main thread because stopping it needs an
+interrupt buffer, which needs `SharedArrayBuffer`, which needs cross-origin
+isolation, which needs the `allow-same-origin` this contract deliberately
+withholds. The alternative is a worker, and that was pursued to the end:
 
-**Decision rule.** Skulpt wins unless (2) or (3) fails for it, or (4) shows it
-refusing something on the LCCS course. Pyodide wins only if it clears (2) and (3)
-inside the real sandbox — if it cannot stop a runaway loop there, it is
-disqualified whatever its fidelity, because a frozen tab mid-class is worse than
-an unsupported language feature.
+1. A URL worker is refused outright from the opaque origin.
+2. A **classic** Blob worker constructs and runs — but Pyodide rejects it
+   itself: *"Classic web workers are not supported."*
+3. So Pyodide needs a **module** worker — and a module Blob worker fails in this
+   sandbox even with a trivial one-line body.
 
-Whichever wins, the runner id stays `pyrun` and the engine stays behind that one
-HTML file, so switching later is a `runners` row and a file — not a portal
-redeploy. That is the whole point of the contract.
+There is no fourth option. Pyodide cannot run in a worker here, and on the main
+thread it cannot be stopped. Per the decision rule, a frozen tab mid-class is
+worse than an unsupported language feature — and as criterion 4 shows, there is
+no unsupported language feature to trade against it.
+
+One more thing the spike settled: Pyodide **does not load at all** from
+`public/` as this repo serves it today, failing with *"Failed to fetch
+dynamically imported module: pyodide.asm.mjs"*. It needs CORS headers on its
+asset origin before it will even start. It was given them for the rest of the
+spike, so the results above are Pyodide at its best, not Pyodide handicapped.
+
+### What this means for `pyrun`
+
+- **Vendor Skulpt into `public/runners/lib/`.** 228 KB in the repo, no CDN, no
+  network at test time — `test/harness.test.mjs` keeps working offline against
+  `test/vercel-sim.py`, the same as every other runner.
+- **Load it with `<script src>`**, never `fetch`, so the CORS constraint above
+  never applies.
+- **Set `execLimit`** and surface `TimeLimitError` to the student as "your
+  program ran too long — is there a loop that never ends?", which is a teaching
+  moment rather than an error.
+- The runner id stays `pyrun`. If the course ever needs real CPython, the engine
+  is one HTML file behind the contract, and the sandbox facts above are what a
+  future attempt has to solve.
 
 ## Marking: what the browser is allowed to be believed about
 
@@ -296,8 +336,7 @@ property `reviews` was split from `attempts` to preserve.
 1. ~~**`freetext` + `context.prior`.**~~ **Done.** A four-step PRIMM runs end to
    end; `examples/primm-total.json` is the worked example, and the runner is
    covered in `test/harness.test.mjs` alongside the others.
-2. **The engine spike.** Throwaway, inside the real sandbox, against the decision
-   rule above.
+2. ~~**The engine spike.**~~ **Done.** Skulpt, on the evidence above.
 3. **`pyrun`**, plus harness coverage matching the existing runners in
    `test/harness.test.mjs`.
 4. **The two defects.**

@@ -80,6 +80,39 @@ authenticate by **window identity**:
 - the runner only accepts messages where `event.source === window.parent`
 - the host only accepts messages where `event.source === iframe.contentWindow`
 
+### What the sandbox permits
+
+Measured from inside a real runner frame, not assumed. Withholding
+`allow-same-origin` gives the document an **opaque origin**, and that has
+consequences well beyond the session isolation it is there for:
+
+| | |
+|---|---|
+| `localStorage`, `indexedDB`, `caches` | all throw `SecurityError` |
+| `SharedArrayBuffer` | absent (`crossOriginIsolated` is false) |
+| Worker from a URL | refused — *"cannot be accessed from origin 'null'"* |
+| Worker from a Blob URL, classic | works |
+| Worker from a Blob URL, **module** | fails, even with a trivial body |
+| `fetch()` to the runner's own site | **fails** — see below |
+| `fetch()` to an origin sending CORS headers | works |
+| `<script src>`, classic `importScripts` | work; not subject to CORS |
+
+Two of these bite in practice:
+
+- **A runner cannot cache anything across loads.** The browser's HTTP cache is
+  the only one available. Do not write a runner that assumes otherwise.
+- **A `fetch()` from a runner is always a cross-origin request, even to the
+  runner's own site**, because the requesting origin is opaque rather than the
+  site's. It therefore needs CORS headers on whatever serves it. Loading with
+  `<script src>` avoids this entirely, and is the reason a runner should ship
+  its dependencies as scripts rather than fetch them.
+
+`location.origin` inside the frame reports the site's origin and is misleading;
+the storage exceptions are the honest signal.
+
+These were established by the engine spike in `docs/primm.md`, which is also
+where the reasoning lives for why they ruled one candidate out.
+
 ### Scores from a runner are advisory
 
 Everything inside the iframe is under the student's control — they can open dev
