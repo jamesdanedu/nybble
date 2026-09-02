@@ -38,5 +38,41 @@ export function serviceRoleKey(): string {
         'need it; add it to the deployment environment (server-side only).',
     );
   }
+  const wrong = wrongKeyKind(key);
+  if (wrong) {
+    throw new Error(
+      `SUPABASE_SERVICE_ROLE_KEY is set to ${wrong}, not the service role key. ` +
+        'Both keys are long strings from the same dashboard page, so they are ' +
+        'easy to swap — and a publishable key does not fail loudly, it just ' +
+        'returns no rows, because row-level security applies to it. Take the ' +
+        'secret / service_role key from Project Settings → API Keys.',
+    );
+  }
   return key;
+}
+
+/**
+ * Name the key we were given, if it is obviously the wrong one.
+ *
+ * This is a shape check, not an authorisation check — it cannot tell a valid
+ * service key from a revoked one. It exists because pasting the publishable key
+ * here is the single easiest mistake to make, and its symptom is silence:
+ * every service-role query comes back with zero rows and the app reports
+ * something misleading and distant, like "your profile has no school".
+ */
+function wrongKeyKind(key: string): string | null {
+  if (key.startsWith('sb_publishable_')) return 'a publishable key';
+  if (key === supabaseAnonKey) return 'the same value as the anon key';
+
+  // Legacy keys are unsigned-readable JWTs carrying { "role": "anon" | "service_role" }.
+  const parts = key.split('.');
+  if (parts.length !== 3) return null;
+  let role: unknown;
+  try {
+    role = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')).role;
+  } catch {
+    return null; // not a JWT we can read; let Supabase be the judge
+  }
+  if (typeof role === 'string' && role !== 'service_role') return `a "${role}" key`;
+  return null;
 }

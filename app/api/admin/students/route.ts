@@ -70,13 +70,34 @@ export async function POST(request: NextRequest) {
   }
 
   // The school's slug forms the synthetic email domain.
-  const { data: school } = await admin
+  if (!profile.school_id) {
+    return NextResponse.json(
+      { error: 'Your profile has no school. Ask an admin to set one before adding students.' },
+      { status: 500 },
+    );
+  }
+  const { data: school, error: schoolError } = await admin
     .from('schools')
     .select('id, slug')
     .eq('id', profile.school_id)
-    .single();
-  if (!school) {
-    return NextResponse.json({ error: 'Your profile has no school.' }, { status: 500 });
+    .maybeSingle();
+  if (schoolError || !school) {
+    // Reaching here means the SERVICE-ROLE client could not read a school the
+    // caller's own session can already see — the portal header is showing its
+    // name. That is not a data problem, it is a key problem: a publishable or
+    // anon key in SUPABASE_SERVICE_ROLE_KEY is subject to row-level security,
+    // so it reads nothing and says nothing. Say so, rather than blaming the
+    // profile.
+    return NextResponse.json(
+      {
+        error:
+          'The server could not read your school with its admin key. ' +
+          'Check SUPABASE_SERVICE_ROLE_KEY in the deployment environment — it ' +
+          'must be the secret / service_role key, not the publishable one.' +
+          (schoolError ? ` (${schoolError.message})` : ''),
+      },
+      { status: 500 },
+    );
   }
 
   // If a class was named, it must belong to the caller's school. The service

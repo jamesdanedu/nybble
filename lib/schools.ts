@@ -31,10 +31,17 @@ export async function listSchools(): Promise<SchoolChoice[]> {
       .from('schools')
       .select('id, name, slug')
       .order('name');
-    if (error) return [];
+    if (error) {
+      // Not fatal — the login form still renders off the environment fallback —
+      // but silence here is how a bad service key stays hidden until somebody
+      // tries to add a student. Leave a trail in the deployment logs.
+      console.error('listSchools: could not read schools with the admin key:', error.message);
+      return [];
+    }
     return (data ?? []) as SchoolChoice[];
-  } catch {
-    // serviceRoleKey() throws when unset. Not fatal here.
+  } catch (e) {
+    // serviceRoleKey() throws when unset or obviously the wrong key.
+    console.error('listSchools:', e instanceof Error ? e.message : e);
     return [];
   }
 }
