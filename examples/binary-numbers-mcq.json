@@ -1,0 +1,349 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Binary numbers",
+      "topic": "Number Systems",
+      "description": "Ten questions on binary representation: place value, conversion between denary, binary and hexadecimal, binary addition, and where binary shows up in practice. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "binary-mcq",
+          "runner_id": "mcq",
+          "title": "Binary numbers",
+          "weight": 1,
+          "config": {
+            "title": "Binary numbers",
+            "instructions": "Work each one out on paper before you choose. Every question tells you how many marks it is worth.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is the binary number 10110110 in denary (base 10)?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "166"
+                  },
+                  {
+                    "id": "b",
+                    "text": "174"
+                  },
+                  {
+                    "id": "c",
+                    "text": "180"
+                  },
+                  {
+                    "id": "d",
+                    "text": "182"
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is the denary number 200 as an 8-bit binary number?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "10011000",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "11000100",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "11001000",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "11001100",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "How many different values can be represented using 12 bits?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "1024"
+                  },
+                  {
+                    "id": "b",
+                    "text": "2048"
+                  },
+                  {
+                    "id": "c",
+                    "text": "4095"
+                  },
+                  {
+                    "id": "d",
+                    "text": "4096"
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What is the largest number that can be stored in one unsigned byte?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "127"
+                  },
+                  {
+                    "id": "b",
+                    "text": "128"
+                  },
+                  {
+                    "id": "c",
+                    "text": "255"
+                  },
+                  {
+                    "id": "d",
+                    "text": "256"
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "Add these two 8-bit binary numbers. What is the result?",
+                "code": "  01101101\n+ 00010110\n----------",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "01111011",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "01111111",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "10000001",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "10000011",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "What is the hexadecimal number 2F as an 8-bit binary number?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "00101101",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "00101111",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "00111111",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "01001111",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "What is the binary number 11011010 in hexadecimal?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "AD",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "BA",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "D2",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "DA",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q13",
+                "stem": "A school needs to give every one of its 1000 students a different binary code. What is the smallest number of bits that will do?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "9"
+                  },
+                  {
+                    "id": "b",
+                    "text": "10"
+                  },
+                  {
+                    "id": "c",
+                    "text": "11"
+                  },
+                  {
+                    "id": "d",
+                    "text": "16"
+                  }
+                ]
+              },
+              {
+                "id": "q14",
+                "stem": "An image stores each pixel using 8 bits for red, 8 bits for green and 8 bits for blue. How many different colours can one pixel be?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "256"
+                  },
+                  {
+                    "id": "b",
+                    "text": "768"
+                  },
+                  {
+                    "id": "c",
+                    "text": "65 536"
+                  },
+                  {
+                    "id": "d",
+                    "text": "16 777 216"
+                  }
+                ]
+              },
+              {
+                "id": "q15",
+                "stem": "Why do computers represent data in binary rather than in denary?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A binary number always needs fewer digits than the same denary number."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Binary uses less memory than denary."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Electronic components can reliably tell two states apart, so two symbols are far less error-prone than ten."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Arithmetic can only be carried out in binary."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Write the place values above the bits: 128 64 32 16 8 4 2 1. The 1s sit under 128, 32, 16, 4 and 2, and 128 + 32 + 16 + 4 + 2 = 182."
+            },
+            "q2": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Take the largest place value that fits and keep going: 200 − 128 = 72, 72 − 64 = 8, 8 − 8 = 0. So the 128, 64 and 8 columns hold a 1 and the rest hold 0: 11001000."
+            },
+            "q3": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Each extra bit doubles the number of patterns, so n bits give 2^n of them. 2^12 = 4096. Note 4096 is the count of values, not the largest one — the largest is 4095, because the count starts at 0."
+            },
+            "q4": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A byte is 8 bits, giving 2^8 = 256 patterns. They run from 0 to 255, so the largest is 255 — one less than the number of patterns, because 0 uses one of them."
+            },
+            "q7": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "01101101 is 109 and 00010110 is 22, so the answer is 131 = 10000011. Working in binary, the carries ripple through the run of 1s in the middle — 01111011 is what you get if you drop one of them."
+            },
+            "q8": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Each hex digit is exactly four bits, so convert them separately: 2 = 0010 and F = 1111. Join them: 00101111. This is why hex is used as shorthand for binary — no arithmetic is needed, just a lookup."
+            },
+            "q9": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Split the byte into nibbles: 1101 and 1010. 1101 = 13 = D, 1010 = 10 = A. So the answer is DA. AD is the same two digits the wrong way round."
+            },
+            "q13": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "9 bits give 2^9 = 512 codes, which is not enough for 1000 students. 10 bits give 2^10 = 1024, which is. So 10 is the smallest that works — with 24 codes to spare."
+            },
+            "q14": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "The three channels are independent, so the totals multiply rather than add: 256 × 256 × 256 = 2^24 = 16 777 216. That is the same as treating the whole pixel as one 24-bit number. 768 is what you get by adding the channels instead of multiplying."
+            },
+            "q15": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A circuit only has to tell 'voltage present' from 'voltage absent', and that decision survives noise, heat and ageing components. Ten distinguishable voltage levels would be far more fragile. Binary actually needs MORE digits than denary, not fewer — reliability is worth that cost."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
