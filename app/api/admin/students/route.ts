@@ -88,14 +88,23 @@ export async function POST(request: NextRequest) {
     // publishable key is subject to row-level security, so it reads nothing
     // and reports nothing), or the school row that school_id points at is
     // gone. Include the id so the second is one query away from settled.
+    // "permission denied" is a GRANT failure, and it is worth separating from
+    // every other reason a read comes back empty: RLS denies by returning zero
+    // rows, so an actual error here means the role never got as far as a
+    // policy. That points at the database, not at the deployment settings.
+    const denied = /permission denied/i.test(schoolError?.message ?? '');
     return NextResponse.json(
       {
-        error:
-          `The server could not read school ${profile.school_id} with its admin key. ` +
-          'Either SUPABASE_SERVICE_ROLE_KEY is not the secret / service_role key ' +
-          '(a publishable key reads nothing and says nothing, because row-level ' +
-          'security applies to it), or that school row no longer exists.' +
-          (schoolError ? ` (${schoolError.message})` : ''),
+        error: denied
+          ? 'The database refused the read: the role behind SUPABASE_SERVICE_ROLE_KEY ' +
+            'has no privileges on the schools table. Run ' +
+            'supabase/migrations/0005_service_role_grants.sql in the SQL editor. ' +
+            `(${schoolError?.message})`
+          : `The server could not read school ${profile.school_id} with its admin key. ` +
+            'Either SUPABASE_SERVICE_ROLE_KEY is not the secret / service_role key ' +
+            '(a publishable key reads nothing and says nothing, because row-level ' +
+            'security applies to it), or that school row no longer exists.' +
+            (schoolError ? ` (${schoolError.message})` : ''),
       },
       { status: 500 },
     );

@@ -67,12 +67,15 @@ function wrongKeyKind(key: string): string | null {
   // Legacy keys are unsigned-readable JWTs carrying { "role": "anon" | "service_role" }.
   const parts = key.split('.');
   if (parts.length !== 3) return null;
-  let role: unknown;
+  let payload: { role?: unknown };
   try {
-    role = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')).role;
+    payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
   } catch {
     return null; // not a JWT we can read; let Supabase be the judge
   }
-  if (typeof role === 'string' && role !== 'service_role') return `a "${role}" key`;
-  return null;
+  // Positive check, not a blacklist. A JWT with no readable `role` claim is
+  // treated by PostgREST as anon, so passing it through as "probably fine"
+  // would let the exact failure this function exists to catch back through.
+  if (payload.role === 'service_role') return null;
+  return typeof payload.role === 'string' ? `a "${payload.role}" key` : 'a key with no role claim';
 }
