@@ -146,6 +146,20 @@ const BOOT_ERROR_FIX =
   'dashboard editor looks the same \u2014 compare the end of the file against ' +
   '`node scripts/bundle-score.mjs`.';
 
+// A preflight carries no Authorization header — browsers never put credentials
+// on OPTIONS. So an Edge Function with JWT verification enabled has its
+// preflight refused by the gateway, before any of its code (and therefore any
+// of its CORS headers) exists. The POST is then never sent at all.
+const PREFLIGHT_FIX =
+  'Turn OFF "Verify JWT" for the score function \u2014 Edge Functions \u2192 score \u2192 ' +
+  'Settings, or `verify_jwt = false` under [functions.score] in supabase/config.toml, then ' +
+  'redeploy. A CORS preflight carries no Authorization header (browsers never put credentials ' +
+  'on OPTIONS), so with verification on the gateway answers 401 before the function runs, and ' +
+  'that 401 has no Access-Control-Allow-Origin because our code is what adds those. The browser ' +
+  'then refuses to send the POST. Nothing is given up: index.ts checks the bearer token with ' +
+  'auth.getUser() itself, refuses an attempt belonging to another user, and activity_keys stays ' +
+  'unreadable to every role but the service role.';
+
 const PLATFORM_401_FIX =
   'The refusal carried no message, so it did not come from the function (which always answers ' +
   'with { error }) nor from the gateway\u2019s JWT check (which answers with { message }). Open ' +
@@ -221,10 +235,14 @@ export async function runScorerChecks(): Promise<Check[]> {
   });
 
   /* ---- 2. Is the function deployed? ------------------------------------ */
-  // OPTIONS is exempt from the gateway's JWT check, so this reaches the
-  // function itself if it exists at all. A 404 here means "not deployed",
-  // which in a browser is invisible: the 404 carries no CORS headers, so the
-  // preflight fails and the POST is never sent.
+  // A 404 here means "not deployed", which in a browser is invisible: the 404
+  // carries no CORS headers, so the preflight fails and the POST is never sent.
+  //
+  // This used to say OPTIONS is exempt from the gateway's JWT check. It is not,
+  // on this project at least: with verify_jwt on, the gateway answered the
+  // preflight 401 with no CORS headers and the browser refused to send the POST
+  // — a whole class unable to submit while the function itself was healthy and
+  // logged nothing, because it was never invoked.
   try {
     const res = await fetch(url, {
       method: 'OPTIONS',
@@ -240,23 +258,36 @@ export async function runScorerChecks(): Promise<Check[]> {
     // Distinguished from "no CORS headers" deliberately. Both leave allowOrigin
     // empty, and the advice for each is the opposite of the other's.
     const crashed = res.status >= 500;
+    // A refusal of the preflight itself. Distinguished from "no CORS headers"
+    // because the function is fine and the gateway in front of it is not.
+    const preflightRefused = res.status === 401 || res.status === 403;
     checks.push({
       name: 'Deployed',
-      verdict: deployed && !crashed && allowOrigin ? 'ok' : 'fail',
+      verdict: deployed && !crashed && !preflightRefused && allowOrigin ? 'ok' : 'fail',
       summary: !deployed
         ? 'The score function is not deployed.'
         : crashed
           ? 'The function is deployed but crashes before it can answer.'
-          : allowOrigin
-            ? 'The function answers preflight requests.'
-            : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
+          : preflightRefused
+            ? 'The gateway refuses the browser\u2019s preflight before the function runs.'
+            : allowOrigin
+              ? 'The function answers preflight requests.'
+              : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
       detail: [
         `OPTIONS ${url}`,
         `status ${res.status}`,
         `access-control-allow-origin  ${allowOrigin ?? '<none>'}`,
         `access-control-allow-headers ${allowHeaders ?? '<none>'}`,
       ].join('\n'),
-      fix: !deployed ? NOT_DEPLOYED_FIX : crashed ? BOOT_ERROR_FIX : undefined,
+      fix: !deployed
+        ? NOT_DEPLOYED_FIX
+        : crashed
+          ? BOOT_ERROR_FIX
+          : preflightRefused
+            ? PREFLIGHT_FIX
+            : !allowOrigin
+              ? PREFLIGHT_FIX
+              : undefined,
     });
   } catch (e) {
     checks.push({
