@@ -252,6 +252,12 @@ export async function runScorerChecks(): Promise<Check[]> {
         'Access-Control-Request-Headers': 'authorization, content-type',
       },
     });
+    // READ THE BODY. This check used to report only the status and the two CORS
+    // headers, and threw the body away — while a Supabase boot failure puts the
+    // whole reason in the body, as {"code":"BOOT_ERROR","message":"..."} naming
+    // the module and the line. Three rounds of this outage were spent guessing
+    // at a cause that was sitting in a response nobody printed.
+    const optionsBody = await readBody(res);
     const allowOrigin = res.headers.get('access-control-allow-origin');
     const allowHeaders = res.headers.get('access-control-allow-headers');
     const deployed = res.status !== 404;
@@ -278,11 +284,14 @@ export async function runScorerChecks(): Promise<Check[]> {
         `status ${res.status}`,
         `access-control-allow-origin  ${allowOrigin ?? '<none>'}`,
         `access-control-allow-headers ${allowHeaders ?? '<none>'}`,
+        describeHeaders(res),
+        '',
+        optionsBody,
       ].join('\n'),
       fix: !deployed
         ? NOT_DEPLOYED_FIX
         : crashed
-          ? BOOT_ERROR_FIX
+          ? `${BOOT_ERROR_FIX} The body of that reply is printed above and usually names the module and line itself — read it before changing anything.`
           : preflightRefused
             ? PREFLIGHT_FIX
             : !allowOrigin
