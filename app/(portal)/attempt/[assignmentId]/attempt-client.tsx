@@ -227,6 +227,32 @@ export function AttemptClient({
           return;
         }
 
+        // A 200 is not proof that the scorer ran.
+        //
+        // This is not hypothetical: the deployment had Supabase's "Hello World"
+        // template function sitting at this URL under the name `score`. It
+        // answered 200 to everything with {"message":"Hello undefined!"}, so
+        // every submission looked like a success — the step advanced, no error
+        // appeared — and nothing was ever written. Seven steps of a student's
+        // work went nowhere, repeatedly, in silence.
+        //
+        // Our scorer always replies { ok: true, status: 'in_progress' | 'submitted' }.
+        // Anything else answering on this URL is not it, and saying so is the
+        // difference between a teacher reading one sentence and a week of
+        // "the submit button does not work".
+        const answeredProperly =
+          body.ok === true && (body.status === 'in_progress' || body.status === 'submitted');
+        if (!answeredProperly) {
+          console.error('[nybble] the scorer URL replied 200 but not like the scorer', body);
+          setError(
+            'The marking service answered, but not with a mark, so your answer was NOT saved. ' +
+              'Tell your teacher — the wrong function may be deployed. They can check this on the ' +
+              'Status page.',
+          );
+          setBusy(false);
+          return;
+        }
+
         setResponses((prev) => ({ ...prev, [step.id]: payload.response ?? {} }));
 
         // Practice mode and `release_feedback: immediate` get the mark back

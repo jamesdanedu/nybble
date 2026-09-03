@@ -110,6 +110,21 @@ const GATEWAY_FIX =
 // because the remedy is specific and nothing else in this file implies it.
 const NEW_KEYS_ONLY = 'accepted auth mode';
 
+// Supabase's `functions new` template reads `name` from the body and answers
+// `Hello <name>!`. Deployed under the name `score` it answers 200 to
+// everything, so every submission looks like a success and nothing is written —
+// which is exactly how a class can submit for a week and record nothing. Worth
+// matching by name because the remedy is specific and the symptom is silent.
+const TEMPLATE_FN = /"Hello\s|"message"\s*:\s*"Hello/;
+
+const TEMPLATE_FIX =
+  'A DIFFERENT function is deployed under the name `score` — that reply is Supabase\u2019s ' +
+  '"Hello World" template, not this scorer. It answers 200 to everything, so the portal thinks ' +
+  'every submission succeeded while nothing is written: attempts stay in_progress with an empty ' +
+  'step_responses. Replace it: run `supabase functions deploy score` from the repo, or paste the ' +
+  'output of `node scripts/bundle-score.mjs` into the dashboard editor for the function named ' +
+  'exactly `score`.';
+
 const NEW_KEYS_FIX =
   'This project\u2019s function gateway accepts only the NEW API key formats. Take the ' +
   'publishable key (sb_publishable_\u2026) and the secret key (sb_secret_\u2026) from Project ' +
@@ -266,9 +281,11 @@ export async function runScorerChecks(): Promise<Check[]> {
       detail:
         `POST ${url}\nAuthorization: Bearer <anon key>\n\n` +
         `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
-      fix: body.includes(NEW_KEYS_ONLY)
-        ? NEW_KEYS_FIX
-        : kind === 'gateway-401'
+      fix: TEMPLATE_FN.test(body)
+        ? TEMPLATE_FIX
+        : body.includes(NEW_KEYS_ONLY)
+          ? NEW_KEYS_FIX
+          : kind === 'gateway-401'
           ? GATEWAY_FIX
           : kind === 'platform-401'
             ? PLATFORM_401_FIX
@@ -328,7 +345,9 @@ export async function runScorerChecks(): Promise<Check[]> {
               'gateway-401': 'The gateway refused your token before the function ran.',
               'platform-401': 'Something above the function refused your token, without saying why.',
               'function-401': 'The function itself refused your token.',
-              reached: `The function ran but replied ${res.status}.`,
+              reached: TEMPLATE_FN.test(body)
+                ? 'A different function is deployed under the name `score`.'
+                : `The function ran but replied ${res.status}.`,
               unexpected: `Unexpected reply (${res.status}).`,
             }[kind],
         detail:
@@ -337,8 +356,10 @@ export async function runScorerChecks(): Promise<Check[]> {
           `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
         fix: worked
           ? undefined
-          : body.includes(NEW_KEYS_ONLY)
-            ? NEW_KEYS_FIX
+          : TEMPLATE_FN.test(body)
+            ? TEMPLATE_FIX
+            : body.includes(NEW_KEYS_ONLY)
+              ? NEW_KEYS_FIX
             : kind === 'not-deployed'
               ? NOT_DEPLOYED_FIX
               : kind === 'gateway-401'
