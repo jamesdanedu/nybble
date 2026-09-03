@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Bricolage_Grotesque } from 'next/font/google';
+import { ServiceWorker } from '@/components/service-worker';
 import './globals.css';
 
 /**
@@ -20,6 +21,23 @@ export const metadata: Metadata = {
   },
   description:
     'Activity portal for Leaving Certificate Computer Science — quizzes, number base tests and Parsons problems.',
+  // The manifest is a metadata route (app/manifest.ts); this is the <link> to
+  // it, which Next does not emit on its own.
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icons/icon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+  },
+  // iOS installs from Safari's Share sheet rather than an install prompt, and
+  // reads these rather than the manifest.
+  appleWebApp: {
+    capable: true,
+    title: 'Nybble',
+    statusBarStyle: 'default',
+  },
 };
 
 export const viewport: Viewport = {
@@ -35,7 +53,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={display.variable}>
-      <body className="min-h-screen bg-page text-ink antialiased">{children}</body>
+      <body className="min-h-screen bg-page text-ink antialiased">
+        {children}
+        <ServiceWorker />
+      </body>
     </html>
   );
 }

@@ -99,8 +99,12 @@ consequences well beyond the session isolation it is there for:
 
 Two of these bite in practice:
 
-- **A runner cannot cache anything across loads.** The browser's HTTP cache is
-  the only one available. Do not write a runner that assumes otherwise.
+- **A runner cannot cache anything across loads, and nothing can cache for it.**
+  The browser's HTTP cache is the only one available. Do not write a runner that
+  assumes otherwise — and note that the portal's service worker is no help
+  either: an opaque-origin document is not controlled by one, so a runner's
+  subresources bypass it entirely and fail when offline. Measured in
+  [`pwa.md`](pwa.md), re-runnable as `test/sw-sandbox-spike.mjs`.
 - **A `fetch()` from a runner is always a cross-origin request, even to the
   runner's own site**, because the requesting origin is opaque rather than the
   site's. It therefore needs CORS headers on whatever serves it. Loading with
