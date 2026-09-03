@@ -37,6 +37,10 @@ const BUILT: Array<{ state: 'done' | 'next' | 'later'; text: string }> = [
   { state: 'done',  text: 'MCQ, number base and Parsons runners' },
   { state: 'done',  text: 'Server-side scorer, the only code that reads an answer key' },
   { state: 'done',  text: 'Portal — login, classes, assignments, review queue, activity import' },
+  // Says what it does and what it does not, in one line. An install that a
+  // teacher believes works offline is worse than no install at all — the
+  // reasoning, and the measurement behind it, are in docs/pwa.md.
+  { state: 'done',  text: 'Installable on a phone or Chromebook — activities still need a connection' },
   { state: 'later', text: 'PRIMM step sequences, AI-assisted feedback' },
 ];
 
