@@ -134,17 +134,21 @@ const NEW_KEYS_FIX =
 
 // A 5xx on OPTIONS is not a CORS problem, and calling it one sends the reader
 // to edit headers in a function that never got as far as running. Our handler
-// answers OPTIONS on its first line, so if that 500s the module threw while
-// loading and NOTHING in it has executed.
+// answers OPTIONS on its first line, so a 500 here means either the module
+// threw while loading and NOTHING in it has executed, or that first line
+// itself threw. It has done both: once from a paste with unresolved imports,
+// and once from `new Response('ok', { status: 204 })`, which the runtime
+// rejects because 204 may not carry a body. The Logs tab tells the two apart.
 const BOOT_ERROR_FIX =
-  'The function is deployed but crashing as it starts, before any of its code runs \u2014 our ' +
-  'handler answers OPTIONS on its first line, so a 500 here means the module never loaded. Open ' +
-  'the function\u2019s Logs tab in the Supabase dashboard: a boot failure is printed there verbatim ' +
-  'and names the line. The usual cause is the remote import at the top of index.ts: an Edge ' +
-  'Runtime that cannot resolve `jsr:@supabase/supabase-js@2` fails exactly like this, and ' +
-  'swapping it for `https://esm.sh/@supabase/supabase-js@2` is the fix. A partial paste into the ' +
-  'dashboard editor looks the same \u2014 compare the end of the file against ' +
-  '`node scripts/bundle-score.mjs`.';
+  'The function is deployed but crashing before it can answer \u2014 our handler answers OPTIONS ' +
+  'on its first line, so a 500 here means either the module never loaded or that first line ' +
+  'threw. Open the function\u2019s Logs tab in the Supabase dashboard: the error is printed there ' +
+  'verbatim and names the line. A "Response with null body status cannot have body" TypeError is ' +
+  'the preflight handler giving a body to a 204 reply \u2014 the body must be null. A boot failure ' +
+  'is usually the remote import at the top of index.ts: an Edge Runtime that cannot resolve ' +
+  '`jsr:@supabase/supabase-js@2` fails exactly like this, and swapping it for ' +
+  '`https://esm.sh/@supabase/supabase-js@2` is the fix. A partial paste into the dashboard ' +
+  'editor looks the same \u2014 compare the end of the file against `node scripts/bundle-score.mjs`.';
 
 // A preflight carries no Authorization header — browsers never put credentials
 // on OPTIONS. So an Edge Function with JWT verification enabled has its
