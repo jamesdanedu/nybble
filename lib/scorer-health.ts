@@ -132,6 +132,20 @@ const NEW_KEYS_FIX =
   'SUPABASE_SERVICE_ROLE_KEY in Vercel, and redeploy. A legacy eyJ\u2026 key keeps working for ' +
   'the database, which is why everything except submitting looks fine.';
 
+// A 5xx on OPTIONS is not a CORS problem, and calling it one sends the reader
+// to edit headers in a function that never got as far as running. Our handler
+// answers OPTIONS on its first line, so if that 500s the module threw while
+// loading and NOTHING in it has executed.
+const BOOT_ERROR_FIX =
+  'The function is deployed but crashing as it starts, before any of its code runs \u2014 our ' +
+  'handler answers OPTIONS on its first line, so a 500 here means the module never loaded. Open ' +
+  'the function\u2019s Logs tab in the Supabase dashboard: a boot failure is printed there verbatim ' +
+  'and names the line. The usual cause is the remote import at the top of index.ts: an Edge ' +
+  'Runtime that cannot resolve `jsr:@supabase/supabase-js@2` fails exactly like this, and ' +
+  'swapping it for `https://esm.sh/@supabase/supabase-js@2` is the fix. A partial paste into the ' +
+  'dashboard editor looks the same \u2014 compare the end of the file against ' +
+  '`node scripts/bundle-score.mjs`.';
+
 const PLATFORM_401_FIX =
   'The refusal carried no message, so it did not come from the function (which always answers ' +
   'with { error }) nor from the gateway\u2019s JWT check (which answers with { message }). Open ' +
@@ -223,21 +237,26 @@ export async function runScorerChecks(): Promise<Check[]> {
     const allowOrigin = res.headers.get('access-control-allow-origin');
     const allowHeaders = res.headers.get('access-control-allow-headers');
     const deployed = res.status !== 404;
+    // Distinguished from "no CORS headers" deliberately. Both leave allowOrigin
+    // empty, and the advice for each is the opposite of the other's.
+    const crashed = res.status >= 500;
     checks.push({
       name: 'Deployed',
-      verdict: deployed && allowOrigin ? 'ok' : 'fail',
+      verdict: deployed && !crashed && allowOrigin ? 'ok' : 'fail',
       summary: !deployed
         ? 'The score function is not deployed.'
-        : allowOrigin
-          ? 'The function answers preflight requests.'
-          : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
+        : crashed
+          ? 'The function is deployed but crashes before it can answer.'
+          : allowOrigin
+            ? 'The function answers preflight requests.'
+            : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
       detail: [
         `OPTIONS ${url}`,
         `status ${res.status}`,
         `access-control-allow-origin  ${allowOrigin ?? '<none>'}`,
         `access-control-allow-headers ${allowHeaders ?? '<none>'}`,
       ].join('\n'),
-      fix: !deployed ? NOT_DEPLOYED_FIX : undefined,
+      fix: !deployed ? NOT_DEPLOYED_FIX : crashed ? BOOT_ERROR_FIX : undefined,
     });
   } catch (e) {
     checks.push({
