@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { env } from '@/lib/env';
@@ -48,11 +49,53 @@ export async function getSession(): Promise<Session | null> {
   return { userId: user.id, profile, school: school ?? null };
 }
 
-/** For pages behind the gate. Middleware already bounced anonymous requests. */
+/**
+ * Short-lived marker saying "we already tried to refresh and it failed".
+ *
+ * Set by /auth/refresh, read here. It is the loop guard: without it, a session
+ * whose refresh token is genuinely dead would bounce between this function and
+ * the refresh route for ever. Exported so the route and the guard cannot drift
+ * apart on a string literal.
+ */
+export const REFRESH_GUARD_COOKIE = 'nybble-refresh-tried';
+
+/** Does the browser hold a Supabase auth cookie at all? */
+async function hasAuthCookie(): Promise<boolean> {
+  const jar = await cookies();
+  // @supabase/ssr writes `sb-<ref>-auth-token`, and splits it into
+  // `.0`, `.1`, … when it outgrows one cookie. Match the family, not one name.
+  return jar.getAll().some((c) => /^sb-.+-auth-token(\.\d+)?$/.test(c.name));
+}
+
+/**
+ * For pages behind the gate.
+ *
+ * There is no middleware on this deployment — every version of it returned 500
+ * MIDDLEWARE_INVOCATION_FAILED, see README "Known sharp edges" — so nothing
+ * bounces anonymous requests before a page renders, and every protected page
+ * calls this itself.
+ *
+ * The refresh hop is the other half of what the middleware used to do. A
+ * Server Component cannot write cookies, so when an access token has expired
+ * this function has no way to roll it over: `getSession()` comes back null and
+ * the honest-looking answer, /login, would sign out a student whose refresh
+ * token is perfectly good. So instead: if the browser is carrying a Supabase
+ * cookie, hand the request to /auth/refresh, which is a Route Handler and IS
+ * allowed to write, and let it come back here with a fresh token.
+ *
+ * Three distinct cases, deliberately kept apart:
+ *
+ *   no auth cookie      never signed in, or signed out → /login, no hop
+ *   guard cookie set    the hop already ran and failed → /login, no loop
+ *   otherwise           an expiry worth trying to recover → /auth/refresh
+ */
 export async function requireSession(): Promise<Session> {
   const session = await getSession();
-  if (!session) redirect('/login');
-  return session;
+  if (session) return session;
+
+  const jar = await cookies();
+  if (jar.get(REFRESH_GUARD_COOKIE) || !(await hasAuthCookie())) redirect('/login');
+  redirect('/auth/refresh');
 }
 
 export async function requireStudentOrStaff(): Promise<Session> {

@@ -70,6 +70,7 @@ test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
 test/runner-host.test.mjs         autosave: debounce, and the flush on teardown
+test/auth-refresh.test.mjs        where an auth redirect may send you
 test/deploy.test.mjs              checks that survive real static hosting
 test/pwa.test.mjs                 manifest, worker, and what it may cache
 test/sw-sandbox-spike.mjs         why a sandboxed runner cannot go offline
@@ -118,6 +119,7 @@ Two suites need nothing at all — no browser, no server, no database:
 node test/check-parsons.test.mjs                    # the Parsons key checker
 node test/schools-ie.test.mjs                       # 17 school-directory checks
 node test/runner-host.test.mjs                      # 9 autosave checks
+node test/auth-refresh.test.mjs                     # 8 redirect-safety checks
 ```
 
 (There is a `package.json` now — the portal is a Next.js app, so Vercel installs
@@ -253,20 +255,23 @@ the whole class from *Lost the passwords?* at the bottom of the class page.
 
 ## Known sharp edges
 
-- **There is no middleware, so sessions do not refresh.** Every deployment
-  returned 500 `MIDDLEWARE_INVOCATION_FAILED` on every matched path — including
-  a build cut down to a single `next/server` import, which rules out anything
-  this repo puts in the bundle. Removing `middleware.ts` is what got the site
-  serving. Auth is unaffected: all fourteen protected pages call
-  `requireSession()` and friends themselves. What is lost is the token refresh,
-  because a Server Component cannot write cookies and the middleware was what
-  wrote them. Harmless while Supabase is unconfigured — `updateSession` returned
-  immediately anyway — but **fix this before there are real accounts**, or users
-  will be signed out whenever an access token expires. `lib/supabase/middleware.ts`
-  is kept intact and carries the snippet that wires it back. The likely routes
-  are Next's `experimental.nodeMiddleware` (canary at 15.5.25) to move it off the
-  edge runtime, or Vercel support — this project began life as a static site, so
-  stale project settings are a plausible cause.
+- **There is no middleware, and session refresh is done without one.** Every
+  deployment of `middleware.ts` returned 500 `MIDDLEWARE_INVOCATION_FAILED` on
+  every matched path — including a build cut down to a single `next/server`
+  import, which rules out anything this repo puts in the bundle. Removing it is
+  what got the site serving. The token refresh it used to do is now split in
+  two, because the constraint is narrow: a Server Component may read cookies but
+  never write them, so a token refreshed during a page render is discarded — and
+  since Supabase ROTATES refresh tokens, a discarded refresh leaves the browser
+  holding a dead one and destroys the session it was meant to renew.
+  `components/session-keepalive.tsx` puts a browser client on every signed-in
+  page, which rolls the token over before it expires while a tab is open;
+  `app/auth/refresh/route.ts` is a Route Handler — allowed to write cookies, and
+  on the Node runtime rather than the edge — that `requireSession()` hops
+  through when a token has already expired, with a short-lived guard cookie so a
+  genuinely dead session cannot loop. `lib/supabase/middleware.ts` is kept
+  unwired: it is the shape to restore if middleware ever runs here, in which
+  case it REPLACES the hop rather than joining it.
 - **Runner subresources must use absolute paths.** `/runners/lib/...`, never
   `../lib/...`. Under `cleanUrls` a runner's document URL loses its trailing
   slash and relative paths silently resolve one directory too high, leaving a

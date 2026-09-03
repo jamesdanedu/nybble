@@ -104,33 +104,11 @@ export function AttemptClient({
         p_state: state ?? null,
       });
 
+      // A failure here is a failure. There is no fallback path any more:
+      // migration 0010 is applied, so save_step_state exists, and quietly
+      // reverting to the racy read-modify-write would hide the very thing the
+      // save indicator is for.
       if (saveError) {
-        // TEMPORARY, and delete it once 0010 is applied everywhere.
-        //
-        // PGRST202 is PostgREST saying the function does not exist — this build
-        // deployed ahead of its migration. Without a fallback that window is not
-        // "autosave is briefly racy", it is "autosave is entirely dead for every
-        // student until someone runs the migration", which is a worse version of
-        // the bug this change exists to fix. So fall back to the old
-        // read-modify-write: racy, but racy beats nothing.
-        if (saveError.code === 'PGRST202') {
-          console.warn('save_step_state is missing — apply migration 0010. Falling back.');
-          const { data: current } = await supabase
-            .from('attempts')
-            .select('step_state')
-            .eq('id', attempt.id)
-            .maybeSingle();
-          const merged = {
-            ...((current?.step_state as Record<string, unknown>) ?? {}),
-            [step.id]: state,
-          };
-          const { error: fallbackError } = await supabase
-            .from('attempts')
-            .update({ step_state: merged })
-            .eq('id', attempt.id);
-          setSaveState(fallbackError ? 'failed' : 'saved');
-          return;
-        }
         setSaveState('failed');
         return;
       }

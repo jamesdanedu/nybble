@@ -1,5 +1,12 @@
 /*
- * CURRENTLY UNWIRED. Nothing imports this.
+ * CURRENTLY UNWIRED, AND NO LONGER THE PLAN. Nothing imports this.
+ *
+ * Session refresh is handled without middleware now — see
+ * components/session-keepalive.tsx and app/auth/refresh/route.ts. This file is
+ * kept because it is still the shape to restore if middleware ever runs on this
+ * deployment (it would replace the refresh hop in requireSession, not sit
+ * alongside it), and because its notes on @supabase/ssr's cookie ordering are
+ * the ones worth not relearning.
  *
  * middleware.ts was removed because no middleware of any shape would run on
  * this Vercel deployment: a build reduced to one import of next/server and

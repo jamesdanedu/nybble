@@ -14,12 +14,19 @@ import { env } from '@/lib/env';
  * write cookies. Supabase calls setAll when it refreshes an expired token, and
  * in a Server Component that throws.
  *
- * That swallow used to be safe because the middleware refreshed the session on
- * every request and wrote the cookies where writing is legal. There is no
- * middleware now — it could not run on Vercel's edge runtime (see README,
- * "Known sharp edges"), so nothing writes a refreshed token. Sessions therefore
- * expire rather than roll over. That costs nothing while Supabase is
- * unconfigured, and must be fixed before real accounts exist.
+ * There is still no middleware — it could not run on Vercel's edge runtime, see
+ * README "Known sharp edges" — so this swallow is real: a token refreshed
+ * during a page render is genuinely discarded. Two things now cover that gap
+ * instead, and neither is a Server Component:
+ *
+ *   components/session-keepalive.tsx  a browser client on every signed-in page,
+ *                                     refreshing before expiry while a tab is open
+ *   app/auth/refresh/route.ts         a Route Handler, which MAY write cookies,
+ *                                     that requireSession() hops through when a
+ *                                     token has already expired
+ *
+ * So do not read this catch as "harmless". It is survivable only because of
+ * those two.
  */
 export async function createClient() {
   const cookieStore = await cookies();

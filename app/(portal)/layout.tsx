@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireStudentOrStaff, isStaff, isAdmin } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { NavLinks, type NavItem } from '@/components/nav';
+import { SessionKeepalive } from '@/components/session-keepalive';
 
 /**
  * The signed-in shell. Everything under it has a session and a profile, and the
@@ -48,6 +49,10 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen">
+      {/* Renders nothing. It exists so that every signed-in page has a browser
+          Supabase client alive, refreshing the access token before it expires —
+          see components/session-keepalive.tsx. */}
+      <SessionKeepalive />
       <header className="border-b border-line bg-surface no-print">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
           <Link
