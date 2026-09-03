@@ -82,24 +82,63 @@ export function AttemptClient({
    * Only `step_state` is written. `step_scores`, `auto_score` and `max_score`
    * are stripped from any student update by the attempts_protect_scores
    * trigger, so there is no point (and no danger) in sending them.
+   *
+   * The merge happens in the DATABASE, not here. This was a read-modify-write:
+   * select the whole `step_state`, splice one key in, write it all back. Two
+   * saves that overlap both read the same `before` value and the second write
+   * drops the first one's key — losing another step's entire draft, silently.
+   * `save_step_state` does the same merge with jsonb `||` inside one statement,
+   * so the window is gone rather than narrowed, and it is one round trip
+   * instead of two. Row level security still decides whether the write lands:
+   * the function is SECURITY INVOKER and `attempt_own_update` applies to it
+   * exactly as it did to the update it replaced.
    */
   const onState = useCallback(
     async (state: unknown) => {
       if (!step) return;
       setSaveState('saving');
-      const { data: current } = await supabase
-        .from('attempts')
-        .select('step_state')
-        .eq('id', attempt.id)
-        .maybeSingle();
 
-      const merged = { ...((current?.step_state as Record<string, unknown>) ?? {}), [step.id]: state };
-      const { error: saveError } = await supabase
-        .from('attempts')
-        .update({ step_state: merged })
-        .eq('id', attempt.id);
+      const { data: written, error: saveError } = await supabase.rpc('save_step_state', {
+        p_attempt: attempt.id,
+        p_step: step.id,
+        p_state: state ?? null,
+      });
 
-      setSaveState(saveError ? 'failed' : 'saved');
+      if (saveError) {
+        // TEMPORARY, and delete it once 0010 is applied everywhere.
+        //
+        // PGRST202 is PostgREST saying the function does not exist — this build
+        // deployed ahead of its migration. Without a fallback that window is not
+        // "autosave is briefly racy", it is "autosave is entirely dead for every
+        // student until someone runs the migration", which is a worse version of
+        // the bug this change exists to fix. So fall back to the old
+        // read-modify-write: racy, but racy beats nothing.
+        if (saveError.code === 'PGRST202') {
+          console.warn('save_step_state is missing — apply migration 0010. Falling back.');
+          const { data: current } = await supabase
+            .from('attempts')
+            .select('step_state')
+            .eq('id', attempt.id)
+            .maybeSingle();
+          const merged = {
+            ...((current?.step_state as Record<string, unknown>) ?? {}),
+            [step.id]: state,
+          };
+          const { error: fallbackError } = await supabase
+            .from('attempts')
+            .update({ step_state: merged })
+            .eq('id', attempt.id);
+          setSaveState(fallbackError ? 'failed' : 'saved');
+          return;
+        }
+        setSaveState('failed');
+        return;
+      }
+
+      // Zero rows written is not an error — it is RLS declining, which is what
+      // a submitted (no longer in_progress) attempt looks like. Reporting it as
+      // saved would be a lie, and the lie a student acts on is "I can close this".
+      setSaveState(written === 0 ? 'failed' : 'saved');
     },
     [supabase, attempt.id, step],
   );
