@@ -1,0 +1,333 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Logic gates",
+      "topic": "Logic Gates",
+      "description": "Ten questions on AND, OR, NOT, XOR, NAND and NOR: truth tables, Boolean expressions, the half adder, and reading a logic circuit. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "logic-gates-mcq",
+          "runner_id": "mcq",
+          "title": "Logic gates",
+          "weight": 10,
+          "config": {
+            "title": "Logic gates",
+            "instructions": "Draw the truth table before you choose. Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "An AND gate has two inputs. For which combination of inputs is its output 1?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A = 0, B = 0"
+                  },
+                  {
+                    "id": "b",
+                    "text": "A = 1, B = 1"
+                  },
+                  {
+                    "id": "c",
+                    "text": "A = 0, B = 1"
+                  },
+                  {
+                    "id": "d",
+                    "text": "A = 1, B = 0"
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "A two-input OR gate has inputs A = 0 and B = 1. What is its output?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "1"
+                  },
+                  {
+                    "id": "b",
+                    "text": "0"
+                  },
+                  {
+                    "id": "c",
+                    "text": "It depends on a third input."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The output is undefined for mixed inputs."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Which statement describes an XOR gate with two inputs?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The output is 1 only when both inputs are 1."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The output is 1 when the two inputs are the same."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The output is always the opposite of input A."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The output is 1 when the two inputs are different."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "A two-input NAND gate is given A = 1 and B = 1. What is its output?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "1"
+                  },
+                  {
+                    "id": "b",
+                    "text": "The same as the inputs."
+                  },
+                  {
+                    "id": "c",
+                    "text": "0"
+                  },
+                  {
+                    "id": "d",
+                    "text": "A NAND gate cannot take two 1s."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "For which inputs does a two-input NOR gate output 1?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Only when both inputs are 1."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Only when both inputs are 0."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Whenever at least one input is 1."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Whenever the inputs are different."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "Evaluate the Boolean expression when A = 1, B = 0 and C = 1.",
+                "code": "Q = (A AND NOT B) OR C",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Q = 1"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Q = 0"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Q cannot be evaluated without a truth table."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Q = A"
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "How many rows does the complete truth table of a circuit with 4 inputs have?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "4"
+                  },
+                  {
+                    "id": "b",
+                    "text": "8"
+                  },
+                  {
+                    "id": "c",
+                    "text": "32"
+                  },
+                  {
+                    "id": "d",
+                    "text": "16"
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A half adder adds two single bits and produces a sum bit and a carry bit. Which pair of gates produces them?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Sum from an AND gate, carry from an XOR gate."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Sum from an OR gate, carry from a NOT gate."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Sum from an XOR gate, carry from an AND gate."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Both from a single NAND gate."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "NAND is described as a universal gate. What does that mean?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It is the fastest gate to manufacture."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Every other logic gate can be built from NAND gates alone."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It accepts any number of inputs."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Its output is always 1."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A car should sound a warning buzzer when the engine is running AND a seatbelt is NOT fastened. The inputs are E (engine running) and S (seatbelt fastened). Which expression drives the buzzer?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "E AND NOT S"
+                  },
+                  {
+                    "id": "b",
+                    "text": "E AND S"
+                  },
+                  {
+                    "id": "c",
+                    "text": "NOT E AND S"
+                  },
+                  {
+                    "id": "d",
+                    "text": "E OR NOT S"
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "AND outputs 1 only when every input is 1 — think of two switches in series, where the current gets through only if both are closed. All three other rows of the truth table give 0."
+            },
+            "q2": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "OR outputs 1 when at least one input is 1, so 0 OR 1 = 1. Only 0 OR 0 gives 0. This is inclusive OR: unlike everyday English, 1 OR 1 is also 1."
+            },
+            "q3": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "XOR — exclusive OR — outputs 1 exactly when the inputs differ, so 0⊕1 = 1⊕0 = 1 and 0⊕0 = 1⊕1 = 0. The answer that fires when the inputs are the same describes XNOR, the exact opposite."
+            },
+            "q4": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "NAND is AND followed by NOT. 1 AND 1 = 1, and inverting that gives 0. In fact 1,1 is the only input pair for which a NAND gate outputs 0."
+            },
+            "q5": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "NOR is OR followed by NOT. OR gives 1 for every combination except 0,0, so inverting it leaves NOR outputting 1 for 0,0 alone. Firing whenever at least one input is 1 describes plain OR, and firing whenever the inputs differ describes XOR."
+            },
+            "q6": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Work from the inside out: NOT B = NOT 0 = 1, so A AND NOT B = 1 AND 1 = 1. Then 1 OR C = 1 OR 1 = 1. Note the OR would have made Q = 1 on its own, because C = 1 — an OR gate needs only one 1."
+            },
+            "q7": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Each input doubles the number of combinations, so n inputs need 2^n rows: 2^4 = 16. Answering 4 confuses the number of inputs with the number of rows, and 8 is the answer for 3 inputs."
+            },
+            "q8": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "In binary 1 + 1 = 10, so the sum bit is 0 and the carry is 1. XOR gives that sum column (1 only when the bits differ) and AND gives the carry (1 only when both bits are 1). A full adder chains two half adders to take a carry in as well."
+            },
+            "q9": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A NOT is a NAND with its inputs tied together, an AND is a NAND followed by that NOT, and OR follows from De Morgan's laws — so any circuit at all can be built from NAND alone. That matters industrially: one gate design can be etched over and over. NOR is universal for the same reason."
+            },
+            "q10": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Both conditions must hold at once, so it is an AND, and the seatbelt condition is the negative one, so S is inverted: E AND NOT S. E OR NOT S would sound the buzzer with the engine switched off, and E AND S would sound it when the belt is properly fastened."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Modelling and simulation",
+      "topic": "Modelling and Simulation",
+      "description": "Ten questions on what a computer model is, why simulations are used, deterministic versus stochastic models, assumptions and validation, and the limits of prediction — the ground covered by ALT 3. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "modelling-and-simulation-mcq",
+          "runner_id": "mcq",
+          "title": "Modelling and simulation",
+          "weight": 10,
+          "config": {
+            "title": "Modelling and simulation",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is a computer model?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A complete copy of a real system with nothing left out."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A simplified representation of a real system, built to answer particular questions about it."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A three-dimensional drawing of an object."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A prediction that is guaranteed to be correct."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "Which is the strongest reason to simulate the evacuation of a stadium rather than test it for real?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A real evacuation would be dangerous, expensive and impossible to repeat with different crowd sizes and exit layouts."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A simulation always gives the same answer as reality."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Simulations do not need any data about the real stadium."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A real test would take less planning."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is the difference between a deterministic and a stochastic model?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A deterministic model is always more accurate."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A stochastic model cannot be run on a computer."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A deterministic model uses random numbers and a stochastic model does not."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A deterministic model gives the same output every time for the same inputs; a stochastic model includes randomness, so runs differ and many runs are needed."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "A simulation of a supermarket queue uses random numbers to decide when the next customer arrives. Why run it hundreds of times rather than once?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Running it repeatedly removes the randomness from the model."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The first run is always wrong and must be discarded."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A single run is one possible day; many runs show the range of outcomes and the average, which is what a decision should be based on."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Repeated runs make the simulation execute faster."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A model of a school's heating assumes every classroom is the same size and every window is closed. What is the effect of these assumptions?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "They make the model completely useless."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They make the model simpler to build and run, but its results are only trustworthy where those assumptions roughly hold."
+                  },
+                  {
+                    "id": "c",
+                    "text": "They have no effect, because assumptions are not part of a model."
+                  },
+                  {
+                    "id": "d",
+                    "text": "They make the model more accurate than reality."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "How would you check that a traffic model is any good?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Run it on a junction where real measurements already exist and compare its predictions with what actually happened."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Check that the program contains no syntax errors."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Ask whether the output looks plausible on screen."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Confirm that it runs quickly."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "In an agent-based model of a disease outbreak, what is an agent?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The programmer who wrote the model."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The equation that governs the whole population at once."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A random number generator."
+                  },
+                  {
+                    "id": "d",
+                    "text": "An individual in the simulation — a person with their own state and simple rules for how they move and interact."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A spreadsheet holds a business's costs and income with formulas linking them, and the owner changes the rent cell to see the effect on profit. What is this called?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Data validation"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Version control"
+                  },
+                  {
+                    "id": "c",
+                    "text": "What-if analysis"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Normalisation"
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Weather forecasts become markedly less reliable beyond about a week. Why?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Computers are not fast enough to run the model for more than a week."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The atmosphere is chaotic: tiny errors in the starting measurements grow rapidly, so small uncertainties become large ones over time."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Weather satellites only store seven days of data."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The models are rewritten every week."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A modelling team halves the size of the grid squares in their climate model. What is the trade-off?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Finer detail is captured, but the computation required rises steeply, so each run costs far more time and energy."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The model becomes both faster and more accurate, with no cost."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The model becomes less accurate because there are more calculations to go wrong."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nothing changes, because grid size is only a display setting."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A model is deliberately simpler than the thing it represents — that simplification is what makes it useful and also what limits it. Which details you keep depends on the question being asked, which is abstraction applied to a whole system."
+            },
+            "q2": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Simulation earns its place when the real experiment is too dangerous, too slow, too expensive or impossible to repeat. Being able to change one variable and run it again is the whole point — you cannot ask 40 000 people to evacuate a stadium twice."
+            },
+            "q3": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Deterministic models suit systems governed by fixed rules, such as the trajectory of a projectile. Stochastic models suit systems with genuine variability — arrivals, failures, infections — where the honest output is a distribution of outcomes, not a single number."
+            },
+            "q4": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "One run of a random model is a single sample. Repeating it — the Monte Carlo method — reveals the average and, just as importantly, the spread, so you can answer questions like 'how often would the queue exceed ten people?' rather than just 'what happened once'."
+            },
+            "q5": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Every model rests on assumptions, and they are not a flaw so long as they are stated and their limits understood. The danger is forgetting them: this model will quietly mislead about a large hall or an open window in February."
+            },
+            "q6": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Validation means comparing the model's output with observed reality — ideally data the model was not built from. Checking the code runs correctly is verification, a different and lesser question: a program can be flawless and still model the world badly."
+            },
+            "q7": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Agent-based models give each individual simple rules and let population behaviour emerge from their interactions, rather than imposing one equation on the whole population. It captures things an aggregate model cannot, such as the effect of a few people behaving differently."
+            },
+            "q8": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "What-if analysis is exactly this: change an input in a model and observe the knock-on effect through the formulas. A spreadsheet is a computer model, even though it is rarely called one."
+            },
+            "q9": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "This is chaos — sensitive dependence on initial conditions, the point behind the butterfly metaphor. Because the starting state can never be measured perfectly, the forecast's uncertainty grows with time, and no increase in computing power removes that limit."
+            },
+            "q10": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Halving the grid spacing multiplies the number of cells several times over, and the time step usually has to shrink too, so cost rises far faster than resolution. Resolution in climate and weather modelling is limited by available supercomputer time, not by ignorance of the physics."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Data analytics",
+      "topic": "Data Analytics",
+      "description": "Ten questions on data types, averages and outliers, CSV files, choosing a chart, sampling bias, and correlation versus causation — the ground covered by ALT 2. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "data-analytics-mcq",
+          "runner_id": "mcq",
+          "title": "Data analytics",
+          "weight": 10,
+          "config": {
+            "title": "Data analytics",
+            "instructions": "Each question is worth 1 mark. Work out any figures on paper.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "Seven houses on a street sold for these amounts, in thousands of euro. Which average best describes a typical price?",
+                "code": "[240, 255, 260, 265, 270, 280, 2400]",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The mean, because it uses every value."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The median, because the one very large value drags the mean far above every other house on the street."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The mode, because it is the most common value."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The range, because it shows the spread."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is the median of this set of values?",
+                "code": "[9, 3, 14, 7, 5]",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "7"
+                  },
+                  {
+                    "id": "b",
+                    "text": "14"
+                  },
+                  {
+                    "id": "c",
+                    "text": "7.6"
+                  },
+                  {
+                    "id": "d",
+                    "text": "5"
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is a CSV file?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A compressed spreadsheet that only Excel can open."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A database file containing indexes and relationships."
+                  },
+                  {
+                    "id": "c",
+                    "text": "An image format used for charts."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A plain text file in which each line is a record and commas separate the fields."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Which chart is the best choice for showing how a school's electricity use changed over each of the last 24 months?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A pie chart, because it shows proportions."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A scatter plot, because it shows two variables."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A line chart, because it shows a trend over continuous time."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A pie chart with 24 slices, one per month."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A study finds that in a seaside town, ice-cream sales and drownings rise and fall together. What is the safest conclusion?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Eating ice cream causes drownings."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The two are correlated, most likely because hot weather increases both; neither causes the other."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Drownings cause people to buy ice cream."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The data must have been recorded incorrectly."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "A survey about school sports facilities is carried out by asking students queueing outside the gym at lunchtime. What is the main problem?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Sampling bias — the students most interested in sport are the ones most likely to be asked, so the sample does not represent the school."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The sample is too small to analyse."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Lunchtime answers are less accurate than morning answers."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nothing — asking people in person always gives reliable data."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "A dataset of 5000 rows has an empty value in the 'age' column for 40 rows. Which is the most defensible way to handle it?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Replace every blank with 0, because that is a number."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Delete the whole age column."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Leave the blanks alone; software handles them automatically."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Decide on a rule — exclude those rows from age calculations, or substitute an agreed estimate — and record what was done."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "Which of these is quantitative continuous data?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The number of students in each class."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The county each student comes from."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The time in seconds each student took to run 100 m."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Whether each student walks or cycles to school."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "A bar chart makes one product look twice as popular as another, although the sales figures are 98 and 102. What has been done?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The wrong average has been used."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The vertical axis does not start at zero, so a small difference has been exaggerated."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The data has been sorted incorrectly."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The sample was too small."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A student uses figures published by the CSO in their project. What kind of data is this?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Secondary data — collected by someone else for their own purposes."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Primary data — collected first-hand by the student."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Qualitative data, because it comes from a government body."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Invalid data, because it was not gathered for this project."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "The mean here is about €424k, higher than six of the seven houses — the 2400 outlier pulls it away from anything typical. The median, 265, sits in the middle and ignores how extreme the extremes are. This is why house prices are almost always reported as medians."
+            },
+            "q2": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Sort first — that is the step people skip: 3, 5, 7, 9, 14. With five values the middle one is the third, which is 7. (The mean of these five values happens to be 7.6, which is offered as a distractor.)"
+            },
+            "q3": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "CSV is plain text with one record per line, so any program on any system can read it and you can open it in a text editor. That simplicity is the point; the cost is that it carries no formatting, formulas or data types — every field arrives as text."
+            },
+            "q4": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A line chart joins consecutive points, so the eye reads the shape of the change over time. A pie chart shows parts of a single whole and has no time axis at all — with 24 slices it would be unreadable as well as wrong."
+            },
+            "q5": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Correlation is not causation. Here a third variable — temperature — drives both, which is called a confounding factor. Establishing cause needs more than a matching pattern: a mechanism, or a controlled experiment."
+            },
+            "q6": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Who you ask determines what you find. Sportier students are over-represented at the gym door, so the results describe them rather than the school. A random sample from the full roll would fix it; asking more people at the same spot would not."
+            },
+            "q7": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Missing data has to be handled deliberately and documented, because the choice changes the result. Filling the blanks with 0 is actively harmful: 40 ages of 0 would drag the mean down and look like real data rather than absent data."
+            },
+            "q8": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Continuous data can take any value in a range and is measured — a time could be 12.47 seconds. Class size is quantitative but discrete (counted in whole students), while county and travel method are categorical."
+            },
+            "q9": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Starting the axis at, say, 96 makes the bars 2 units and 6 units tall, so one looks three times the other when the real difference is 4%. It is the most common way of misleading with an otherwise accurate chart, and a bar chart's axis should start at zero."
+            },
+            "q10": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Secondary data is anything gathered by somebody else. It is cheap and often far larger than anything a student could collect, but it was shaped by someone else's purpose — so check how and when it was gathered before trusting it, and cite the source."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Character sets",
+      "topic": "Data Representation",
+      "description": "Ten questions on how text is stored: ASCII, extended ASCII, Unicode and UTF-8, character codes and the arithmetic that goes with them. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "character-sets-mcq",
+          "runner_id": "mcq",
+          "title": "Character sets",
+          "weight": 10,
+          "config": {
+            "title": "Character sets",
+            "instructions": "Each question is worth 1 mark. Where a code is given, use it — you are not expected to have the ASCII table memorised.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "Standard ASCII uses 7 bits per character. How many different characters can it represent?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "128"
+                  },
+                  {
+                    "id": "b",
+                    "text": "64"
+                  },
+                  {
+                    "id": "c",
+                    "text": "127"
+                  },
+                  {
+                    "id": "d",
+                    "text": "256"
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "In ASCII the character 'A' has the code 65. What is the ASCII code for 'F'?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "69"
+                  },
+                  {
+                    "id": "b",
+                    "text": "71"
+                  },
+                  {
+                    "id": "c",
+                    "text": "102"
+                  },
+                  {
+                    "id": "d",
+                    "text": "70"
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "In ASCII 'A' is 65 and 'a' is 97. A program converts a capital letter to lower case by adding a fixed number to its code. What is that number?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "26"
+                  },
+                  {
+                    "id": "b",
+                    "text": "48"
+                  },
+                  {
+                    "id": "c",
+                    "text": "32"
+                  },
+                  {
+                    "id": "d",
+                    "text": "65"
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "The digit characters '0' to '9' have the ASCII codes 48 to 57. A program reads the character '7'. What is stored in memory?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The number 7, ready to be used in arithmetic."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The code 55, which must be converted before it can be used in arithmetic."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The code 7, because ASCII stores digits as themselves."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The code 48, because every digit shares the same code."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "Extended ASCII uses 8 bits per character instead of 7. What does the extra bit achieve?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It doubles the character set to 256 codes, leaving room for accented letters and symbols."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It halves the space each character takes up."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It adds one extra character to the set."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It allows every writing system in the world to be represented."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What problem was Unicode designed to solve?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Text files were taking up too much disk space."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Computers could not sort text into alphabetical order."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Printers could not reproduce capital letters correctly."
+                  },
+                  {
+                    "id": "d",
+                    "text": "8 bits was not enough to hold the world's writing systems, and rival national character sets disagreed about what each code meant."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "UTF-8 is a variable-length encoding. How many bytes does it use to store the letter 'k', which is in the ASCII range?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "2"
+                  },
+                  {
+                    "id": "b",
+                    "text": "3"
+                  },
+                  {
+                    "id": "c",
+                    "text": "1"
+                  },
+                  {
+                    "id": "d",
+                    "text": "4"
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A program sorts a list of words by comparing their ASCII codes, and puts \"Zebra\" before \"apple\". Why?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Shorter words always sort first."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Every capital letter has a lower ASCII code than every lower-case letter, so 'Z' (90) comes before 'a' (97)."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The sort algorithm is broken."
+                  },
+                  {
+                    "id": "d",
+                    "text": "ASCII stores the alphabet in reverse order."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "A student saves a plain text file of 500 characters using an encoding that stores every character in one byte. Ignoring any file header, how large is the file?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "500 bytes"
+                  },
+                  {
+                    "id": "b",
+                    "text": "500 bits"
+                  },
+                  {
+                    "id": "c",
+                    "text": "4000 bytes"
+                  },
+                  {
+                    "id": "d",
+                    "text": "500 kilobytes"
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "Why does it matter that a character set is an agreed public standard rather than something each manufacturer invents?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Standards make text files smaller."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Standards make computers run faster."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A standard is needed so that text can be encrypted."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Without a shared standard, text written on one system would be read as different characters on another."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "7 bits give 2^7 = 128 different patterns, so 128 codes, numbered 0 to 127. 127 is the largest code, not the number of them — the count includes 0."
+            },
+            "q2": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "The capitals are stored in consecutive codes, so 'F' is five letters after 'A': 65 + 5 = 70. Counting the letters on your fingers as A=65, B=66, C=67, D=68, E=69, F=70 is exactly the arithmetic a program does."
+            },
+            "q3": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "97 − 65 = 32, and the same gap holds for every letter because both alphabets are stored in consecutive blocks. That is why `chr(ord(letter) + 32)` lower-cases a capital, and it is not a coincidence: 32 is a single bit, so the change is one flip."
+            },
+            "q4": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "'7' is a character, not a number: it is stored as 48 + 7 = 55. This is why `input()` returns a string that has to be passed through `int()` before you can add anything to it — otherwise Python joins the characters instead of adding the numbers."
+            },
+            "q5": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Each extra bit doubles the number of patterns, so 8 bits give 2^8 = 256 codes. Codes 128 to 255 were used for accented letters, box-drawing characters and symbols — but different countries filled them differently, which is precisely the mess Unicode was invented to end."
+            },
+            "q6": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Unicode gives every character in every writing system a unique code point, so the same file means the same thing everywhere. Before it, code 233 might be é on one machine and something else entirely on another."
+            },
+            "q7": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "UTF-8 stores the first 128 code points in a single byte, with exactly the same values as ASCII, and uses two to four bytes only for characters beyond that. That backwards compatibility is why UTF-8 won: an old ASCII file is already a valid UTF-8 file."
+            },
+            "q8": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "'Z' is 90 and 'a' is 97, so a straight code comparison puts every capital before every lower-case letter. The sort is doing exactly what it was told; getting dictionary order needs a case-insensitive comparison, such as sorting on `word.lower()`."
+            },
+            "q9": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "One byte per character × 500 characters = 500 bytes, which is 4000 bits. The answer of 500 bits confuses bits with bytes, and 4000 bytes is the size in bits mislabelled as bytes."
+            },
+            "q10": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "A character set is an agreement about what each number means. If two systems disagree, the bits transfer perfectly and the message still arrives as nonsense — which is what the infamous garbled-accent problem always was."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

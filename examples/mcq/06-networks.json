@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Networks and the internet",
+      "topic": "Networks",
+      "description": "Ten questions on protocols, IP and MAC addresses, DNS, packet switching, topologies, client-server and peer-to-peer, bandwidth and latency. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "networks-mcq",
+          "runner_id": "mcq",
+          "title": "Networks and the internet",
+          "weight": 10,
+          "config": {
+            "title": "Networks and the internet",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is a network protocol?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A physical cable that connects two computers."
+                  },
+                  {
+                    "id": "b",
+                    "text": "An agreed set of rules for how devices format, address and exchange data."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A program that scans a network for viruses."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The company that supplies a broadband connection."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is the difference between an IP address and a MAC address?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "An IP address identifies a device's position on a network and can change; a MAC address is fixed to the network hardware itself."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A MAC address changes every time a device connects; an IP address never changes."
+                  },
+                  {
+                    "id": "c",
+                    "text": "They are two names for the same thing."
+                  },
+                  {
+                    "id": "d",
+                    "text": "An IP address is used only by Apple devices."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A user types www.example.ie into a browser. What does DNS do?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It encrypts the page before it is sent."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It stores a copy of the web page on the user's machine."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It checks the site for malware."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It translates the domain name into the IP address of a server that hosts the site."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "In a packet-switched network, a large file is sent from one computer to another. What happens?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A dedicated wire is reserved for the whole transfer and released afterwards."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It is sent as a single block that must arrive intact or not at all."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It is split into numbered packets that may travel by different routes and are reassembled in order at the destination."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It is broadcast to every device on the internet."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What does a router do?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It converts analogue signals to digital and back."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It forwards packets between different networks, choosing a path towards the destination."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It stores web pages so they load faster."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It gives every device the same IP address."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What does HTTPS add compared with HTTP?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The traffic is encrypted in transit and the server's identity is checked against a certificate."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Pages load faster because they are compressed."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It guarantees the website's content is truthful."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It stops the site from using cookies."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "In a star topology, what happens if one of the cables running to a single computer is cut?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The whole network stops working."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Data travels the other way around the ring instead."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Every computer's traffic slows to half speed."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Only that computer loses its connection; the rest of the network keeps working."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "Which situation best suits a peer-to-peer network rather than a client-server one?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A secondary school of 800 students needing central logins, shared folders and backups."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A bank storing customer account records."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Four flatmates sharing files and a printer between their own laptops, with no central machine to administer."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A hospital managing patient records with strict access control."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "A satellite connection is advertised as having high bandwidth but also high latency. What does that mean in practice?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Downloads are slow but responses are instant."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Large downloads finish quickly, but there is a noticeable delay before any response arrives, which hurts video calls and online games."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The connection drops out regularly."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Only a limited number of devices may connect."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "Which of these best describes the relationship between the internet and the World Wide Web?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The internet is the global network infrastructure; the web is one service that runs on it, alongside email and others."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They are two names for the same thing."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The web is the physical cabling and the internet is the software."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The internet runs on top of the World Wide Web."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A protocol is an agreement, not a piece of hardware. Because both ends follow the same rules, equipment from different manufacturers interoperates — which is exactly why the internet could grow without anyone owning it."
+            },
+            "q2": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "A MAC address is burned into the network interface and identifies the device itself; an IP address says where the device currently sits, so it changes when you move from home Wi-Fi to the school network. Post gives the analogy: the MAC is the person, the IP is the address they are living at."
+            },
+            "q3": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "DNS is the internet's directory: humans use names, routers need numeric IP addresses, and DNS maps one to the other. Nothing can be requested until that lookup returns, which is why a DNS failure looks like 'the whole internet is down'."
+            },
+            "q4": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Each packet carries a sequence number and the destination address, so packets can take different routes, arrive out of order, and still be rebuilt correctly. It also means a lost packet is re-sent on its own rather than the entire file. Reserving a dedicated path for the whole transfer describes circuit switching, as used by the old telephone network."
+            },
+            "q5": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A router joins networks and makes a forwarding decision for each packet based on its destination address. A switch, by contrast, moves frames within a single network, and 'b' describes a modem."
+            },
+            "q6": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "HTTPS wraps HTTP in TLS, so an eavesdropper on the same Wi-Fi sees only ciphertext, and the certificate proves you are talking to the server you asked for. It says nothing about whether the site is honest — a scam site can hold a valid certificate, which is why 'c' is wrong."
+            },
+            "q7": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "In a star, every device has its own cable to a central switch, so a break isolates one machine. The trade-off is the central device itself: if the switch fails, everything stops. In a bus or ring, one break could take down the whole network."
+            },
+            "q8": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Peer-to-peer suits a small group of equals: it is cheap and needs no server or administrator. Central logins, backups and access control — the other three cases — all need a server, and peer-to-peer gets unmanageable well before 800 users."
+            },
+            "q9": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Bandwidth is how much data fits through per second; latency is how long a single round trip takes. A geostationary satellite is 36 000 km up, so the round trip alone costs a few hundred milliseconds no matter how fat the pipe is — fine for downloads, poor for conversation."
+            },
+            "q10": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "The internet is the network of networks — the cables, routers and protocols. The web is one application built on it, using HTTP and URLs. Email, video calls and game traffic use the internet without touching the web at all."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

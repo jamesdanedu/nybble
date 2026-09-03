@@ -1,0 +1,334 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Searching, sorting and efficiency",
+      "topic": "Algorithms",
+      "description": "Ten questions on linear and binary search, bubble, selection and insertion sort, and how the cost of an algorithm grows with the size of the data. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "algorithms-mcq",
+          "runner_id": "mcq",
+          "title": "Searching, sorting and efficiency",
+          "weight": 10,
+          "config": {
+            "title": "Searching, sorting and efficiency",
+            "instructions": "Trace the algorithm on paper where a list is given. Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "A linear search looks for a value in an unsorted list of 40 items. In the worst case, how many items does it examine?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "1"
+                  },
+                  {
+                    "id": "b",
+                    "text": "6"
+                  },
+                  {
+                    "id": "c",
+                    "text": "20"
+                  },
+                  {
+                    "id": "d",
+                    "text": "40"
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What must be true of a list before a binary search can be used on it?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It must contain only numbers."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Its length must be a power of two."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It must be sorted."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It must contain no duplicate values."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A binary search runs on a sorted list of 1000 items. Roughly how many comparisons does it need in the worst case?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "3"
+                  },
+                  {
+                    "id": "b",
+                    "text": "10"
+                  },
+                  {
+                    "id": "c",
+                    "text": "100"
+                  },
+                  {
+                    "id": "d",
+                    "text": "500"
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "A binary search runs on this sorted list looking for 23. Which value does it compare against first?",
+                "code": "[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "16"
+                  },
+                  {
+                    "id": "b",
+                    "text": "2"
+                  },
+                  {
+                    "id": "c",
+                    "text": "23"
+                  },
+                  {
+                    "id": "d",
+                    "text": "91"
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A bubble sort makes one complete pass over this list, sorting into ascending order. What is the list afterwards?",
+                "code": "[5, 1, 4, 2, 8]",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "[1, 2, 4, 5, 8]"
+                  },
+                  {
+                    "id": "b",
+                    "text": "[1, 5, 4, 2, 8]"
+                  },
+                  {
+                    "id": "c",
+                    "text": "[5, 1, 4, 2, 8]"
+                  },
+                  {
+                    "id": "d",
+                    "text": "[1, 4, 2, 5, 8]"
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What is guaranteed after the first complete pass of a bubble sort into ascending order?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The smallest value is in the first position."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The list is sorted."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The largest value is in the last position."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Half of the list is sorted."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "How does a selection sort work?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It repeatedly swaps neighbouring items that are out of order."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It repeatedly finds the smallest remaining value and puts it in the next position."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It splits the list in half, sorts each half and merges them."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It removes duplicates and then sorts what is left."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A bubble sort on 100 items takes about 1 second. Very roughly, how long will the same sort take on 200 items?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "About 4 seconds."
+                  },
+                  {
+                    "id": "b",
+                    "text": "About the same."
+                  },
+                  {
+                    "id": "c",
+                    "text": "About 2 seconds."
+                  },
+                  {
+                    "id": "d",
+                    "text": "About 100 seconds."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Which algorithm finishes fastest on a list that is already in order?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Selection sort, which searches the whole remaining list every time regardless."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They all take exactly the same time on any list."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A sorted list still has to be shuffled first, so it makes no difference."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Insertion sort, which makes one pass and finds nothing to move."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "Why is the efficiency of an algorithm usually described by how the work grows with the size of the input, rather than by timing it in seconds?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Seconds are hard to measure accurately."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Algorithms have no running time until they are compiled."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A time in seconds only describes one computer and one data set, while the growth rate compares algorithms on any hardware and predicts what happens as the data gets bigger."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Because faster computers make all algorithms equally quick."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "A linear search checks each item in turn, so the worst case — the value is last, or absent — costs all 40 comparisons. On average it is about half that, but the worst case is what n tells you. 6 would be a binary search, which needs a sorted list."
+            },
+            "q2": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Binary search works by discarding half the list at each step, and that is only valid if order tells you which half to keep. On an unsorted list it will happily return the wrong answer rather than fail visibly, which makes it a dangerous mistake."
+            },
+            "q3": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Each comparison halves what is left: 1000 → 500 → 250 → 125 → 63 → 32 → 16 → 8 → 4 → 2 → 1, which is 10 steps, because 2^10 = 1024. A linear search would need up to 1000 — the gap is the whole point of keeping data sorted."
+            },
+            "q4": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Binary search starts at the middle. With 10 items the midpoint is taken as index 4 (integer division of 0 + 9 by 2), which holds 16. Since 23 > 16, everything up to and including 16 is discarded and the search continues in the right-hand half."
+            },
+            "q5": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Compare and swap along the list: 5,1 swap → [1,5,4,2,8]; 5,4 swap → [1,4,5,2,8]; 5,2 swap → [1,4,2,5,8]; 5,8 in order. One pass gives [1, 4, 2, 5, 8] — not sorted yet, but 8 is now safely at the end."
+            },
+            "q6": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "The largest value keeps winning every comparison, so it 'bubbles' all the way to the end in a single pass. That is why each later pass can stop one position earlier. A list of n items needs up to n−1 passes."
+            },
+            "q7": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Selection sort scans the unsorted remainder for the minimum and swaps it into place — one swap per pass, which is far fewer swaps than bubble sort makes, though it still does the same number of comparisons. Repeatedly swapping neighbouring items describes bubble sort, and splitting the list in half and merging describes merge sort."
+            },
+            "q8": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Bubble sort's work grows with the square of the list length, so doubling the data multiplies the time by about 2^2 = 4. This is what O(n^2) means in practice, and it is why an algorithm that is fine on a class list can be hopeless on a national database."
+            },
+            "q9": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Insertion sort's best case is a sorted list: each item is already in place, so it makes n−1 comparisons and no moves. Selection sort has no such shortcut — it scans the whole remaining list every pass whatever the data looks like."
+            },
+            "q10": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A stopwatch measures one machine on one day with one data set. Growth rate is a property of the algorithm itself, so it survives a hardware upgrade and answers the question that actually matters: what happens when the data gets ten times bigger."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

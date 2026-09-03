@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Computer systems",
+      "topic": "Computer Systems",
+      "description": "Ten questions on the von Neumann architecture, the fetch-decode-execute cycle, registers, the memory hierarchy, buses and secondary storage. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "computer-systems-mcq",
+          "runner_id": "mcq",
+          "title": "Computer systems",
+          "weight": 10,
+          "config": {
+            "title": "Computer systems",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is the central idea of the von Neumann architecture?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Programs and the data they work on are held in the same memory."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Programs are held in memory but data is held only in registers."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Every program must be rewired into the machine by hand."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Instructions are executed in any order the processor chooses."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "In the fetch-decode-execute cycle, what happens during the fetch stage?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The instruction is worked out to see what operation it calls for."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The arithmetic is carried out and the result stored."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The program is loaded from the hard disk."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The next instruction is copied from main memory into the processor."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is the job of the Arithmetic Logic Unit (ALU)?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "To fetch instructions and coordinate the other components."
+                  },
+                  {
+                    "id": "b",
+                    "text": "To store the program permanently when the power is off."
+                  },
+                  {
+                    "id": "c",
+                    "text": "To carry out calculations and comparisons."
+                  },
+                  {
+                    "id": "d",
+                    "text": "To hold the address of the next instruction."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What does the Program Counter (PC) hold?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The result of the last calculation."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The address of the next instruction to be fetched."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The number of programs currently running."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The data most recently read from memory."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What is the main difference between RAM and ROM?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "RAM loses its contents when the power is turned off; ROM keeps them."
+                  },
+                  {
+                    "id": "b",
+                    "text": "ROM is faster than RAM."
+                  },
+                  {
+                    "id": "c",
+                    "text": "RAM is used for storage and ROM for calculations."
+                  },
+                  {
+                    "id": "d",
+                    "text": "ROM can be written to freely; RAM cannot."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "Why does a processor have cache memory?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It provides permanent storage for the operating system."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It replaces the need for main memory entirely."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It stores files that the user has deleted."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Main memory is much slower than the processor, so a small, very fast store of recently used instructions and data saves the processor waiting."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "A processor has a 16-bit address bus. How many separate memory locations can it address?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "16"
+                  },
+                  {
+                    "id": "b",
+                    "text": "256"
+                  },
+                  {
+                    "id": "c",
+                    "text": "65 536"
+                  },
+                  {
+                    "id": "d",
+                    "text": "32 768"
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "Two computers have identical processors, but one has four cores and the other has one. Which statement is most accurate?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The four-core machine is always exactly four times faster."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The four-core machine can run four instruction streams at once, so it helps most with tasks that can be split into independent parts."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Extra cores only increase the amount of memory available."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The number of cores has no effect on performance."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Which statement about an SSD compared with a magnetic hard disk drive is correct?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "An SSD has no moving parts, so it is faster to access and less easily damaged by knocks."
+                  },
+                  {
+                    "id": "b",
+                    "text": "An SSD loses its contents when the power is removed."
+                  },
+                  {
+                    "id": "c",
+                    "text": "An SSD stores data on a spinning magnetic platter."
+                  },
+                  {
+                    "id": "d",
+                    "text": "An SSD is a form of primary memory that the processor addresses directly."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A computer with 8 GB of RAM runs several large programs at once and begins to slow down badly, with heavy disk activity. What is happening?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The processor has run out of registers."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The cache has been switched off."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The ROM is full."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The system is using virtual memory, moving pages between RAM and much slower secondary storage."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "The stored-program idea is that instructions are just data in the same memory, so a machine can be given a new job by loading a new program rather than being rewired. It is also why a bug can overwrite code, and why some security attacks are possible at all."
+            },
+            "q2": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Fetch means bringing the instruction at the address in the Program Counter from main memory into the processor. Working out what the instruction calls for is decode, and carrying out the operation is execute. Loading a program from disk into RAM happens once, long before the cycle starts."
+            },
+            "q3": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "The ALU does the arithmetic (add, subtract) and the logic (AND, OR, comparisons such as greater-than). Fetching instructions and coordinating everything else is the Control Unit's job, and holding the address of the next instruction is the Program Counter's — all three sit inside the CPU and are easy to mix up."
+            },
+            "q4": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "The PC holds an address, not a value. It is incremented after each fetch so execution moves through the program in order, and a jump or a loop works by writing a different address into it."
+            },
+            "q5": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "RAM is volatile working memory; ROM is non-volatile and holds firmware such as the boot instructions the machine needs before any disk is available. That is why unsaved work is lost in a power cut but the computer still knows how to start up."
+            },
+            "q6": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Cache exploits the fact that programs reuse the same instructions and data repeatedly — a loop, say. A hit is served in a few clock cycles instead of hundreds, so a small cache buys a large speed-up without the cost of making all of main memory that fast."
+            },
+            "q7": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Each address line doubles the range, so 16 lines give 2^16 = 65 536 addressable locations (64 KiB if each holds one byte). This is why address bus width, not just data bus width, sets a hard ceiling on how much memory a processor can use."
+            },
+            "q8": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Extra cores give real parallelism, but only for work that can be divided up. A single-threaded task — much everyday code — runs no faster on four cores than on one, which is why clock speed and cache still matter."
+            },
+            "q9": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "An SSD uses flash memory, so there is no head to seek and no platter to spin: access is far faster and it survives being dropped. It is still non-volatile secondary storage, so 'b' and 'd' are wrong."
+            },
+            "q10": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "When RAM is exhausted the operating system keeps things running by parking less-used pages on disk and fetching them back when needed. Disk is thousands of times slower than RAM, so the thrashing shows up as a machine that grinds while the drive light stays on."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

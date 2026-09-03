@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Design, testing and debugging",
+      "topic": "Design and Testing",
+      "description": "Ten questions on the design cycle, kinds of error, choosing test data, trace tables, validation versus verification, and human-centred design. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "design-and-testing-mcq",
+          "runner_id": "mcq",
+          "title": "Design, testing and debugging",
+          "weight": 10,
+          "config": {
+            "title": "Design, testing and debugging",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "A program will not run at all: Python reports an error before any output appears, because a colon is missing from an if statement. What kind of error is this?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A syntax error"
+                  },
+                  {
+                    "id": "b",
+                    "text": "A logic error"
+                  },
+                  {
+                    "id": "c",
+                    "text": "A runtime error"
+                  },
+                  {
+                    "id": "d",
+                    "text": "A hardware error"
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "A program runs to the end without complaint but calculates every average as too low, because it divides by the wrong count. What kind of error is this, and why is it the hardest kind to find?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A syntax error — the code is written incorrectly."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A runtime error — it crashes partway through."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A compilation error — the program failed to build."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A logic error — the computer never complains, so only testing against known correct answers reveals it."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A program accepts an exam mark from 0 to 100 inclusive. Which set is the best choice of boundary test data?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "25, 50 and 75"
+                  },
+                  {
+                    "id": "b",
+                    "text": "\"forty\" and an empty entry"
+                  },
+                  {
+                    "id": "c",
+                    "text": "−1, 0, 100 and 101"
+                  },
+                  {
+                    "id": "d",
+                    "text": "0 and 100 only"
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Testing a program with the value \"seven\" where a number is expected is an example of which kind of test data?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Normal data"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Erroneous data — data of the wrong type, which the program should reject gracefully."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Boundary data"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Live data"
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What is a trace table used for?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Recording the value of each variable after every step, so you can see exactly where the program's state first goes wrong."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Listing the users who have run a program."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Storing the test data a program will be given."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Showing how long each line takes to run."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What is the difference between validation and verification of input?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Validation is done by the user; verification is done by the computer."
+                  },
+                  {
+                    "id": "b",
+                    "text": "They are two names for the same check."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Validation applies to numbers and verification to text."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Validation checks the data is reasonable and of the right form; verification checks it was entered as the user intended, for example by asking twice."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "Why is a prototype built early in the design of a new system?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "To have a version ready to sell before the real one is finished."
+                  },
+                  {
+                    "id": "b",
+                    "text": "To satisfy a legal requirement before development can start."
+                  },
+                  {
+                    "id": "c",
+                    "text": "To put something in front of real users while changes are still cheap, so misunderstandings surface before the system is built."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Because a prototype cannot contain any bugs."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A design team watches students actually using their app instead of asking them afterwards what they thought. Why is this valuable?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It is faster than writing a questionnaire."
+                  },
+                  {
+                    "id": "b",
+                    "text": "People are poor at reporting their own behaviour, so observing where they hesitate or go wrong reveals problems no questionnaire would surface."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It removes the need to test the code."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It guarantees the app has no bugs."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Which change most improves the maintainability of a program?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Meaningful variable names, small well-named functions and comments explaining why the code does what it does."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Writing the whole program as one long block so it is all in one place."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Using single-letter variable names to reduce typing."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Removing all comments so the file is shorter."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A design process is described as iterative. What does that mean?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Each stage is completed fully before the next begins and is never revisited."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The program contains loops."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Several teams build the same system separately and the best one is chosen."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Design, build, test and evaluate are repeated in cycles, each round feeding what was learned back into the next."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "A syntax error breaks the rules of the language, so the code cannot even be parsed and nothing runs. These are the easiest errors to fix, because the interpreter points at the line — though the real mistake is sometimes on the line above."
+            },
+            "q2": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "A logic error is code that runs perfectly and does the wrong thing. Nothing flags it, so it survives until someone checks the output against an answer worked out independently — which is exactly why you calculate expected results before you test, not after."
+            },
+            "q3": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Boundary testing targets the edges of the accepted range and just outside them, because off-by-one errors — using > where >= was meant — live precisely there. 25, 50 and 75 are normal data, and a word or an empty entry is erroneous data; a full test plan uses all three."
+            },
+            "q4": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Erroneous data is what a program must survive rather than accept: a helpful message and another chance, not a crash. In Python that usually means try/except around the int() conversion."
+            },
+            "q5": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "A trace table is hand-executing the program with columns for each variable. It is slow and it is the surest way to find a logic error, because it forces you to follow what the code actually says rather than what you meant it to say."
+            },
+            "q6": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Validation asks 'could this be right?' — a range check, a type check, a format check. Verification asks 'is this what you meant?' — the double entry of a new password. Validation cannot catch a correctly formatted but mistyped email address; verification can."
+            },
+            "q7": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "The cost of changing a design rises steeply as work is built on top of it, so the cheapest place to discover a misunderstanding is a paper sketch or a clickable mock-up. A prototype exists to be criticised and thrown away."
+            },
+            "q8": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "What people say they do and what they do differ, and users blame themselves for confusing interfaces rather than reporting them. Watching five people attempt a real task usually finds most of the serious usability problems."
+            },
+            "q9": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Most of a program's life is spent being read and changed, often by someone else — or by you, months later. Names and structure carry the meaning; comments are for the reasoning that the code cannot express, not for restating what each line does."
+            },
+            "q10": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Iterative design accepts that you will not get it right first time and plans to go round again. Completing every stage once and never revisiting it describes the waterfall model, whose weakness is exactly that a requirement misunderstood at the start is discovered at the end."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
