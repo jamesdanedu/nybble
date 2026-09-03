@@ -73,13 +73,13 @@ works fine today only because no activity has more than one kind of step in it.
 | `context.prior` | Investigate, Make | **shipped** |
 | engine decision | Run, Modify | **settled — Skulpt**, see below |
 | `pyrun` runner | Run, Modify | **shipped** |
-| resubmission lock | Predict | still to do — scorer fix |
-| pending-manual marks | results page | still to do — scoring fix |
+| resubmission lock | Predict | **shipped** |
+| pending-manual marks | results page | **shipped** |
 
-All five phases now work. `examples/primm-total.json` is the whole sequence —
-Predict and Make on `freetext`, Run and Modify on `pyrun`, Investigate on the
-`mcq` runner that already existed — and it imports clean. What is left is the
-two defects below, neither of which blocks using it.
+All five phases now work, and both defects below are fixed.
+`examples/primm-total.json` is the whole sequence — Predict and Make on
+`freetext`, Run and Modify on `pyrun`, Investigate on the `mcq` runner that
+already existed — and it imports clean.
 
 `docs/runner-contract.md:124` names these as `freetext` and `pyodide`. Keep
 `freetext`; rename `pyodide` to `pyrun`, because the engine is an
@@ -308,11 +308,11 @@ forgeable the way an output claim is. It is brittle, but it would work as a
 partial-credit floor under a manual Make mark if hand-marking load becomes the
 complaint.
 
-## Two defects PRIMM will expose
+## Two defects PRIMM exposed — both now fixed
 
 Both are latent today because no shipped activity mixes step kinds.
 
-### Predict is not locked
+### Predict was not locked
 
 The portal hides its own Submit on an answered step
 (`attempt-client.tsx`, `!answered.has(step.id)`), but a runner that declares
@@ -322,21 +322,41 @@ after seeing the output and rewrite their prediction — which destroys the one
 thing the sequence is built to produce.
 
 `attempts.attempt_no` already exists, so retries were designed as whole-attempt,
-not per-step. Fix: the scorer refuses to score a step that already has a
-response, returning `409`. Behind a per-step `allowResubmit` flag if any existing
-activity turns out to depend on the current behaviour.
+not per-step.
 
-### Hand-marked steps make the auto mark read as a fail
+**Fixed in two places, because one was not enough.** The scorer refuses to score
+a step that already has a response, returning `409` — that is the half that
+counts, since the portal is not a security boundary and a `selfSubmit` runner
+keeps its own button whatever the portal draws. And the portal now re-mounts an
+answered step in `review` mode rather than `attempt`, so every runner renders it
+read-only using machinery it already had, and a second answer is never offered
+in the first place. A step-level `allowResubmit: true` is the deliberate
+exception.
+
+That second half quietly created a combination nothing had exercised: a runner
+asked to replay a response with `score: null`, because the portal holds no marks
+for an earlier step and must not invent any. `test/harness.test.mjs` now checks
+that mcq and parsons both render the answer and show no score banner.
+
+### Hand-marked steps made the auto mark read as a fail
 
 `score/index.ts:151` returns `{ total: null, max: step.weight }` for a manual
 step. The completion sum then adds `0` to `auto_score` but adds the full weight
 to `max_score`. A student who did everything right sees **5 / 15** until their
 teacher gets to it — three weeks of marking, in a mark that looks like a fail.
 
-Fix at the display layer, not by fiddling the numbers: carry a `pendingManual`
-total so the results page can say *"5 / 10 so far — 5 marks with your teacher"*.
-`attempt.auto_score` stays exactly what the scorer produced, which is the
-property `reviews` was split from `attempts` to preserve.
+**Fixed at the display layer, not by fiddling the numbers.** `splitMarks()` in
+`lib/format.ts` separates the marks a machine awarded from the marks a person
+still owes, and both the results page and the dashboard show *"Marked so far:
+5 / 10"* with *"5 marks still with your teacher"* beside it. `attempt.auto_score`
+stays exactly what the scorer produced, which is the property `reviews` was split
+from `attempts` to preserve.
+
+The dashboard mattered as much as the results page: that is the number a student
+sees first, in a list of everything they have done, and a hand-marked activity
+sitting there reading 5 / 15 looks like a fail for however long the marking
+takes. A hand-marked step worth nothing — PRIMM's Run step — is not counted as
+pending, because no mark is coming for it.
 
 ## Order of work
 

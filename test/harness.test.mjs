@@ -309,6 +309,43 @@ console.log('✓ pyrun: review replays the submitted program read-only');
 
 await page.screenshot({ path: 'test/shot-pyrun-review.png', fullPage: true });
 
+// --------------------------------------------------------------------------
+// 8. Review mode with NO marks.
+//
+// The path an answered step now takes mid-attempt: the portal re-mounts it
+// read-only so a student cannot rewrite a prediction after seeing the output,
+// but it holds no marks for an earlier step and must not invent any. Every
+// runner therefore has to render a response with `score: null` — a combination
+// nothing exercised before this.
+// --------------------------------------------------------------------------
+for (const [runnerId, entryUrl, response, seen] of [
+  ['mcq', '/runners/mcq/index.html',
+    { answers: { q1: ['d'], q2: ['b'], q3: ['a', 'b', 'd'] } }, '.r-opt'],
+  ['parsons', '/runners/parsons/index.html',
+    { arrangement: [{ id: 'l1', indent: 0 }, { id: 'l2', indent: 1 }], unused: ['l3'] }, '.p-cols'],
+]) {
+  await page.evaluate(([url, resp, id]) => {
+    if (window.slot) window.slot.destroy();
+    document.getElementById('frame').innerHTML = '';
+    window.slot = mountRunner(document.getElementById('frame'), {
+      entryUrl: url,
+      stepId: 'step1',
+      config: DemoKit.SAMPLES[id].config,
+      context: Object.assign({ seed: 1 }, DemoKit.SAMPLES[id].context || {}),
+      mode: 'review',
+      response: resp,
+      score: null,
+    });
+  }, [entryUrl, response, runnerId]);
+
+  f = await frame();
+  await f.waitForSelector(seen, { timeout: 15000 });
+  const marked = await f.$$eval('.r-score', (n) => n.length);
+  assert.strictEqual(marked, 0, `${runnerId} showed a score banner when it was given none`);
+  console.log(`✓ ${runnerId}: review with no marks renders the answer and invents no score`);
+}
+
+
 
 
 // --------------------------------------------------------------------------

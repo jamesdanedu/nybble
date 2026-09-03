@@ -1,4 +1,4 @@
-import type { Assignment, Attempt, Review, StudentStatus } from '@/lib/types';
+import type { Assignment, Attempt, Review, StepScore, StudentStatus } from '@/lib/types';
 
 /* ---------------------------------------------------------------------------
  * Dates are formatted with an explicit locale AND an explicit time zone.
@@ -91,6 +91,67 @@ export function percent(score: number | string | null | undefined, max: number |
   const m = num(max);
   if (s === null || m === null || m === 0) return null;
   return Math.round((s / m) * 100);
+}
+
+/* --- marks still with a human -------------------------------------------- */
+
+/** What a machine has marked so far, and what is still waiting on a person. */
+export interface MarkSplit {
+  /** Marks already awarded automatically. Null until the attempt is complete. */
+  awarded: number | null;
+  /** What `awarded` is out of. Excludes anything a human still has to mark. */
+  autoMax: number;
+  /** Marks waiting on a teacher. */
+  pendingMax: number;
+  /** How many steps those marks are spread across. */
+  pendingSteps: number;
+}
+
+/**
+ * Separate the marks a machine awarded from the marks a person still owes.
+ *
+ * Without this, an activity that mixes auto- and hand-marked steps reads as a
+ * fail until it is reviewed. The scorer records `{ total: null, max: weight }`
+ * for a hand-marked step, and the attempt's `auto_score` sums only the numbers
+ * while `max_score` sums every maximum — so a student who did everything right
+ * sees 5 / 15 for however long the marking takes, which is three weeks in
+ * February and looks exactly like failing.
+ *
+ * The numbers in the database are correct and are deliberately left alone:
+ * `auto_score` is what the scorer produced, and `reviews` is a separate table
+ * precisely so the two never overwrite each other. This is a display split.
+ *
+ * A hand-marked step worth nothing (PRIMM's Run step: read it, run it, look at
+ * the output) is not counted as pending — there is no mark coming for it, and
+ * saying "1 step with your teacher, 0 marks" would be noise.
+ */
+export function splitMarks(
+  autoScore: number | null,
+  stepScores: Record<string, StepScore> | null | undefined,
+): MarkSplit {
+  let autoMax = 0;
+  let pendingMax = 0;
+  let pendingSteps = 0;
+
+  for (const score of Object.values(stepScores ?? {})) {
+    const max = typeof score?.max === 'number' ? score.max : 0;
+    const waitingOnAHuman = score?.manual === true || score?.total === null;
+    if (waitingOnAHuman) {
+      if (max > 0) {
+        pendingMax += max;
+        pendingSteps += 1;
+      }
+    } else {
+      autoMax += max;
+    }
+  }
+
+  return { awarded: autoScore, autoMax, pendingMax, pendingSteps };
+}
+
+/** "3 marks" / "1 mark" — used either side of the split above. */
+export function markCount(n: number): string {
+  return `${formatScore(n)} mark${n === 1 ? '' : 's'}`;
 }
 
 /* --- status ------------------------------------------------------------- */

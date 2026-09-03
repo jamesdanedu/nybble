@@ -6,10 +6,12 @@ import {
   feedbackVisible,
   formatScore,
   isOverdue,
+  markCount,
   percent,
   relativeTime,
   STATUS_LABEL,
   STATUS_TONE,
+  splitMarks,
   studentStatus,
 } from '@/lib/format';
 import {
@@ -124,7 +126,16 @@ function AssignmentCard({
   const showScore = visible && attempt && attempt.status !== 'in_progress';
   const teacherScore = review?.released_at ? review.score : null;
   const shownScore = teacherScore ?? (showScore ? attempt.auto_score : null);
-  const shownMax = attempt?.max_score ?? assignment.activity.max_score ?? null;
+
+  // Same split as the results page, and it matters more here: this is the
+  // number a student sees first, on a list of everything they have done. A
+  // hand-marked PRIMM activity showing 5 / 15 in that column reads as a fail
+  // for as long as the marking takes.
+  const split = splitMarks(attempt?.auto_score ?? null, attempt?.step_scores);
+  const awaitingTeacher = teacherScore === null && split.pendingMax > 0;
+  const shownMax = awaitingTeacher
+    ? split.autoMax
+    : attempt?.max_score ?? assignment.activity.max_score ?? null;
   const pct = percent(shownScore, shownMax);
 
   return (
@@ -174,7 +185,13 @@ function AssignmentCard({
                   <span className="text-[17px] font-normal text-muted"> / {formatScore(shownMax)}</span>
                 )}
               </p>
-              {pct !== null && <p className="text-[13.5px] text-muted">{pct}%</p>}
+              {awaitingTeacher ? (
+                <p className="text-[13.5px] text-muted">
+                  +{markCount(split.pendingMax)} with your teacher
+                </p>
+              ) : (
+                pct !== null && <p className="text-[13.5px] text-muted">{pct}%</p>
+              )}
             </div>
           )}
 

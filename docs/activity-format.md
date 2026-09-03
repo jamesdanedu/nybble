@@ -27,6 +27,7 @@ this format exists rather than a form.
           "runner_id": "mcq",
           "title": "Quick check",
           "weight": 1,
+          "allowResubmit": false,    // see below; answer-once is the default
           "config": { /* public — sent to the browser */ },
           "key":    { /* secret — stored in activity_keys */ }
         }
@@ -39,6 +40,20 @@ this format exists rather than a form.
 Re-importing a file whose activity `title` and `topic` already exist updates
 that activity in place rather than creating a duplicate. Pass `--replace` to
 overwrite steps and keys wholesale.
+
+### `allowResubmit`
+
+**A step is answered once.** The scorer refuses a second answer with a 409, and
+the portal re-mounts an answered step read-only rather than inviting one.
+
+PRIMM is why. The sequence works by making a student confront the gap between
+what they predicted and what the program actually did, and that collapses if
+they can walk back to Predict after seeing the output and quietly rewrite the
+prediction. `attempts.attempt_no` already exists, so a retry was designed as a
+whole new attempt rather than a second go at one step.
+
+Set `"allowResubmit": true` on a step that really should take repeated answers —
+a scratchpad, or a step a student is meant to iterate on across a lesson.
 
 ---
 

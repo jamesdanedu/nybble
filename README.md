@@ -76,7 +76,7 @@ of path bug — see the note in `test/vercel-sim.py`.
 npm i -D playwright && npx playwright install chromium
 
 python3 test/vercel-sim.py --port 8102 &          # production config
-node test/harness.test.mjs                        # 21 runner-contract checks
+node test/harness.test.mjs                        # 23 runner-contract checks
 node test/deploy.test.mjs                         # 7 deployment checks
 
 python3 test/vercel-sim.py --clean --port 8101 &  # if cleanUrls ever comes back
@@ -177,9 +177,8 @@ the whole class from *Lost the passwords?* at the bottom of the class page.
 - Uploading a CSV file (you can paste CSV text today, but not pick a file)
 - Hidden test cases for `pyrun` — impossible by construction, since the tests
   run in the browser and a runner never sees the key (`docs/activity-format.md`)
-- Locking a Predict step once it is answered, and showing hand-marked steps as
-  pending rather than as zero — both written up in `docs/primm.md`
-- The authoring UI — activities are seeded by SQL for now
+- An authoring UI — activities are written as files and imported, by hand or
+  with an LLM (`docs/activity-format.md`); there is no form for building one
 
 ## Known sharp edges
 

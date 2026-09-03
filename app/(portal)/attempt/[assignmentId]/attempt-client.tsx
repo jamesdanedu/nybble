@@ -161,7 +161,9 @@ export function AttemptClient({
           setError(
             body.error === 'attempt already submitted'
               ? 'This attempt has already been handed up.'
-              : body.error
+              : body.error === 'step already answered'
+                ? 'You have already answered this step, and the first answer is the one that counts.'
+                : body.error
                 ? `Could not save your answer: ${body.error}`
                 : 'Could not save your answer. Check the connection and press Submit again — nothing was lost.',
           );
@@ -245,6 +247,15 @@ export function AttemptClient({
 
   const allAnswered = steps.every((s) => answered.has(s.id));
 
+  // An answered step is re-mounted in `review` mode rather than `attempt`, so
+  // every runner renders it read-only using machinery it already has. Hiding
+  // the portal's own Submit was never enough on its own: a runner that declares
+  // selfSubmit draws its own button, and a student walking back to Predict
+  // after seeing the output could rewrite the prediction the whole sequence is
+  // built on. The scorer refuses a second answer as well — this is the half
+  // that stops it being offered.
+  const answeredHere = answered.has(step.id);
+
   return (
     <div>
       {steps.length > 1 && (
@@ -259,7 +270,10 @@ export function AttemptClient({
                   // Answered steps can be revisited; unanswered ones ahead
                   // cannot be skipped to, because PRIMM's whole point is order.
                   disabled={!done && i > index}
-                  onClick={() => setIndex(i)}
+                  onClick={() => {
+                    setPracticeScore(null);
+                    setIndex(i);
+                  }}
                   className={cx(
                     'inline-flex min-h-[36px] items-center gap-2 rounded-lg border px-3 text-[14px] font-semibold transition',
                     current
@@ -313,7 +327,12 @@ export function AttemptClient({
         // shuffles are reproducible for this attempt.
         context={{ ...sharedContext, seed: attempt.seed, prior }}
         state={(attempt.step_state ?? {})[step.id] ?? null}
-        mode="attempt"
+        mode={answeredHere ? 'review' : 'attempt'}
+        response={answeredHere ? (responses[step.id] ?? null) : null}
+        // Only ever the mark the server just handed back for THIS submission,
+        // and only where it releases one. Revisiting an older step shows the
+        // answer with no marking, because the portal holds no marks for it.
+        score={answeredHere ? practiceScore : null}
         title={step.title ?? activityTitle}
         onState={onState}
         onSubmit={onSubmit}

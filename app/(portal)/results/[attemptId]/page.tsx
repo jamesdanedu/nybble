@@ -7,7 +7,9 @@ import {
   feedbackVisible,
   formatDateTime,
   formatScore,
+  markCount,
   percent,
+  splitMarks,
 } from '@/lib/format';
 import {
   Alert,
@@ -70,7 +72,18 @@ export default async function ResultsPage({
 
   const teacherScore = released ? review?.score ?? null : null;
   const shownScore = teacherScore ?? (visible ? attempt.auto_score : null);
-  const shownMax = attempt.max_score ?? assignment.activity.max_score ?? null;
+
+  // An activity that mixes auto- and hand-marked steps has an auto_score that
+  // is out of the WHOLE activity, including the parts no machine ever marks.
+  // Shown raw, a perfect PRIMM attempt reads 5 / 15 until a teacher gets to it.
+  // Once the teacher's own mark is released there is nothing to split: their
+  // number covers the lot.
+  const split = splitMarks(attempt.auto_score, scores);
+  const awaitingTeacher = teacherScore === null && split.pendingMax > 0;
+
+  const shownMax = awaitingTeacher
+    ? split.autoMax
+    : attempt.max_score ?? assignment.activity.max_score ?? null;
   const pct = percent(shownScore, shownMax);
 
   return (
@@ -119,7 +132,7 @@ export default async function ResultsPage({
       {visible && shownScore !== null && (
         <div className="mb-5 grid gap-3 sm:grid-cols-3">
           <Stat
-            label={teacherScore !== null ? 'Teacher mark' : 'Score'}
+            label={teacherScore !== null ? 'Teacher mark' : awaitingTeacher ? 'Marked so far' : 'Score'}
             value={
               <>
                 {formatScore(shownScore)}
@@ -128,7 +141,13 @@ export default async function ResultsPage({
                 )}
               </>
             }
-            sub={pct !== null ? `${pct}%` : undefined}
+            sub={
+              awaitingTeacher
+                ? `${markCount(split.pendingMax)} still with your teacher`
+                : pct !== null
+                  ? `${pct}%`
+                  : undefined
+            }
           />
           {teacherScore !== null && attempt.auto_score !== null && (
             <Stat label="Auto-marked" value={formatScore(attempt.auto_score)} sub="Before review" />
@@ -138,6 +157,17 @@ export default async function ResultsPage({
             value={`${Object.keys(attempt.step_responses ?? {}).length} / ${steps.length}`}
             sub="Answered"
           />
+        </div>
+      )}
+
+      {visible && awaitingTeacher && attempt.status !== 'in_progress' && (
+        <div className="mb-5">
+          <Alert tone="info" title="Some of this is still to be marked by hand">
+            {markCount(split.pendingMax)} across {split.pendingSteps} step
+            {split.pendingSteps === 1 ? '' : 's'} cannot be marked automatically — your teacher
+            reads those. The mark above is only the part that was marked for you, so it is not
+            your result yet.
+          </Alert>
         </div>
       )}
 

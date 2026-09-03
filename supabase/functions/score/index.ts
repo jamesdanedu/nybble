@@ -193,6 +193,24 @@ Deno.serve(async (req) => {
   const step = steps.find((s) => s.id === stepId);
   if (!step) return json({ error: `unknown step '${stepId}'` }, 400);
 
+  // A step is answered once.
+  //
+  // PRIMM is why this matters. The sequence works by making a student confront
+  // the gap between what they predicted and what the program actually did, and
+  // that collapses entirely if they can walk back to Predict after seeing the
+  // output and quietly rewrite the prediction. The portal already re-mounts an
+  // answered step read-only, but the portal is not a security boundary: a
+  // runner that declares selfSubmit keeps its own button, and anyone with dev
+  // tools can post whatever they like.
+  //
+  // `attempts.attempt_no` already exists, so a retry was designed as a whole
+  // new attempt rather than a second go at one step. `allowResubmit` on the
+  // step is the deliberate exception, for activities that want a scratchpad.
+  const alreadyAnswered = (attempt.step_responses ?? {})[stepId] !== undefined;
+  if (alreadyAnswered && step.allowResubmit !== true) {
+    return json({ error: 'step already answered' }, 409);
+  }
+
   const { data: runner } = await db
     .from('runners').select('id, scorer').eq('id', step.runner_id).single();
 
