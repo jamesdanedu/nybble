@@ -18,6 +18,7 @@ app/                              Next.js portal (App Router)
 lib/                              Supabase clients, session, activity importer
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
+scripts/import-schools.mjs        loads the Dept of Education post-primary list
 scripts/check-parsons.mjs         reassembles every Parsons key and runs it
 scripts/make-icons.mjs            regenerates public/icons/ (four bits, 0100)
 examples/lccs-week1.json          a real activity file to import
@@ -35,6 +36,7 @@ supabase/
   migrations/0006_parsons_runner.sql  registers the parsons runner (see the file)
   migrations/0007_freetext_runner.sql  registers the freetext runner
   migrations/0008_pyrun_runner.sql     registers the pyrun runner
+  migrations/0009_school_directory.sql every post-primary school, as reference data
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -62,8 +64,10 @@ docs/activity-format.md           the activity file format you author against
 docs/parsons-authoring.md         how the Python Parsons ladder is built
 docs/primm.md                     the PRIMM sequence: plan, engine spike, decisions
 docs/pwa.md                       installable app shell, and why not offline
+docs/schools.md                   the Dept of Education school list: import, dedupe
 test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
+test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
 test/deploy.test.mjs              checks that survive real static hosting
 test/pwa.test.mjs                 manifest, worker, and what it may cache
 test/sw-sandbox-spike.mjs         why a sandboxed runner cannot go offline
@@ -104,6 +108,13 @@ in production:
 npm run build && npx next start -p 8102
 BASE=http://127.0.0.1:8102 node test/pwa.test.mjs   # 7 checks
 node test/sw-sandbox-spike.mjs                      # self-contained, no server
+```
+
+Two suites need nothing at all — no browser, no server, no database:
+
+```bash
+node test/check-parsons.test.mjs                    # the Parsons key checker
+node test/schools-ie.test.mjs                       # 17 school-directory checks
 ```
 
 (There is a `package.json` now — the portal is a Next.js app, so Vercel installs

@@ -367,9 +367,14 @@ pending, because no mark is coming for it.
 3. ~~**`pyrun`**, plus harness coverage.~~ **Done.** Seven checks in
    `test/harness.test.mjs`, including the runaway-loop abort and the frame
    surviving it — the property the engine choice rests on.
-4. **The two defects.**
-5. **An example activity** in `examples/`, the way `lccs-week1.json` works today,
-   so the whole sequence is importable and testable by hand.
+4. ~~**The two defects.**~~ **Done.** The resubmission lock is enforced in the
+   scorer (`409`) as well as in the portal, and `splitMarks()` stops a pending
+   hand-marked step reading as a fail.
+5. ~~**An example activity** in `examples/`, the way `lccs-week1.json` works
+   today, so the whole sequence is importable and testable by hand.~~ **Done.**
+   `examples/primm-total.json`.
+
+All five are done. PRIMM ships.
 
 ## The shape of the finished thing
 
