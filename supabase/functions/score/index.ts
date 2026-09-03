@@ -57,6 +57,63 @@ function corsFor(req: Request): Record<string, string> {
   };
 }
 
+/**
+ * Marking for a runner registered `scorer = 'client'` — today, `pyrun`.
+ *
+ * Some things cannot be marked on this server. Whether a student's Python does
+ * what it was asked to do is one of them: the scorer runs on Deno and there is
+ * no Python here to run their code against. The runner does run it, in the
+ * student's own browser, and reports how many of the teacher's checks passed.
+ *
+ * That report is not evidence. Anyone who can open dev tools can post any
+ * number they like, so it is honoured under exactly one condition:
+ *
+ *   **practice mode, where nothing is at stake.** There the number is instant
+ *   formative feedback on "did my change work", which is the whole point of
+ *   PRIMM's Modify phase, and no mark is being awarded.
+ *
+ * Anywhere else the work is recorded and sent to a teacher, the same as any
+ * other thing a machine cannot mark. The mode is read from the database, never
+ * from the request, so a browser cannot talk its way into the first branch.
+ *
+ * The runner scores out of its own test marks; the attempt has to be scored out
+ * of the step's weight, so the two are reconciled by proportion here rather than
+ * letting a runner decide what a step is worth.
+ */
+function scoreFromClient(
+  step: { weight?: number | null },
+  mode: string,
+  clientScore: unknown,
+  clientMax: unknown,
+) {
+  const weight = typeof step.weight === 'number' ? step.weight : null;
+
+  // A weight-0 step (PRIMM's Run: read it, run it, look at the output) has
+  // nothing to mark. Sending it to a teacher would be a queue full of noise.
+  if (weight === 0) {
+    return { total: 0, max: 0, client: true, nothingToMark: true, perQuestion: {} };
+  }
+
+  const pending = { total: null, max: weight, manual: true, perQuestion: {} };
+  if (mode !== 'practice') return pending;
+
+  const got = typeof clientScore === 'number' && Number.isFinite(clientScore) ? clientScore : null;
+  const outOf = typeof clientMax === 'number' && Number.isFinite(clientMax) ? clientMax : null;
+  if (got === null || outOf === null || outOf <= 0 || weight === null) return pending;
+
+  const fraction = Math.min(1, Math.max(0, got / outOf));
+  return {
+    total: Math.round(weight * fraction * 100) / 100,
+    max: weight,
+    client: true,
+    // Carried into the teacher's review view so a number from a browser is
+    // never mistaken for a number this server stands over.
+    unverified: true,
+    reported: { passed: got, outOf },
+    perQuestion: {},
+  };
+}
+
 Deno.serve(async (req) => {
   const CORS = corsFor(req);
   const json = (body: unknown, status = 200) =>
@@ -87,7 +144,16 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } },
   );
 
-  let body: { attemptId?: string; stepId?: string; response?: Record<string, unknown> };
+  let body: {
+    attemptId?: string;
+    stepId?: string;
+    response?: Record<string, unknown>;
+    // Only meaningful for a runner registered `scorer = 'client'`, and only in
+    // practice mode. Sent by the portal, produced by the student's browser,
+    // and believed exactly as far as scoreFromClient() below allows.
+    clientScore?: unknown;
+    maxScore?: unknown;
+  };
   try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
   const { attemptId, stepId, response } = body;
   if (!attemptId || !stepId || typeof response !== 'object' || response === null) {
@@ -127,6 +193,24 @@ Deno.serve(async (req) => {
   const step = steps.find((s) => s.id === stepId);
   if (!step) return json({ error: `unknown step '${stepId}'` }, 400);
 
+  // A step is answered once.
+  //
+  // PRIMM is why this matters. The sequence works by making a student confront
+  // the gap between what they predicted and what the program actually did, and
+  // that collapses entirely if they can walk back to Predict after seeing the
+  // output and quietly rewrite the prediction. The portal already re-mounts an
+  // answered step read-only, but the portal is not a security boundary: a
+  // runner that declares selfSubmit keeps its own button, and anyone with dev
+  // tools can post whatever they like.
+  //
+  // `attempts.attempt_no` already exists, so a retry was designed as a whole
+  // new attempt rather than a second go at one step. `allowResubmit` on the
+  // step is the deliberate exception, for activities that want a scratchpad.
+  const alreadyAnswered = (attempt.step_responses ?? {})[stepId] !== undefined;
+  if (alreadyAnswered && step.allowResubmit !== true) {
+    return json({ error: 'step already answered' }, 409);
+  }
+
   const { data: runner } = await db
     .from('runners').select('id, scorer').eq('id', step.runner_id).single();
 
@@ -149,6 +233,8 @@ Deno.serve(async (req) => {
     default:
       if (runner?.scorer === 'manual') {
         stepScore = { total: null, max: step.weight ?? null, manual: true, perQuestion: {} };
+      } else if (runner?.scorer === 'client') {
+        stepScore = scoreFromClient(step, assignment.mode, body.clientScore, body.maxScore);
       } else {
         return json({ error: `no server scorer registered for runner '${step.runner_id}'` }, 501);
       }

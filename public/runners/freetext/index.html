@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Written Answer</title>
+<link rel="stylesheet" href="/runners/lib/runner.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="/runners/lib/runner-sdk.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * freetext runner
+ *
+ * A prompt and a box. Registered `scorer: 'manual'`, so every submission goes
+ * to the teacher review queue — there is no key and nothing here is marked
+ * automatically.
+ *
+ * It carries PRIMM's Predict and Make phases, which is why it knows about
+ * `context.prior`: Make has to be able to quote the student's own prediction
+ * back at them, and confronting the gap is the entire pedagogical point.
+ *
+ * config = {
+ *   title, prompt, instructions,
+ *   showContextCode: true,      // render context.code above the box
+ *   placeholder: "I think it will…",
+ *   rows: 6,
+ *   minChars: 0,                // block submit below this
+ *   maxChars: 0,                // 0 = no limit; hard-stops typing past it
+ *   showPrior: {                // quote an earlier step back at the student
+ *     stepId: "predict",
+ *     label: "What you predicted",
+ *     field: "text"             // which key of that step's response to show
+ *   }
+ * }
+ *
+ * response = { text: "…" }
+ *
+ * score (review mode) = { total, max, manual: true }
+ *   `total` is null until a teacher marks it. The portal draws the "Marked by
+ *   hand" badge itself; all this file does is not pretend to know a mark.
+ * ------------------------------------------------------------------------ */
+
+var app = document.getElementById('app');
+var cfg = null, ctx = {}, mode = 'attempt', text = '', scoreData = null;
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function paras(t) {
+  return String(t || '').split(/\n{2,}/).map(function (p) {
+    return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+
+/* The earlier step's answer, if the teacher asked for it and the student has
+   actually got that far. Absent is normal, not an error: `prior` only carries
+   steps already answered, so a previewed or out-of-order mount has none. */
+function priorText() {
+  var want = cfg.showPrior;
+  if (!want || !want.stepId) return null;
+  var prior = ctx.prior || {};
+  var resp = prior[want.stepId];
+  if (!resp || typeof resp !== 'object') return null;
+  var value = resp[want.field || 'text'];
+  return typeof value === 'string' && value.trim() ? value : null;
+}
+
+function charCount() { return text.trim().length; }
+
+function render() {
+  var reviewing = (mode === 'review');
+  var html = '';
+
+  if (cfg.title || cfg.instructions) {
+    html += '<div class="r-head">';
+    if (cfg.title) html += '<h1 class="r-title">' + esc(cfg.title) + '</h1>';
+    if (cfg.instructions) html += '<p class="r-sub">' + esc(cfg.instructions) + '</p>';
+    html += '</div>';
+  }
+
+  if (reviewing && scoreData && typeof scoreData.total === 'number') {
+    html += '<div class="r-score">Score: ' + scoreData.total + ' / ' + scoreData.max + '</div>';
+  }
+
+  html += '<section class="r-card">';
+
+  if (cfg.prompt) html += '<div class="r-stem">' + paras(cfg.prompt) + '</div>';
+
+  if (cfg.showContextCode !== false && typeof ctx.code === 'string' && ctx.code) {
+    html += '<pre class="r-code">' + esc(ctx.code) + '</pre>';
+  }
+
+  var earlier = priorText();
+  if (earlier) {
+    html += '<div class="r-prior">' +
+            '<strong>' + esc((cfg.showPrior && cfg.showPrior.label) || 'Earlier you wrote') + '</strong>' +
+            paras(earlier) +
+            '</div>';
+  }
+
+  if (reviewing) {
+    html += text.trim()
+      ? '<div class="r-answer">' + paras(text) + '</div>'
+      : '<p class="r-status warn">Nothing was written for this step.</p>';
+  } else {
+    html += '<label class="r-sr" for="answer">' + esc(cfg.prompt || 'Your answer') + '</label>';
+    html += '<textarea class="r-textarea" id="answer" rows="' + (Number(cfg.rows) || 6) + '"' +
+            (cfg.maxChars > 0 ? ' maxlength="' + Number(cfg.maxChars) + '"' : '') +
+            ' placeholder="' + esc(cfg.placeholder || '') + '">' + esc(text) + '</textarea>';
+  }
+
+  html += '</section>';
+
+  if (!reviewing) {
+    html += '<div class="r-foot">' +
+            '<button class="r-btn" id="submit">Submit answer</button>' +
+            '<span class="r-status" id="status"></span>' +
+            '</div>';
+  }
+
+  app.innerHTML = html;
+
+  if (!reviewing) {
+    var box = document.getElementById('answer');
+    box.addEventListener('input', onInput);
+    document.getElementById('submit').addEventListener('click', doSubmit);
+    updateStatus();
+  }
+  Runner.measure();
+}
+
+function onInput(e) {
+  text = e.target.value;
+  updateStatus();
+  Runner.saveState({ text: text });
+}
+
+function updateStatus() {
+  var el = document.getElementById('status');
+  if (!el) return;
+  var n = charCount();
+  var min = Number(cfg.minChars) || 0;
+  var max = Number(cfg.maxChars) || 0;
+
+  if (min && n < min) {
+    el.textContent = n + ' of at least ' + min + ' characters';
+  } else if (max) {
+    el.textContent = n + ' / ' + max + ' characters';
+  } else {
+    el.textContent = n + ' character' + (n === 1 ? '' : 's');
+  }
+  el.className = 'r-status';
+}
+
+function doSubmit() {
+  var min = Number(cfg.minChars) || 0;
+  if (charCount() < Math.max(min, 1)) {
+    var el = document.getElementById('status');
+    el.textContent = min
+      ? 'Write at least ' + min + ' characters before submitting.'
+      : 'Write something before submitting.';
+    el.className = 'r-status warn';
+    document.getElementById('answer').focus();
+    Runner.measure();
+    return;
+  }
+  document.getElementById('submit').disabled = true;
+  // No clientScore: a human marks this, and guessing a number here would put a
+  // mark in front of a student that nobody awarded.
+  Runner.submit({ text: text });
+}
+
+Runner.start({
+  capabilities: { selfSubmit: true, autoScore: false },
+
+  onInit: function (init) {
+    cfg = init.config || {};
+    ctx = init.context || {};
+    mode = init.mode || 'attempt';
+    scoreData = init.score || null;
+
+    if (mode === 'review' && init.response) {
+      text = typeof init.response.text === 'string' ? init.response.text : '';
+    } else {
+      text = (init.state && typeof init.state.text === 'string') ? init.state.text : '';
+    }
+    render();
+  },
+
+  onRequestSubmit: function () {
+    doSubmit();
+  },
+
+  onModeChange: function (m) { mode = m; render(); }
+});
+</script>
+</body>
+</html>

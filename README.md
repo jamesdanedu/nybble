@@ -18,6 +18,7 @@ components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
 scripts/check-parsons.mjs         reassembles every Parsons key and runs it
 examples/lccs-week1.json          a real activity file to import
+examples/primm-total.json         a five-step PRIMM sequence about one snippet
 examples/python/                  the LCCS Python checklist, a file per section
 vercel.json                       headers only — Next owns the build now
 supabase/
@@ -28,6 +29,8 @@ supabase/
   migrations/0004_school_admin.sql   school administration
   migrations/0005_service_role_grants.sql  the same, for `service_role`
   migrations/0006_parsons_runner.sql  registers the parsons runner (see the file)
+  migrations/0007_freetext_runner.sql  registers the freetext runner
+  migrations/0008_pyrun_runner.sql     registers the pyrun runner
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -45,9 +48,13 @@ public/
     mcq/index.html                MCQ runner
     numbase/index.html            binary/hex conversion runner
     parsons/index.html            Parsons problem runner (drag, tap, keyboard)
+    freetext/index.html           written answer, hand-marked (PRIMM Predict/Make)
+    pyrun/index.html              Python in the browser (PRIMM Run/Modify)
+    lib/skulpt/                   vendored Python engine — see its README
 docs/runner-contract.md           the protocol spec
 docs/activity-format.md           the activity file format you author against
 docs/parsons-authoring.md         how the Python Parsons ladder is built
+docs/primm.md                     the PRIMM sequence: plan, engine spike, decisions
 test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/deploy.test.mjs              checks that survive real static hosting
@@ -74,7 +81,7 @@ of path bug — see the note in `test/vercel-sim.py`.
 npm i -D playwright && npx playwright install chromium
 
 python3 test/vercel-sim.py --port 8102 &          # production config
-node test/harness.test.mjs                        # 9 runner-contract checks
+node test/harness.test.mjs                        # 23 runner-contract checks
 node test/deploy.test.mjs                         # 7 deployment checks
 
 python3 test/vercel-sim.py --clean --port 8101 &  # if cleanUrls ever comes back
@@ -88,7 +95,8 @@ and builds on every deploy. That was not true of the earlier static-only repo.)
 
 **1. Activities are step sequences, not types.** An activity is an ordered list
 of steps, each one a runner instance sharing the same `context`. A quiz is a
-one-step activity. PRIMM is a five-step activity. Same code path.
+one-step activity. PRIMM is a five-step activity — `examples/primm-total.json`
+is a real one. Same code path.
 
 **2. A runner is a plain HTML file.** It speaks `postMessage`, holds no key,
 knows no student, and reaches no database. Adding one is a row in `runners` plus
@@ -206,8 +214,10 @@ the whole class from *Lost the passwords?* at the bottom of the class page.
 ## What is deliberately not here yet
 
 - Uploading a CSV file (you can paste CSV text today, but not pick a file)
-- `parsons`, `freetext` and `pyodide` runners
-- The authoring UI — activities are seeded by SQL for now
+- Hidden test cases for `pyrun` — impossible by construction, since the tests
+  run in the browser and a runner never sees the key (`docs/activity-format.md`)
+- An authoring UI — activities are written as files and imported, by hand or
+  with an LLM (`docs/activity-format.md`); there is no form for building one
 
 ## Known sharp edges
 

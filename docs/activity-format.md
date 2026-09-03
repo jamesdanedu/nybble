@@ -27,6 +27,7 @@ this format exists rather than a form.
           "runner_id": "mcq",
           "title": "Quick check",
           "weight": 1,
+          "allowResubmit": false,    // see below; answer-once is the default
           "config": { /* public — sent to the browser */ },
           "key":    { /* secret — stored in activity_keys */ }
         }
@@ -39,6 +40,20 @@ this format exists rather than a form.
 Re-importing a file whose activity `title` and `topic` already exist updates
 that activity in place rather than creating a duplicate. Pass `--replace` to
 overwrite steps and keys wholesale.
+
+### `allowResubmit`
+
+**A step is answered once.** The scorer refuses a second answer with a 409, and
+the portal re-mounts an answered step read-only rather than inviting one.
+
+PRIMM is why. The sequence works by making a student confront the gap between
+what they predicted and what the program actually did, and that collapses if
+they can walk back to Predict after seeing the output and quietly rewrite the
+prediction. `attempts.attempt_no` already exists, so a retry was designed as a
+whole new attempt rather than a second go at one step.
+
+Set `"allowResubmit": true` on a step that really should take repeated answers —
+a scratchpad, or a step a student is meant to iterate on across a lesson.
 
 ---
 
@@ -185,6 +200,159 @@ All-or-nothing unless `partial` is set. With `partial`:
 The 70/30 split is a judgement call, not a law. It is in `parsons.ts` as a
 constant if you disagree — LCCS students lose more marks to indentation than
 to ordering, so weighting it higher is defensible.
+
+---
+
+## `freetext`
+
+A prompt and a box. Registered `scorer: 'manual'`, so there is **no key** — every
+submission goes to the teacher review queue and waits for a human. It carries
+PRIMM's Predict and Make phases.
+
+```jsonc
+"config": {
+  "title": "Make",
+  "prompt": "Write a function of your own that finds the largest number in a list.",
+  "instructions": "Your teacher marks this one by hand.",
+  "showContextCode": true,      // render shared_context.code above the box
+  "placeholder": "def largest(numbers):",
+  "rows": 8,
+  "minChars": 40,               // blocks submit below this; 0 = just non-empty
+  "maxChars": 0,                // 0 = no limit; otherwise stops typing past it
+  "showPrior": {                // quote an earlier step back at the student
+    "stepId": "predict",
+    "label": "What you predicted",
+    "field": "text"
+  }
+}
+
+"key": {}                       // nothing to hide: a human decides the mark
+```
+
+### `showPrior`
+
+This is the PRIMM mechanism. A Make step can show what the student wrote at
+Predict, so they are made to compare the two rather than quietly forgetting
+what they guessed. It reads `context.prior` — see `docs/runner-contract.md`.
+
+`stepId` must name a step **earlier in the same activity**; the importer rejects
+a forward reference, a self-reference and an id that does not exist, because all
+three fail silently in front of a student otherwise. `field` is the key of that
+step's response to display, and defaults to `text` — which is what another
+`freetext` step returns. If the named step has no response yet, the block is
+simply not drawn.
+
+### Response
+
+```jsonc
+{ "text": "def largest(numbers):\n    …" }
+```
+
+### Marking
+
+None, here. The scorer records `{ total: null, max: <step weight>, manual: true }`
+and the attempt shows up in Teacher → Review, where the per-step rubric box takes
+the mark and the comment. Two consequences worth knowing when you set weights:
+
+- A `weight: 0` step (PRIMM's Run) costs the teacher nothing and contributes
+  nothing — it exists to make the student look at something.
+- Until a teacher marks it, a hand-marked step contributes 0 to the attempt's
+  auto-score while still counting toward the maximum, so an activity that mixes
+  hand- and auto-marked steps reads low until it is reviewed.
+
+---
+
+## `pyrun`
+
+Python in the browser. Carries PRIMM's Run and Modify phases, and it is the same
+runner for both — the difference is whether the student may edit the program.
+
+```jsonc
+"config": {
+  "title": "Modify",
+  "instructions": "Change the program, press Run, and watch the checks below.",
+  "task": "Change total() so that it ignores any negative numbers.",
+  "source": "def total(numbers):\n    ...",   // optional: falls back to shared_context.code
+  "editable": true,             // false for a Run step — read it, run it, read the output
+  "requireRun": true,           // must press Run before Submit is allowed
+  "showTests": true,            // students can see what they have to satisfy
+  "execLimitMs": 3000,          // a program running longer than this is stopped
+  "stdin": ["5", "7"],          // answers handed to input(), in order
+  "showStdin": false,           // let the student edit those answers
+  "tests": [
+    { "id": "t1", "label": "skips a negative", "marks": 1,
+      "call": "total([1, -2, 3])", "expect": "4" },
+    { "id": "t2", "label": "prints the total", "marks": 1,
+      "stdout": "8" }
+  ]
+}
+
+"key": {}                       // there is none — see below
+```
+
+A **Run** step is the same runner with `"editable": false`, `"weight": 0` and no
+tests. The student reads the program, runs it, and sees what it prints.
+
+### Tests
+
+Two kinds, and a test is one or the other:
+
+- **`call` + `expect`** — the program is run, then the expression in `call` is
+  evaluated and its `repr()` compared to `expect`. So `expect` is written the way
+  Python would print it: `"4"`, `"[1, 2, 3]"`, `"'hello'"`, `"True"`. Anything
+  the student's own program printed is ignored, so their debugging `print`s do
+  not break the checks.
+- **`stdout`** — the whole program is run and everything it printed is compared
+  to `stdout`, trailing whitespace ignored. Use this for programs that print
+  rather than return.
+
+`marks` defaults to 1.
+
+### There is no key, and tests are public
+
+Every other runner here hides its answers in `activity_keys`. This one cannot,
+and the reason is structural rather than an oversight: **the tests run in the
+student's browser, and a runner is never sent the key.** Tests written under
+`key` would never run at all, so the importer rejects them with an error rather
+than letting you find out in a classroom.
+
+The practical consequence is that a determined student can read the expected
+values and write a function that returns them. That is a real limit, and it is
+the right trade for a formative phase: Modify exists to give instant feedback on
+"did my change work", and a student who games it has only skipped their own
+practice. Anything that carries marks should be a `freetext` step a teacher
+reads, or an `mcq`.
+
+### Marking
+
+`pyrun` is registered `scorer: 'client'`, which is narrower than it sounds:
+
+| | |
+|---|---|
+| `weight: 0` (a Run step) | `0 / 0` — recorded, nothing to mark, no review queue |
+| practice mode | the runner's own report, scaled to the step's weight, flagged **unverified** |
+| anything else | `null` — recorded and sent to the teacher, like any hand-marked step |
+
+Whether a student's Python does what it was asked cannot be settled on the
+server: the scorer runs on Deno and there is no Python there. So in practice
+mode, where nothing is at stake, the browser's report becomes instant feedback;
+everywhere else a human decides. The Edge Function reads the assignment's mode
+from the database rather than from the request, so a browser cannot talk its way
+into being believed, and a mark that came from a browser is badged
+*"Not checked by the server"* wherever a teacher sees it.
+
+### The engine
+
+Skulpt, vendored at `/runners/lib/skulpt/`, chosen by the spike written up in
+`docs/primm.md`. It supports the Leaving Cert Python surface — a 14-item battery
+covering f-strings, comprehensions, dictionaries, string methods, `try`/`except`,
+classes, `input()` and the rest passes in full — but not `numpy`, `matplotlib`
+or anything else off the course.
+
+`execLimitMs` is the setting that matters. A student's `while True:` is stopped
+and reported as *"Your program ran too long and was stopped. Is there a loop
+that never ends?"*, and the interpreter keeps working afterwards. Without it the
+whole frame would freeze for the rest of the lesson.
 
 ---
 

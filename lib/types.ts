@@ -113,6 +113,16 @@ export interface StepScore {
   total: number | null;
   max: number | null;
   manual?: boolean;
+  /** Marked from the runner's own report, in practice mode only. */
+  client?: boolean;
+  /**
+   * The mark came from the student's browser and this server did not check it.
+   * Always shown to a teacher alongside the number — see `scoreFromClient` in
+   * the score Edge Function for why such a number is allowed to exist at all.
+   */
+  unverified?: boolean;
+  /** A weight-0 step, such as PRIMM's Run: recorded, nothing to mark. */
+  nothingToMark?: boolean;
   late?: boolean;
   scoredAt?: string;
   perQuestion?: Record<string, unknown>;

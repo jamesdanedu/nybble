@@ -1,0 +1,246 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "PRIMM — summing a list",
+      "topic": "Programming",
+      "description": "The full PRIMM sequence about one accumulator function. Predict and Make are marked by hand, Investigate is marked automatically, and Run and Modify execute real Python in the browser.",
+      "visibility": "school",
+      "shared_context": {
+        "code": "def total(numbers):\n    runningTotal = 0\n    for n in numbers:\n        runningTotal = runningTotal + n\n    return runningTotal\n\nprint(total([3, 1, 4]))"
+      },
+      "steps": [
+        {
+          "id": "predict",
+          "runner_id": "freetext",
+          "title": "Predict",
+          "weight": 2,
+          "config": {
+            "title": "Predict",
+            "prompt": "Read the program above. Do NOT run it yet.\n\nWhat will it print? Write down the number, and one sentence saying how you worked it out.",
+            "instructions": "There are no marks for being right — there are marks for saying what you actually think.",
+            "showContextCode": true,
+            "placeholder": "I think it prints… because…",
+            "rows": 5,
+            "minChars": 25
+          },
+          "key": {}
+        },
+        {
+          "id": "run",
+          "runner_id": "pyrun",
+          "title": "Run",
+          "weight": 0,
+          "config": {
+            "title": "Run",
+            "instructions": "This step carries no marks. It exists so you see the gap before moving on.",
+            "task": "Run the program. Then compare what it printed with what you predicted.\n\nIf you were wrong, that is the useful part - work out which line you misread.",
+            "editable": false,
+            "requireRun": true,
+            "execLimitMs": 3000
+          },
+          "key": {}
+        },
+        {
+          "id": "investigate",
+          "runner_id": "mcq",
+          "title": "Investigate",
+          "weight": 4,
+          "config": {
+            "title": "Investigate",
+            "instructions": "Now pull the program apart. Every question is about the code above.",
+            "shuffleOptions": true,
+            "questions": [
+              {
+                "id": "i1",
+                "marks": 1,
+                "stem": "How many times does the body of the for loop run?",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Once"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Three times — once for each item in the list"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Eight times — once for each unit of the total"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Four times"
+                  }
+                ]
+              },
+              {
+                "id": "i2",
+                "marks": 1,
+                "stem": "What would the program print if the line `runningTotal = 0` were moved inside the loop, indented to the same level as the line below it?",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "8",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "4",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "0",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "It would raise a NameError",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "i3",
+                "marks": 1,
+                "stem": "What is the purpose of the variable `runningTotal`?",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It counts how many numbers are in the list"
+                  },
+                  {
+                    "id": "b",
+                    "text": "It holds the sum so far, and survives from one pass of the loop to the next"
+                  },
+                  {
+                    "id": "c",
+                    "text": "It stores the current item being looked at"
+                  },
+                  {
+                    "id": "d",
+                    "text": "It is only there to be returned at the end"
+                  }
+                ]
+              },
+              {
+                "id": "i4",
+                "marks": 1,
+                "stem": "Why is `return runningTotal` outside the loop rather than inside it?",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Python does not allow return inside a for loop"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Inside the loop it would return after the first number, before the rest were added"
+                  },
+                  {
+                    "id": "c",
+                    "text": "It makes no difference where it goes"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Indentation is only a style choice here"
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "i1": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "`for n in numbers` runs the body once per item, and the list [3, 1, 4] has three items."
+            },
+            "i2": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Resetting the accumulator inside the loop throws away the running total on every pass, so only the last number survives — 4. This is the single most common accumulator bug."
+            },
+            "i3": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "It is the accumulator. It has to be created before the loop precisely so that it persists across passes."
+            },
+            "i4": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A return exits the function immediately. Inside the loop it would fire on the first pass and return 3."
+            }
+          }
+        },
+        {
+          "id": "modify",
+          "runner_id": "pyrun",
+          "title": "Modify",
+          "weight": 4,
+          "config": {
+            "title": "Modify",
+            "instructions": "Change the program, press Run, and watch the checks below.",
+            "task": "Change total() so that it ignores any negative numbers.\n\nThe checks underneath run every time you press Run. Get all three passing.",
+            "editable": true,
+            "requireRun": true,
+            "showTests": true,
+            "execLimitMs": 3000,
+            "tests": [
+              {
+                "id": "t1",
+                "label": "still adds ordinary numbers",
+                "marks": 1,
+                "call": "total([1, 2, 3])",
+                "expect": "6"
+              },
+              {
+                "id": "t2",
+                "label": "skips a negative",
+                "marks": 1,
+                "call": "total([1, -2, 3])",
+                "expect": "4"
+              },
+              {
+                "id": "t3",
+                "label": "all negatives come to nothing",
+                "marks": 1,
+                "call": "total([-1, -2])",
+                "expect": "0"
+              }
+            ]
+          },
+          "key": {}
+        },
+        {
+          "id": "make",
+          "runner_id": "freetext",
+          "title": "Make",
+          "weight": 5,
+          "config": {
+            "title": "Make",
+            "prompt": "Write your own function called `largest(numbers)` that returns the biggest number in a list, using the same accumulator pattern as `total`.\n\nThen answer this in a sentence: starting your accumulator at 0 worked for a total, and you have just seen it work for skipping negatives. Why is 0 a bad starting value for `largest`, and what would you use instead?",
+            "instructions": "Your teacher reads and marks this one. Write the code out in full.",
+            "showContextCode": true,
+            "placeholder": "def largest(numbers):\n    ...",
+            "rows": 10,
+            "minChars": 60,
+            "showPrior": {
+              "stepId": "predict",
+              "label": "Where you started, back at Predict",
+              "field": "text"
+            }
+          },
+          "key": {}
+        }
+      ]
+    }
+  ]
+}

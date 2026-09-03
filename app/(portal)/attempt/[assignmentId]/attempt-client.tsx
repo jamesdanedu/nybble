@@ -13,6 +13,7 @@ import {
 } from '@/components/runner-frame';
 import type { ActivityStep, Assignment, Attempt, StepScore } from '@/lib/types';
 import { formatScore } from '@/lib/format';
+import { priorResponses } from '@/lib/step-context';
 
 interface Props {
   assignment: Pick<Assignment, 'id' | 'mode' | 'due_at' | 'release_feedback' | 'time_limit_secs'>;
@@ -44,9 +45,13 @@ export function AttemptClient({
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const [answered, setAnswered] = useState<Set<string>>(
-    () => new Set(Object.keys(attempt.step_responses ?? {})),
+  // Seeded from the server, then added to as the student submits, so a step
+  // mounted later in this same page session can see what the earlier ones
+  // answered. That is what `context.prior` below is built from.
+  const [responses, setResponses] = useState<Record<string, unknown>>(
+    () => ({ ...((attempt.step_responses as Record<string, unknown>) ?? {}) }),
   );
+  const answered = useMemo(() => new Set(Object.keys(responses)), [responses]);
   // Start on the first step with no response — a resumed attempt lands exactly
   // where the student left off.
   const [index, setIndex] = useState(() => {
@@ -107,8 +112,14 @@ export function AttemptClient({
    * mark: the function reads `activity_keys` with the service role and a
    * database trigger strips score columns from any student-originated update.
    *
-   * `clientScore` from the runner is deliberately ignored here. It exists for
-   * the standalone demo pages only.
+   * `clientScore` is sent ONLY in practice mode, and only reaches a runner
+   * registered `scorer = 'client'` (today, `pyrun`). Whether a student's Python
+   * passes the teacher's checks cannot be decided on the server — there is no
+   * Python there — so in practice mode, where nothing is at stake, the runner's
+   * own report becomes instant formative feedback. The Edge Function reads the
+   * assignment's mode from the database rather than from this request, so
+   * omitting the guard here would not have let a browser award itself marks;
+   * it is here so the portal never sends what cannot be used.
    */
   const onSubmit = useCallback(
     async (payload: RunnerSubmitPayload) => {
@@ -160,6 +171,9 @@ export function AttemptClient({
             attemptId: attempt.id,
             stepId: step.id,
             response: payload.response ?? {},
+            ...(assignment.mode === 'practice'
+              ? { clientScore: payload.clientScore, maxScore: payload.maxScore }
+              : {}),
           }),
         });
 
@@ -181,21 +195,21 @@ export function AttemptClient({
           setError(
             body.error === 'attempt already submitted'
               ? 'This attempt has already been handed up.'
-              : res.status === 401
-                ? `The marking service would not accept your sign-in${
-                    detail ? ` (${String(detail)})` : ''
-                  }. Sign out and back in; if it keeps happening, tell your teacher.`
-                : detail
-                  ? `Could not save your answer: ${String(detail)}`
-                  : `Could not save your answer (error ${res.status}). Your work is saved — press Submit again, and tell your teacher if it keeps happening.`,
+              : body.error === 'step already answered'
+                ? 'You have already answered this step, and the first answer is the one that counts.'
+                : res.status === 401
+                  ? `The marking service would not accept your sign-in${
+                      detail ? ` (${String(detail)})` : ''
+                    }. Sign out and back in; if it keeps happening, tell your teacher.`
+                  : detail
+                    ? `Could not save your answer: ${String(detail)}`
+                    : `Could not save your answer (error ${res.status}). Your work is saved — press Submit again, and tell your teacher if it keeps happening.`,
           );
           setBusy(false);
           return;
         }
 
-        const nextAnswered = new Set(answered);
-        nextAnswered.add(step.id);
-        setAnswered(nextAnswered);
+        setResponses((prev) => ({ ...prev, [step.id]: payload.response ?? {} }));
 
         // Practice mode and `release_feedback: immediate` get the mark back
         // straight away; everything else gets `{ recorded: true }`.
@@ -242,8 +256,12 @@ export function AttemptClient({
         setBusy(false);
       }
     },
-    [supabase, attempt.id, step, steps.length, answered, router],
+    [supabase, attempt.id, step, steps.length, router],
   );
+
+  // Rules and rationale live in lib/step-context.ts — the same helper feeds
+  // the review page, so the two can never drift apart on what a runner sees.
+  const prior = useMemo(() => priorResponses(steps, index, responses), [steps, index, responses]);
 
   const goNext = useCallback(() => {
     setPracticeScore(null);
@@ -267,6 +285,15 @@ export function AttemptClient({
 
   const allAnswered = steps.every((s) => answered.has(s.id));
 
+  // An answered step is re-mounted in `review` mode rather than `attempt`, so
+  // every runner renders it read-only using machinery it already has. Hiding
+  // the portal's own Submit was never enough on its own: a runner that declares
+  // selfSubmit draws its own button, and a student walking back to Predict
+  // after seeing the output could rewrite the prediction the whole sequence is
+  // built on. The scorer refuses a second answer as well — this is the half
+  // that stops it being offered.
+  const answeredHere = answered.has(step.id);
+
   return (
     <div>
       {steps.length > 1 && (
@@ -281,7 +308,10 @@ export function AttemptClient({
                   // Answered steps can be revisited; unanswered ones ahead
                   // cannot be skipped to, because PRIMM's whole point is order.
                   disabled={!done && i > index}
-                  onClick={() => setIndex(i)}
+                  onClick={() => {
+                    setPracticeScore(null);
+                    setIndex(i);
+                  }}
                   className={cx(
                     'inline-flex min-h-[36px] items-center gap-2 rounded-lg border px-3 text-[14px] font-semibold transition',
                     current
@@ -333,9 +363,14 @@ export function AttemptClient({
         // Every step gets the same shared context — that is the PRIMM
         // mechanism. `seed` rides along so generated question sets and
         // shuffles are reproducible for this attempt.
-        context={{ ...sharedContext, seed: attempt.seed }}
+        context={{ ...sharedContext, seed: attempt.seed, prior }}
         state={(attempt.step_state ?? {})[step.id] ?? null}
-        mode="attempt"
+        mode={answeredHere ? 'review' : 'attempt'}
+        response={answeredHere ? (responses[step.id] ?? null) : null}
+        // Only ever the mark the server just handed back for THIS submission,
+        // and only where it releases one. Revisiting an older step shows the
+        // answer with no marking, because the portal holds no marks for it.
+        score={answeredHere ? practiceScore : null}
         title={step.title ?? activityTitle}
         onState={onState}
         onSubmit={onSubmit}

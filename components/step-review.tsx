@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { RunnerFrame } from '@/components/runner-frame';
 import { Alert, Badge, cx } from '@/components/ui';
 import { formatScore } from '@/lib/format';
+import { priorResponses } from '@/lib/step-context';
 import type { ActivityStep, StepScore } from '@/lib/types';
 
 /**
@@ -40,6 +41,11 @@ export function StepReview({
 }) {
   const [index, setIndex] = useState(0);
   const step = steps[index];
+
+  // A replayed step sees the same `context.prior` the student saw when they
+  // answered it, so a Make step still quotes their prediction back — for the
+  // teacher marking it as much as for the student rereading it.
+  const prior = useMemo(() => priorResponses(steps, index, responses), [steps, index, responses]);
 
   if (!step) return <Alert tone="info">This activity has no steps.</Alert>;
 
@@ -90,6 +96,9 @@ export function StepReview({
           </Badge>
         )}
         {showScores && score?.manual && <Badge>Marked by hand</Badge>}
+        {/* A mark a browser produced is never allowed to look like a mark this
+            system stands over. See scoreFromClient in the score function. */}
+        {showScores && score?.unverified && <Badge tone="warn">Not checked by the server</Badge>}
         {score?.late && <Badge tone="warn">Late</Badge>}
       </div>
 
@@ -104,7 +113,7 @@ export function StepReview({
           entryUrl={entryUrl}
           stepId={step.id}
           config={step.config ?? {}}
-          context={{ ...sharedContext, seed }}
+          context={{ ...sharedContext, seed, prior }}
           mode="review"
           response={responses[step.id] ?? null}
           // Withholding the score object is what actually stops a runner

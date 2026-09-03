@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run Python</title>
+<link rel="stylesheet" href="/runners/lib/runner.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="/runners/lib/runner-sdk.js"></script>
+<script src="/runners/lib/skulpt/skulpt.min.js"></script>
+<script src="/runners/lib/skulpt/skulpt-stdlib.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * pyrun - run and change Python in the browser.
+ *
+ * Carries PRIMM's Run and Modify phases. The engine is Skulpt, vendored in
+ * /runners/lib/skulpt/ and loaded by <script src> rather than fetched, because
+ * a fetch from this sandbox is cross-origin even to our own site. The engine
+ * choice, and why it is not Pyodide, is written up in docs/primm.md.
+ *
+ * config = {
+ *   title, instructions,
+ *   task: "Make total() skip negative numbers.",   // the brief, above the editor
+ *   source: "def total(...)",   // starter code; falls back to context.code
+ *   editable: true,             // false for a Run step - read it, run it, read the output
+ *   requireRun: true,           // must run at least once before submitting
+ *   showTests: true,            // students see what they have to satisfy
+ *   execLimitMs: 3000,
+ *   stdin: ["5", "7"],          // answers handed to input(), in order
+ *   showStdin: false,           // let the student edit those answers
+ *   tests: [
+ *     { id, label, marks, call: "total([1,-2,3])", expect: "4" },   // repr() of the value
+ *     { id, label, marks, stdout: "8" }                             // whole program output
+ *   ]
+ * }
+ *
+ * response = {
+ *   source, output, ran,
+ *   tests: { t1: { pass, got } },      // SELF-REPORTED - see below
+ *   passed, max
+ * }
+ *
+ * The test results and clientScore are produced in the student's own browser
+ * and are therefore not evidence. The scorer honours them only where
+ * assignments.mode = 'practice', which is formative and carries no marks;
+ * anywhere else the step goes to a teacher. Nothing here is trusted.
+ * ------------------------------------------------------------------------ */
+
+var app = document.getElementById('app');
+var cfg = null, ctx = {}, mode = 'attempt', scoreData = null;
+var source = '', starter = '', lastOutput = '', hasRun = false;
+var testResults = {}, running = false, tabReleased = false;
+var stdinLines = [];
+
+/* A prefix the test harness prints ahead of a value so it can be picked out of
+   whatever else the student's program printed. */
+var MARK = '@@NYBBLE@@';
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function paras(t) {
+  return String(t || '').split(/\n{2,}/).map(function (p) {
+    return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+function tests() { return (cfg.tests || []); }
+function marksFor(t) { return typeof t.marks === 'number' ? t.marks : 1; }
+function maxMarks() { return tests().reduce(function (s, t) { return s + marksFor(t); }, 0); }
+
+/* --- the engine ---------------------------------------------------------- */
+
+function builtinRead(x) {
+  if (Sk.builtinFiles === undefined || Sk.builtinFiles['files'][x] === undefined) {
+    throw "File not found: '" + x + "'";
+  }
+  return Sk.builtinFiles['files'][x];
+}
+
+/**
+ * Run one program to completion and hand back its output.
+ *
+ * `execLimit` is the whole reason this engine was chosen: without it a
+ * student's `while True:` would freeze the frame with no way back. Skulpt
+ * raises TimeLimitError instead, and the interpreter is still usable
+ * afterwards - both are asserted in test/harness.test.mjs.
+ */
+function runPython(code, stdin) {
+  var out = [];
+  var queue = (stdin || []).slice();
+  Sk.configure({
+    output: function (t) { out.push(t); },
+    read: builtinRead,
+    __future__: Sk.python3,
+    execLimit: Number(cfg.execLimitMs) || 3000,
+    inputfun: function () { return queue.length ? String(queue.shift()) : ''; },
+    inputfunTakesPrompt: true
+  });
+  return Sk.misceval.asyncToPromise(function () {
+    return Sk.importMainWithBody('<stdin>', false, code, true);
+  }).then(
+    function () { return { ok: true, out: out.join('') }; },
+    function (err) {
+      var name = (err && err.tp$name) ? String(err.tp$name) : '';
+      var text = String(err);
+      return {
+        ok: false,
+        out: out.join(''),
+        timeout: name === 'TimeLimitError' || /exceeded run time/i.test(text),
+        error: friendlyError(name, text)
+      };
+    }
+  );
+}
+
+/** Turn an interpreter error into something a fifteen-year-old can act on. */
+function friendlyError(name, text) {
+  if (name === 'TimeLimitError' || /exceeded run time/i.test(text)) {
+    return 'Your program ran too long and was stopped. Is there a loop that never ends?';
+  }
+  // Skulpt's messages already carry the line number; keep them, drop the noise.
+  return text.replace(/^Sk\./, '').trim();
+}
+
+/* --- tests --------------------------------------------------------------- */
+
+function runTests(src) {
+  var list = tests();
+  if (!list.length) return Promise.resolve({});
+  var results = {};
+  var chain = Promise.resolve();
+  list.forEach(function (t) {
+    chain = chain.then(function () {
+      var stdin = t.stdin || cfg.stdin || [];
+      if (t.stdout !== undefined) {
+        // Whole-program test: compare everything the program printed.
+        return runPython(src, stdin).then(function (r) {
+          var got = (r.out || '').replace(/\s+$/, '');
+          results[t.id] = { pass: r.ok && got === String(t.stdout).replace(/\s+$/, ''),
+                            got: got.slice(0, 300), error: r.error };
+        });
+      }
+      // Value test: run the program, then print repr() of the expression behind
+      // a marker so the student's own prints cannot be mistaken for the result.
+      var probe = src + '\n\nprint("' + MARK + '" + repr(' + t.call + '))\n';
+      return runPython(probe, stdin).then(function (r) {
+        var got = null;
+        (r.out || '').split('\n').forEach(function (line) {
+          if (line.indexOf(MARK) === 0) got = line.slice(MARK.length);
+        });
+        results[t.id] = { pass: r.ok && got !== null && got === String(t.expect),
+                          got: got === null ? null : got.slice(0, 300), error: r.error };
+      });
+    });
+  });
+  return chain.then(function () { return results; });
+}
+
+function passedMarks() {
+  return tests().reduce(function (s, t) {
+    return s + ((testResults[t.id] && testResults[t.id].pass) ? marksFor(t) : 0);
+  }, 0);
+}
+
+/* --- rendering ----------------------------------------------------------- */
+
+function render() {
+  var reviewing = (mode === 'review');
+  var editable = (cfg.editable !== false) && !reviewing;
+  var html = '';
+
+  if (cfg.title || cfg.instructions) {
+    html += '<div class="r-head">';
+    if (cfg.title) html += '<h1 class="r-title">' + esc(cfg.title) + '</h1>';
+    if (cfg.instructions) html += '<p class="r-sub">' + esc(cfg.instructions) + '</p>';
+    html += '</div>';
+  }
+
+  if (reviewing && scoreData && typeof scoreData.total === 'number') {
+    html += '<div class="r-score">Score: ' + scoreData.total + ' / ' + scoreData.max +
+            (scoreData.unverified
+              ? ' <span class="py-unverified">from the student\'s browser, not checked</span>'
+              : '') +
+            '</div>';
+  }
+
+  html += '<section class="r-card">';
+  if (cfg.task) html += '<div class="r-stem">' + paras(cfg.task) + '</div>';
+
+  html += '<label class="r-sr" for="src">Python program</label>';
+  html += '<textarea id="src" class="py-editor" spellcheck="false" autocapitalize="off" ' +
+          'autocorrect="off" wrap="off"' + (editable ? '' : ' readonly') + '>' + esc(source) + '</textarea>';
+
+  if (editable) {
+    html += '<p class="py-hint">Tab indents. Press Escape then Tab to leave the editor. ' +
+            'Ctrl+Enter runs.</p>';
+  } else if (!reviewing) {
+    html += '<p class="py-hint">This program is fixed. Read it, run it, and look at what it prints.</p>';
+  }
+
+  if (cfg.showStdin && !reviewing) {
+    html += '<label class="py-label" for="stdin">Answers for <code>input()</code>, one per line</label>';
+    html += '<textarea id="stdin" class="py-stdin" rows="2">' + esc(stdinLines.join('\n')) + '</textarea>';
+  }
+
+  if (!reviewing) {
+    html += '<div class="py-controls">';
+    html += '<button class="r-btn" id="run"' + (running ? ' disabled' : '') + '>' +
+            (running ? 'Running...' : 'Run') + '</button>';
+    // Always drawn rather than appearing once the source differs: onEdit
+    // deliberately does not re-render, so a button that came and went with the
+    // text would never appear at all.
+    if (editable && starter) {
+      html += '<button class="r-btn ghost" id="reset">Reset to the original</button>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="py-outlabel">Output</div>';
+  html += '<pre class="py-output' + (lastOutput === '' ? ' empty' : '') + '" id="out">' +
+          (lastOutput === ''
+            ? (reviewing ? 'Nothing was recorded.' : 'Press Run to see what this prints.')
+            : esc(lastOutput)) + '</pre>';
+
+  if (tests().length && (cfg.showTests !== false || reviewing)) {
+    html += '<div class="py-outlabel py-tests-label">What it has to do' +
+            (Object.keys(testResults).length ? ' &mdash; ' + passedMarks() + ' / ' + maxMarks() : '') +
+            '</div>';
+    html += '<ul class="py-tests">';
+    tests().forEach(function (t) {
+      var r = testResults[t.id];
+      var cls = !r ? 'py-test' : (r.pass ? 'py-test pass' : 'py-test fail');
+      html += '<li class="' + cls + '">';
+      html += '<span class="py-test-mark">' + (!r ? '&middot;' : (r.pass ? '&check;' : '&times;')) + '</span>';
+      html += '<span class="py-test-body">';
+      html += '<strong>' + esc(t.label || (t.stdout !== undefined ? 'prints the right thing' : t.call)) + '</strong>';
+      if (t.call) html += ' <code>' + esc(t.call) + '</code> &rarr; <code>' + esc(t.expect) + '</code>';
+      if (r && !r.pass) {
+        html += '<span class="py-test-got">' +
+                (r.error ? esc(r.error)
+                         : (r.got === null ? 'nothing came back'
+                                           : 'got <code>' + esc(r.got) + '</code>')) +
+                '</span>';
+      }
+      html += '</span></li>';
+    });
+    html += '</ul>';
+  }
+
+  html += '</section>';
+
+  if (!reviewing) {
+    html += '<div class="r-foot">' +
+            '<button class="r-btn" id="submit">Submit</button>' +
+            '<span class="r-status" id="status"></span>' +
+            '</div>';
+  }
+
+  app.innerHTML = html;
+
+  if (!reviewing) {
+    var box = document.getElementById('src');
+    if (cfg.editable !== false) {
+      box.addEventListener('input', onEdit);
+      box.addEventListener('keydown', onKey);
+    }
+    document.getElementById('run').addEventListener('click', doRun);
+    var reset = document.getElementById('reset');
+    if (reset) reset.addEventListener('click', function () {
+      source = starter; testResults = {}; hasRun = false; save(); render();
+    });
+    var sin = document.getElementById('stdin');
+    if (sin) sin.addEventListener('input', function (e) {
+      stdinLines = e.target.value.split('\n'); save();
+    });
+    document.getElementById('submit').addEventListener('click', doSubmit);
+    updateStatus();
+  }
+  Runner.measure();
+}
+
+/* --- editing ------------------------------------------------------------- */
+
+/**
+ * NEVER call render() from here. This fires on every keystroke, and rebuilding
+ * the DOM would replace the textarea under the student's cursor — losing the
+ * caret, the scroll position and the selection on every character typed. The
+ * few things that change while typing are updated in place instead.
+ */
+function onEdit(e) {
+  source = e.target.value;
+  // Editing invalidates the previous run: a green tick beside code that no
+  // longer produced it is worse than no tick at all.
+  if (hasRun || Object.keys(testResults).length) {
+    testResults = {};
+    hasRun = false;
+    clearTestMarks();
+  }
+  save();
+  updateStatus();
+}
+
+/** Drop the pass/fail marks in place, without touching the editor. */
+function clearTestMarks() {
+  var items = app.querySelectorAll('.py-test');
+  Array.prototype.forEach.call(items, function (li) {
+    li.classList.remove('pass', 'fail');
+    var mark = li.querySelector('.py-test-mark');
+    if (mark) mark.innerHTML = '&middot;';
+    var got = li.querySelector('.py-test-got');
+    if (got) got.remove();
+  });
+  var label = app.querySelector('.py-tests-label');
+  if (label) label.innerHTML = 'What it has to do';
+  var out = document.getElementById('out');
+  if (out) { out.textContent = 'Press Run to see what this prints.'; out.className = 'py-output empty'; }
+  lastOutput = '';
+}
+
+function onKey(e) {
+  var el = e.target;
+
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); doRun(); return; }
+  if (e.key === 'Escape') { tabReleased = true; return; }
+
+  if (e.key === 'Tab' && !tabReleased) {
+    e.preventDefault();
+    var s = el.selectionStart, en = el.selectionEnd;
+    if (e.shiftKey) {
+      // Dedent the current line by up to four spaces.
+      var lineStart = el.value.lastIndexOf('\n', s - 1) + 1;
+      var lead = /^ {1,4}/.exec(el.value.slice(lineStart));
+      if (lead) {
+        el.value = el.value.slice(0, lineStart) + el.value.slice(lineStart + lead[0].length);
+        el.selectionStart = el.selectionEnd = Math.max(lineStart, s - lead[0].length);
+      }
+    } else {
+      el.value = el.value.slice(0, s) + '    ' + el.value.slice(en);
+      el.selectionStart = el.selectionEnd = s + 4;
+    }
+    onEdit({ target: el });
+    return;
+  }
+  tabReleased = false;
+
+  if (e.key === 'Enter') {
+    // Keep the current indentation, and add a level after a colon. Python is
+    // the one language where getting this wrong on every line is fatal.
+    e.preventDefault();
+    var pos = el.selectionStart;
+    var start = el.value.lastIndexOf('\n', pos - 1) + 1;
+    var line = el.value.slice(start, pos);
+    var indent = (/^[ \t]*/.exec(line) || [''])[0];
+    if (/:\s*$/.test(line)) indent += '    ';
+    var ins = '\n' + indent;
+    el.value = el.value.slice(0, pos) + ins + el.value.slice(el.selectionEnd);
+    el.selectionStart = el.selectionEnd = pos + ins.length;
+    onEdit({ target: el });
+  }
+}
+
+function save() {
+  Runner.saveState({ source: source, output: lastOutput, ran: hasRun, stdin: stdinLines });
+}
+
+/* --- running ------------------------------------------------------------- */
+
+function doRun() {
+  if (running || mode === 'review') return;
+  running = true;
+  testResults = {};
+  render();
+
+  runPython(source, stdinLines).then(function (r) {
+    lastOutput = (r.out || '') + (r.ok ? '' : (r.out ? '\n' : '') + r.error);
+    hasRun = true;
+    // Skip the checks when the program never finished. Each check re-runs the
+    // same source, so a runaway loop would cost the student the time limit over
+    // again for every one of them — the fix is obviously "stop the loop", and
+    // making them wait 12 seconds to be told so is just cruel.
+    return r.timeout ? {} : runTests(source);
+  }).then(function (results) {
+    testResults = results || {};
+    running = false;
+    save();
+    render();
+  }, function (e) {
+    lastOutput = 'The interpreter stopped unexpectedly: ' + String(e);
+    running = false;
+    hasRun = true;
+    render();
+  });
+}
+
+function updateStatus() {
+  var el = document.getElementById('status');
+  if (!el) return;
+  if (cfg.requireRun !== false && !hasRun) {
+    el.textContent = 'Run your program before submitting.';
+    el.className = 'r-status';
+    return;
+  }
+  el.textContent = tests().length
+    ? passedMarks() + ' of ' + maxMarks() + ' checks passing.'
+    : 'Ready to submit.';
+  el.className = 'r-status';
+}
+
+function doSubmit() {
+  if (running || mode === 'review') return;
+  if (cfg.requireRun !== false && !hasRun) {
+    var el = document.getElementById('status');
+    el.textContent = 'Press Run first. This step is about seeing what the program actually does.';
+    el.className = 'r-status warn';
+    Runner.measure();
+    return;
+  }
+  document.getElementById('submit').disabled = true;
+  Runner.submit(
+    { source: source, output: lastOutput, ran: hasRun,
+      tests: testResults, passed: passedMarks(), max: maxMarks() },
+    // Advisory only. The scorer takes this in practice mode and nowhere else.
+    { clientScore: passedMarks(), maxScore: maxMarks() }
+  );
+}
+
+/* --- lifecycle ----------------------------------------------------------- */
+
+Runner.start({
+  capabilities: { selfSubmit: true, autoScore: true },
+
+  onInit: function (init) {
+    cfg = init.config || {};
+    ctx = init.context || {};
+    mode = init.mode || 'attempt';
+    scoreData = init.score || null;
+
+    starter = typeof cfg.source === 'string' && cfg.source
+      ? cfg.source
+      : (typeof ctx.code === 'string' ? ctx.code : '');
+
+    if (mode === 'review' && init.response) {
+      source = typeof init.response.source === 'string' ? init.response.source : starter;
+      lastOutput = typeof init.response.output === 'string' ? init.response.output : '';
+      testResults = init.response.tests || {};
+      hasRun = !!init.response.ran;
+    } else {
+      var st = init.state || {};
+      source = typeof st.source === 'string' ? st.source : starter;
+      lastOutput = typeof st.output === 'string' ? st.output : '';
+      hasRun = !!st.ran;
+      stdinLines = Array.isArray(st.stdin) ? st.stdin
+                 : (Array.isArray(cfg.stdin) ? cfg.stdin.slice() : []);
+    }
+    render();
+  },
+
+  onRequestSubmit: function () { doSubmit(); },
+  onModeChange: function (m) { mode = m; render(); }
+});
+</script>
+</body>
+</html>
