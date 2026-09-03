@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alert, Button, Field, Input } from '@/components/ui';
-import { renameSchool } from './actions';
+import { linkSchoolRecord, renameSchool, unlinkSchoolRecord } from './actions';
 
 function useAction(run: (fd: FormData) => Promise<{ ok: boolean; error?: string }>) {
   const router = useRouter();
@@ -50,6 +50,62 @@ export function RenameSchoolForm({ name }: { name: string }) {
       <Button type="submit" disabled={busy} className="mt-3">
         {busy ? 'Saving…' : 'Save name'}
       </Button>
+    </form>
+  );
+}
+
+/**
+ * Claim one directory entry as this school's official record.
+ *
+ * A form per result rather than a radio group and one submit, because the list
+ * is a search result: it is replaced on the next keystroke-and-enter, and a
+ * selection that does not survive that is a selection nobody made. One button
+ * per row means the click IS the choice.
+ */
+export function LinkRecordButton({
+  roll,
+  officialName,
+  differentName,
+}: {
+  roll: string;
+  /** The Department's name for the school — NOT the qualified search label. */
+  officialName: string;
+  differentName: boolean;
+}) {
+  const { onSubmit, error, busy } = useAction(linkSchoolRecord);
+
+  return (
+    <form onSubmit={onSubmit} className="flex flex-wrap items-center gap-3">
+      <input type="hidden" name="roll_number" value={roll} />
+      {/*
+        Only offered where it would actually change something. A checkbox that
+        says "also use the official name" beside a school already called that is
+        a decision about nothing.
+      */}
+      {differentName && (
+        <label className="flex items-center gap-2 text-[14px] text-muted">
+          <input type="checkbox" name="adopt_name" defaultChecked className="h-4 w-4" />
+          Use “{officialName}” as the school name too
+        </label>
+      )}
+      <Button type="submit" disabled={busy}>
+        {busy ? 'Linking…' : 'Link'}
+      </Button>
+      {error && <span className="text-[14px] text-danger">{error}</span>}
+    </form>
+  );
+}
+
+/** Break the link. Deliberately plain — it changes one nullable column. */
+export function UnlinkRecordButton() {
+  const { onSubmit, error, busy } = useAction(() => unlinkSchoolRecord());
+
+  return (
+    <form onSubmit={onSubmit} className="flex items-center gap-3">
+      <Button type="submit" variant="quiet" disabled={busy}>
+        {busy ? 'Unlinking…' : 'Unlink'}
+      </Button>
+      {error && <span className="text-[14px] text-danger">{error}</span>}
     </form>
   );
 }

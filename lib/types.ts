@@ -18,6 +18,12 @@ export interface School {
   id: string;
   name: string;
   slug: string;
+  /**
+   * The Department of Education roll number, once an admin has linked this
+   * school to its entry in `school_directory`. Null until they do, and null
+   * for every school that existed before 0009 added the column.
+   */
+  roll_number: string | null;
   created_at: string;
 }
 

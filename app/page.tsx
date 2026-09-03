@@ -31,17 +31,41 @@ import { getSession, isStaff } from '@/lib/session';
  */
 export const dynamic = 'force-dynamic';
 
-const BUILT: Array<{ state: 'done' | 'next' | 'later'; text: string }> = [
-  { state: 'done',  text: 'Postgres schema, multi-tenant row level security, guard triggers' },
-  { state: 'done',  text: 'Runner contract — new activity types without redeploying the portal' },
-  { state: 'done',  text: 'MCQ, number base and Parsons runners' },
-  { state: 'done',  text: 'Server-side scorer, the only code that reads an answer key' },
-  { state: 'done',  text: 'Portal — login, classes, assignments, review queue, activity import' },
-  // Says what it does and what it does not, in one line. An install that a
-  // teacher believes works offline is worse than no install at all — the
-  // reasoning, and the measurement behind it, are in docs/pwa.md.
-  { state: 'done',  text: 'Installable on a phone or Chromebook — activities still need a connection' },
-  { state: 'later', text: 'PRIMM step sequences, AI-assisted feedback' },
+/**
+ * What the portal does, in the present tense.
+ *
+ * This replaced a done/next/later build checklist. That list was scaffolding —
+ * it tracked the order things got built in, which mattered while they were
+ * being built and matters to nobody arriving at the front door now. A teacher
+ * reading this has one question, "what would this do for me", and a roadmap
+ * answers a different one. Anything genuinely unbuilt belongs in the README,
+ * where the audience is someone deciding whether to contribute.
+ */
+const FEATURES: Array<{ title: string; body: string }> = [
+  {
+    title: 'Set work to a class or one student',
+    body: 'Assignments carry a due date and an attempt limit. A student sees only what is set to them, enforced in the database rather than in the page that draws the list.',
+  },
+  {
+    title: 'Marked before the student leaves the page',
+    body: 'Multiple choice, number bases and Parsons problems are marked server-side, by the one piece of code that is allowed to read an answer key. The browser never sees it.',
+  },
+  {
+    title: 'A review queue for everything a machine cannot mark',
+    body: 'Written answers and open-ended code land in front of the teacher with a mark box per step, the student\u2019s work replayed beside it, and marks released when you choose.',
+  },
+  {
+    title: 'Five kinds of activity, and a contract for the sixth',
+    body: 'Multiple choice, binary and hex, Parsons problems, written answers, and real Python running in the browser. A new type is an HTML file and a database row \u2014 no portal redeploy.',
+  },
+  {
+    title: 'PRIMM sequences, start to finish',
+    body: 'Predict, Run, Investigate, Modify, Make as one five-step activity. Each phase is weighted and marked in the way that suits it, and Investigate quotes the student\u2019s own prediction back at them.',
+  },
+  {
+    title: 'Installable on a phone or Chromebook',
+    body: 'Add it to the home screen and it opens like an app. Activities still need a connection: an install a teacher believes works offline is worse than no install at all.',
+  },
 ];
 
 /**
@@ -138,8 +162,9 @@ export default async function Home({
         An activity portal for Leaving Certificate Computer Science.
       </p>
       <p className="mt-3.5 max-w-2xl text-base leading-relaxed text-muted [text-wrap:pretty]">
-        Parsons problems, quizzes and number base tests — set to a class or an individual,
-        marked automatically where it can be, reviewed by a teacher where it can&rsquo;t.
+        Quizzes, number bases, Parsons problems, written answers and Python in the browser —
+        set to a class or an individual, marked automatically where it can be, reviewed by a
+        teacher where it can&rsquo;t.
       </p>
 
       <div className="mt-8">
@@ -182,25 +207,16 @@ export default async function Home({
       </p>
 
       <h2 className="mt-14 text-xs font-bold uppercase tracking-[0.1em] text-muted">
-        What&rsquo;s built
+        What it does
       </h2>
-      <ul className="mt-4 flex flex-col gap-2">
-        {BUILT.map((row) => (
-          <li
-            key={row.text}
-            className="flex flex-wrap items-center gap-3.5 rounded-2xl bg-surface px-5 py-3.5"
-          >
-            <span
-              className={`rounded-full px-3 py-1 text-[12.5px] font-bold uppercase tracking-wider ${
-                row.state === 'done' ? 'bg-accent-soft text-accent' : 'bg-raised text-muted'
-              }`}
-            >
-              {row.state}
-            </span>
-            <span className="text-[15px]">{row.text}</span>
-          </li>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {FEATURES.map((f) => (
+          <div key={f.title} className="rounded-card bg-surface p-6">
+            <h3 className="font-display text-[19px] font-bold tracking-[-0.02em]">{f.title}</h3>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted [text-wrap:pretty]">{f.body}</p>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <footer className="mt-14 text-[14.5px] text-muted">
         Source and protocol spec on{' '}
