@@ -135,7 +135,11 @@ Deno.serve(async (req) => {
       headers: { ...CORS, 'Content-Type': 'application/json' },
     });
 
-  if (req.method === 'OPTIONS') return new Response('ok', { status: 204, headers: CORS });
+  // 204 is a null-body status, and the Response constructor throws on ANY body
+  // for those — even 'ok'. That throw happened on every preflight, so the
+  // browser saw a 500 with no CORS headers, reported it as a CORS error, and
+  // never sent the POST. The body here must be null.
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405);
 
   const authHeader = req.headers.get('Authorization') ?? '';
