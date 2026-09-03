@@ -107,7 +107,24 @@
       }
     }
 
+    /**
+     * Hand over the pending draft when the page is hidden.
+     *
+     * `visibilitychange` is the one teardown signal that fires reliably when a
+     * lid closes or an app is backgrounded on a phone, which is exactly when a
+     * student stops typing without pressing anything. It is a best effort, not
+     * a guarantee: the flush starts a network write and the browser may be
+     * suspended before it lands. Better a write that usually completes than a
+     * draft that certainly does not.
+     */
+    function onHide() {
+      if (!destroyed && global.document && global.document.visibilityState === 'hidden') {
+        flushState();
+      }
+    }
+
     global.addEventListener('message', onMessage);
+    global.addEventListener('visibilitychange', onHide);
     container.appendChild(iframe);
 
     var slot = {
@@ -117,9 +134,16 @@
       requestSubmit: function () { send('requestSubmit', {}); },
       setMode: function (mode) { send('setMode', { mode: mode }); },
       destroy: function () {
+        // Flush BEFORE tearing down, not after. This used to be a bare
+        // clearTimeout, which threw the pending draft away: every step change
+        // unmounts the frame, so the last 800 ms of a student's work — the
+        // debounce window — was discarded silently, every time they moved on.
+        // The one case that must never be silent is the one that was.
+        flushState();
         destroyed = true;
         clearTimeout(stateTimer);
         global.removeEventListener('message', onMessage);
+        global.removeEventListener('visibilitychange', onHide);
         if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
       }
     };

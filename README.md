@@ -37,6 +37,7 @@ supabase/
   migrations/0007_freetext_runner.sql  registers the freetext runner
   migrations/0008_pyrun_runner.sql     registers the pyrun runner
   migrations/0009_school_directory.sql every post-primary school, as reference data
+  migrations/0010_save_step_state.sql  atomic autosave of one step's draft
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -68,6 +69,7 @@ docs/schools.md                   the Dept of Education school list: import, ded
 test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
+test/runner-host.test.mjs         autosave: debounce, and the flush on teardown
 test/deploy.test.mjs              checks that survive real static hosting
 test/pwa.test.mjs                 manifest, worker, and what it may cache
 test/sw-sandbox-spike.mjs         why a sandboxed runner cannot go offline
@@ -115,6 +117,7 @@ Two suites need nothing at all — no browser, no server, no database:
 ```bash
 node test/check-parsons.test.mjs                    # the Parsons key checker
 node test/schools-ie.test.mjs                       # 17 school-directory checks
+node test/runner-host.test.mjs                      # 9 autosave checks
 ```
 
 (There is a `package.json` now — the portal is a Next.js app, so Vercel installs
