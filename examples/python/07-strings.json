@@ -1,0 +1,350 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 07 Strings",
+      "topic": "Programming — Python",
+      "description": "Strings as things you can measure, cut up and change: len(), upper(), lower(), strip(), str(), and picking out characters by position. Six Parsons problems and an MCQ. The first four are flat; the last two bring back the conditions and loops from 05 and 06.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Measure and change a name",
+          "weight": 1,
+          "config": {
+            "title": "Measure and change a name",
+            "instructions": "Tidy up what the user typed, then report on it. strip() removes spaces from both ends.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "name = input(\"Your name: \")" },
+              { "id": "b", "text": "name = name.strip()" },
+              { "id": "c", "text": "print(\"Length:\", len(name))" },
+              { "id": "d", "text": "print(\"Upper:\", name.upper())" },
+              { "id": "e", "text": "print(\"Lower:\", name.lower())" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "The strip has to happen before the length is measured, or the spaces get counted. None of these methods change the string in place — they hand back a new one, which is why line 2 stores the result back in name. upper() and lower() are only printed, so the tidied name is left as it was.",
+            "check": { "stdin": "  Aoife  \n", "stdout": "Your name: Length: 5\nUpper: AOIFE\nLower: aoife\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Pick characters out of a word",
+          "weight": 1,
+          "config": {
+            "title": "Pick characters out of a word",
+            "instructions": "Positions start at 0, and a negative position counts back from the end. A slice [a:b] takes from a up to but not including b.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "word = \"computer\"" },
+              { "id": "b", "text": "print(\"First letter:\", word[0])" },
+              { "id": "c", "text": "print(\"Last letter:\", word[-1])" },
+              { "id": "d", "text": "print(\"First three:\", word[0:3])" },
+              { "id": "e", "text": "print(\"From the fourth on:\", word[3:])" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "word[0] is the first character, not the second — counting starts at zero. word[-1] saves you working out the length to reach the end. [0:3] stops before position 3, so it gives three characters, and leaving the second number out means \"carry on to the end\".",
+            "check": { "stdout": "First letter: c\nLast letter: r\nFirst three: com\nFrom the fourth on: puter\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Make a username",
+          "weight": 1,
+          "config": {
+            "title": "Make a username",
+            "instructions": "First initial plus surname, all in lower case. Methods can be chained: .strip().lower() does one then the other.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "first = input(\"First name: \").strip().lower()" },
+              { "id": "b", "text": "last = input(\"Surname: \").strip().lower()" },
+              { "id": "c", "text": "username = first[0] + last" },
+              { "id": "d", "text": "print(\"Your username is:\", username)" },
+              { "id": "e", "text": "print(\"It is\", len(username), \"characters long\")" },
+              { "id": "d1", "text": "username = first + last[0]" },
+              { "id": "d2", "text": "username = first[1] + last" },
+              { "id": "d3", "text": "print(\"It is \" + len(username) + \" characters long\")" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "first[0] is the initial. first[1] would be the second letter, which is the off-by-one this catches, and first + last[0] builds the username the wrong way round. The last line needs commas, not +, because len() gives back a number and + cannot join a number to a string.",
+            "check": { "stdin": "Aoife\nMurphy\n", "stdout": "First name: Surname: Your username is: amurphy\nIt is 7 characters long\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "str(), and why it is needed",
+          "weight": 1,
+          "config": {
+            "title": "str(), and why it is needed",
+            "instructions": "Build one long string out of words and numbers using +. Every number has to be turned into text first.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "score = 17" },
+              { "id": "b", "text": "total = 20" },
+              { "id": "c", "text": "report = \"You scored \" + str(score) + \" out of \" + str(total)" },
+              { "id": "d", "text": "print(report)" },
+              { "id": "e", "text": "percent = score / total * 100" },
+              { "id": "f", "text": "print(\"That is \" + str(round(percent)) + \"%\")" },
+              { "id": "d1", "text": "report = \"You scored \" + score + \" out of \" + total" },
+              { "id": "d2", "text": "print(\"That is \" + round(percent) + \"%\")" },
+              { "id": "d3", "text": "percent = score / total" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "str() turns a number into text so + can join it on. Both wrong + lines stop the program with a TypeError — which is the good case, because the mistake announces itself. Forgetting the * 100 does not: it gives 0.85 and prints \"That is 1%\", a wrong answer that looks like a right one.",
+            "check": { "stdout": "You scored 17 out of 20\nThat is 85%\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Is that password any good?",
+          "weight": 1,
+          "config": {
+            "title": "Is that password any good?",
+            "instructions": "String functions inside a decision. A password that is the same in lower case as it already is cannot contain a capital letter.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "password = input(\"Password: \").strip()" },
+              { "id": "b", "text": "if len(password) < 8:" },
+              { "id": "c", "text": "print(\"Too short\")" },
+              { "id": "d", "text": "elif password.lower() == password:" },
+              { "id": "e", "text": "print(\"Add a capital letter\")" },
+              { "id": "f", "text": "else:" },
+              { "id": "g", "text": "print(\"That will do\")" },
+              { "id": "d1", "text": "if len(password) > 8:" },
+              { "id": "d2", "text": "if password.length < 8:" },
+              { "id": "d3", "text": "elif password.upper() == password:" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The length test has to be < 8 to catch a short password; > 8 rejects the long ones instead. Python has no .length — len() is a function you put the string inside. And comparing against upper() would test for no lower-case letters, which is a different complaint entirely.",
+            "check": { "stdin": "opensesame\n", "stdout": "Password: Add a capital letter\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Is it a palindrome?",
+          "weight": 1,
+          "config": {
+            "title": "Is it a palindrome?",
+            "instructions": "Build the word backwards one letter at a time, then compare. Watch which side of the + each new letter goes on — that is the whole trick.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "word = input(\"Enter a word: \").strip().lower()" },
+              { "id": "b", "text": "backwards = \"\"" },
+              { "id": "c", "text": "for letter in word:" },
+              { "id": "d", "text": "backwards = letter + backwards" },
+              { "id": "e", "text": "print(\"Backwards:\", backwards)" },
+              { "id": "f", "text": "if backwards == word:" },
+              { "id": "g", "text": "print(\"It is a palindrome\")" },
+              { "id": "h", "text": "else:" },
+              { "id": "i", "text": "print(\"Not a palindrome\")" },
+              { "id": "d1", "text": "backwards = backwards + letter" },
+              { "id": "d2", "text": "if backwards = word:" },
+              { "id": "d3", "text": "backwards = 0" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 1 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 0 },
+              { "id": "i", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 9,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "Putting the new letter in front of what is already there is what reverses the word; putting it on the end just rebuilds the original. The accumulator starts as an empty string, not 0 — you cannot add a letter to a number. And == asks the question that = cannot.",
+            "check": { "stdin": "level\n", "stdout": "Enter a word: Backwards: level\nIt is a palindrome\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "String functions and positions",
+          "weight": 1,
+          "config": {
+            "title": "String functions and positions",
+            "instructions": "Five questions on the string functions and on counting from zero.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "word = \"Python\"\nprint(word[2])",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "t" },
+                  { "id": "b", "text": "y" },
+                  { "id": "c", "text": "h" },
+                  { "id": "d", "text": "Py" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is printed?",
+                "code": "name = \"  Aoife  \"\nprint(len(name.strip()))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "5" },
+                  { "id": "b", "text": "9" },
+                  { "id": "c", "text": "7" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is printed?",
+                "code": "word = \"hello\"\nword.upper()\nprint(word)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "hello" },
+                  { "id": "b", "text": "HELLO" },
+                  { "id": "c", "text": "Hello" },
+                  { "id": "d", "text": "Nothing — upper() prints it itself" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What is printed?",
+                "code": "print(\"programming\"[0:4])",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "prog" },
+                  { "id": "b", "text": "progr" },
+                  { "id": "c", "text": "rogr" },
+                  { "id": "d", "text": "p" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "age holds the number 17. Which line prints \"You are 17\" without an error?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "print(\"You are \" + str(age))", "code": true },
+                  { "id": "b", "text": "print(\"You are \" + age)", "code": true },
+                  { "id": "c", "text": "print(\"You are \" + int(age))", "code": true },
+                  { "id": "d", "text": "print(\"You are \" + len(age))", "code": true }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Counting starts at 0, so position 2 is the third character: P is 0, y is 1, t is 2."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "strip() removes the spaces at both ends first, leaving the five letters of Aoife. Without the strip it would be 9."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "upper() hands back a new string and leaves the original alone. The result is thrown away here because nothing stores it — it needs word = word.upper()."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "A slice stops before the second number, so [0:4] gives positions 0, 1, 2 and 3 — four characters."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "str() turns the number into text so + can join it. int(age) is still a number, and len() does not work on a number at all."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

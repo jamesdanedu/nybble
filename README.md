@@ -16,23 +16,26 @@ app/                              Next.js portal (App Router)
 lib/                              Supabase clients, session, activity importer
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
+scripts/check-parsons.mjs         reassembles every Parsons key and runs it
 examples/lccs-week1.json          a real activity file to import
-examples/primm-total.json         a four-step PRIMM sequence about one snippet
+examples/primm-total.json         a five-step PRIMM sequence about one snippet
+examples/python/                  the LCCS Python checklist, a file per section
 vercel.json                       headers only — Next owns the build now
 supabase/
   config.toml                     keeps verify_jwt on for the scorer
   migrations/0001_init.sql        schema + RLS + guard triggers
   migrations/0002_profile_guard.sql  self-update guard as a trigger, not a subquery
-  migrations/0003_grants.sql      table privileges for the authenticated role
-  migrations/0004_school_admin.sql   per-school admin
-  migrations/0005_service_role_grants.sql  what the service role may reach
-  migrations/0006_freetext_runner.sql  registers the freetext runner
-  migrations/0007_pyrun_runner.sql     registers the pyrun runner
+  migrations/0003_grants.sql      table privileges for `authenticated`
+  migrations/0004_school_admin.sql   school administration
+  migrations/0005_service_role_grants.sql  the same, for `service_role`
+  migrations/0006_parsons_runner.sql  registers the parsons runner (see the file)
+  migrations/0007_freetext_runner.sql  registers the freetext runner
+  migrations/0008_pyrun_runner.sql     registers the pyrun runner
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
     numbase.ts                    number base scorer (+ generator copy)
-    parsons.ts                    Parsons scorer (order + indentation)
+    parsons.ts                    Parsons scorer (LCS order + indent)
 public/
   demo.html                       clean student-facing demo of one activity
   harness.html                    dev harness — same runners, with the message log
@@ -50,8 +53,10 @@ public/
     lib/skulpt/                   vendored Python engine — see its README
 docs/runner-contract.md           the protocol spec
 docs/activity-format.md           the activity file format you author against
-docs/primm.md                     the plan for PRIMM step sequences
+docs/parsons-authoring.md         how the Python Parsons ladder is built
+docs/primm.md                     the PRIMM sequence: plan, engine spike, decisions
 test/harness.test.mjs             end-to-end checks through a real browser
+test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/deploy.test.mjs              checks that survive real static hosting
 test/vercel-sim.py                local stand-in for Vercel's static host
 ```
@@ -148,6 +153,40 @@ CORS headers, and a blocked preflight is indistinguishable in script from the
 network being down — so the portal can only say "the marking service did not
 answer". Open the browser console on the attempt page: a CORS error there means
 the deploy or `PORTAL_ORIGIN`, not the student's wifi.
+
+### If the gateway only accepts the new API keys
+
+A project whose Edge Function gateway has moved to Supabase's newer key system
+answers every call with
+
+    No credential matched any of the accepted auth mode(s): "publishable", "secret"
+
+and a legacy `eyJ…` key does not satisfy it. PostgREST still accepts both
+formats, so the database keeps working and only submitting breaks — which
+reads as a fault in the scorer rather than in the keys. Take the publishable
+and secret keys from Project Settings → API Keys and set them as
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+Teacher → Status reports this by name.
+
+### Deploying `score` without the CLI
+
+The dashboard's Edge Functions editor works too, but `score` is four files with
+relative imports between them. Generate a single-file equivalent first:
+
+```bash
+node scripts/bundle-score.mjs > score.bundled.ts
+```
+
+Paste that as the function body, name the function exactly `score` (the portal
+calls `/functions/v1/score`), and leave JWT verification ON — it is the gateway
+check that stops a tokenless caller reaching the answer keys.
+
+That file is generated and must never be edited by hand. A hand-maintained
+single-file copy is a second implementation of the scorer that quietly stops
+matching the first, and the symptom is the same answer earning different marks
+depending on how the function happened to be deployed. Change the real files
+and re-run the script.
 
 ### First school and teacher
 

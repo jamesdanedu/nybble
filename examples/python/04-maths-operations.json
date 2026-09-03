@@ -1,0 +1,345 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 04 Maths operations",
+      "topic": "Programming — Python",
+      "description": "The arithmetic operators, including the two that surprise people — // for whole-number division and % for what is left over — plus powers, the order operations happen in, and the math library. Six Parsons problems and an MCQ.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "The four operators",
+          "weight": 1,
+          "config": {
+            "title": "The four operators",
+            "instructions": "Set up two numbers, then report each operation in turn.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "a = 17" },
+              { "id": "b", "text": "b = 5" },
+              { "id": "c", "text": "print(\"Sum:\", a + b)" },
+              { "id": "d", "text": "print(\"Difference:\", a - b)" },
+              { "id": "e", "text": "print(\"Product:\", a * b)" },
+              { "id": "f", "text": "print(\"Quotient:\", a / b)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "a + b is an expression: it works something out and hands back a value, so it can go straight inside a print. Notice the last answer is 3.4 and not 3 — / always gives a decimal, even when the numbers divide evenly.",
+            "check": { "stdout": "Sum: 22\nDifference: 12\nProduct: 85\nQuotient: 3.4\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Sharing out sweets",
+          "weight": 1,
+          "config": {
+            "title": "Sharing out sweets",
+            "instructions": "17 sweets between 5 children. // gives how many each, % gives how many are left over.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "sweets = 17" },
+              { "id": "b", "text": "children = 5" },
+              { "id": "c", "text": "each = sweets // children" },
+              { "id": "d", "text": "left = sweets % children" },
+              { "id": "e", "text": "print(\"Each child gets\", each)" },
+              { "id": "f", "text": "print(\"Sweets left over:\", left)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "17 / 5 is 3.4, which is no use when sweets cannot be cut in half. // throws away everything after the point and gives 3, and % gives the 2 that could not be shared out. The pair of them together account for the whole 17: 3 each for 5 children is 15, plus 2 left over.",
+            "check": { "stdout": "Each child gets 3\nSweets left over: 2\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "An average, and the brackets it needs",
+          "weight": 1,
+          "config": {
+            "title": "An average, and the brackets it needs",
+            "instructions": "Average three numbers. Multiplication and division happen before addition, so without brackets this goes wrong quietly — the program still runs and still prints an answer.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "first = 8" },
+              { "id": "b", "text": "second = 12" },
+              { "id": "c", "text": "third = 10" },
+              { "id": "d", "text": "average = (first + second + third) / 3" },
+              { "id": "e", "text": "print(\"The average is\", average)" },
+              { "id": "f", "text": "print(\"Rounded:\", round(average))" },
+              { "id": "d1", "text": "average = first + second + third / 3" },
+              { "id": "d2", "text": "average = (first + second + third) // 3" },
+              { "id": "d3", "text": "print(\"Rounded:\", round(average, 3))" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "Without the brackets Python divides the third number by 3 first and then adds the other two, giving 23.33 instead of 10. The brackets force the adding to happen first. round(average) with no second argument gives the nearest whole number; round(average, 3) would keep three decimal places instead.",
+            "check": { "stdout": "The average is 10.0\nRounded: 10\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "The area of a circle",
+          "weight": 1,
+          "config": {
+            "title": "The area of a circle",
+            "instructions": "π comes from the math library, which has to be imported before anything can use it. ** is the power operator.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "import math" },
+              { "id": "b", "text": "radius = float(input(\"Radius: \"))" },
+              { "id": "c", "text": "area = math.pi * radius ** 2" },
+              { "id": "d", "text": "print(f\"Area: {area:.2f}\")" },
+              { "id": "e", "text": "circumference = 2 * math.pi * radius" },
+              { "id": "f", "text": "print(f\"Circumference: {circumference:.2f}\")" },
+              { "id": "d1", "text": "area = math.pi * radius * 2" },
+              { "id": "d2", "text": "import maths" },
+              { "id": "d3", "text": "area = math.pi * (radius * 2)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "The import goes at the top, before the first line that says math. anything. radius ** 2 is radius squared; radius * 2 is radius doubled, which is a different number and the mistake both wrong area lines make. ** is done before * , so no brackets are needed around it. The library is called math, not maths.",
+            "check": { "stdin": "3\n", "stdout": "Radius: Area: 28.27\nCircumference: 18.85\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Euro and cent",
+          "weight": 1,
+          "config": {
+            "title": "Euro and cent",
+            "instructions": "Split an amount of cent into euro and cent. This is // and % again, on a problem where using the wrong one is easy to miss.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "total_cents = int(input(\"Amount in cent: \"))" },
+              { "id": "b", "text": "euro = total_cents // 100" },
+              { "id": "c", "text": "cents = total_cents % 100" },
+              { "id": "d", "text": "print(\"That is\", euro, \"euro and\", cents, \"cent\")" },
+              { "id": "e", "text": "print(\"In euro:\", total_cents / 100)" },
+              { "id": "d1", "text": "euro = total_cents / 100" },
+              { "id": "d2", "text": "cents = total_cents // 100" },
+              { "id": "d3", "text": "cents = total_cents - euro" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "1234 cent is 12 euro and 34 cent. // 100 gives the 12, % 100 gives the 34. Plain / would give 12.34, which is right for the last line but wrong for a count of whole euro. Subtracting the euro from the cent, as the last distractor does, subtracts 12 from 1234 and means nothing at all.",
+            "check": { "stdin": "1234\n", "stdout": "Amount in cent: That is 12 euro and 34 cent\nIn euro: 12.34\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Square roots, up and down",
+          "weight": 1,
+          "config": {
+            "title": "Square roots, up and down",
+            "instructions": "Three functions from the math library on one number. Two of the wrong lines call a function that does not exist.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "import math" },
+              { "id": "b", "text": "number = float(input(\"Enter a number: \"))" },
+              { "id": "c", "text": "root = math.sqrt(number)" },
+              { "id": "d", "text": "print(\"Square root:\", root)" },
+              { "id": "e", "text": "print(\"Rounded down:\", math.floor(root))" },
+              { "id": "f", "text": "print(\"Rounded up:\", math.ceil(root))" },
+              { "id": "d1", "text": "root = math.square(number)" },
+              { "id": "d2", "text": "print(\"Rounded down:\", math.round(root))" },
+              { "id": "d3", "text": "root = math.sqrt(number, 2)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "sqrt takes one number and gives its square root — 4.47 for 20, printed in full because nothing here rounds it. floor always goes down and ceil always goes up, so 4.47 becomes 4 and 5. There is no math.square and no math.round: round() is built into Python itself and needs no library.",
+            "check": { "stdin": "20\n", "stdout": "Enter a number: Square root: 4.47213595499958\nRounded down: 4\nRounded up: 5\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Operators and order",
+          "weight": 1,
+          "config": {
+            "title": "Operators and order",
+            "instructions": "Five questions on the operators and the order Python applies them in.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "print(2 + 3 * 4)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "14" },
+                  { "id": "b", "text": "20" },
+                  { "id": "c", "text": "24" },
+                  { "id": "d", "text": "9" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is printed?",
+                "code": "print(7 // 2, 7 % 2)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "3 1" },
+                  { "id": "b", "text": "3.5 1" },
+                  { "id": "c", "text": "3 3.5" },
+                  { "id": "d", "text": "4 1" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is printed?",
+                "code": "print(10 / 5)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "2.0" },
+                  { "id": "b", "text": "2" },
+                  { "id": "c", "text": "5" },
+                  { "id": "d", "text": "0.5" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Which expression means \"three squared\"?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "3 ** 2", "code": true },
+                  { "id": "b", "text": "3 * 2", "code": true },
+                  { "id": "c", "text": "3 ^ 2", "code": true },
+                  { "id": "d", "text": "3 // 2", "code": true }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A number is even when which of these is true?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "number % 2 == 0", "code": true },
+                  { "id": "b", "text": "number // 2 == 0", "code": true },
+                  { "id": "c", "text": "number / 2 == 0", "code": true },
+                  { "id": "d", "text": "number % 2 == 1", "code": true }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Multiplication is done before addition, so it is 2 + 12. Brackets around 2 + 3 would give 20."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "// gives the whole part of the division, 3, and % gives what is left over, 1. Neither rounds — // always goes down."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "/ always gives a decimal, even when the division is exact. 10 // 5 would give a plain 2."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "** is the power operator. ^ is a different operator in Python and does not raise to a power."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "An even number divides by 2 with nothing left over, so the remainder is 0. Remainder 1 is the test for odd."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

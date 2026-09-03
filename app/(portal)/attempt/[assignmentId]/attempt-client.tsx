@@ -141,6 +141,28 @@ export function AttemptClient({
         const res = await fetch(env.scoreFunctionUrl, {
           method: 'POST',
           headers: {
+            // Two DIFFERENT credentials, and the call needs both.
+            //
+            //   Authorization  WHO is asking — the student's own access token.
+            //                  The function reads their id out of it.
+            //   apikey         WHICH PROJECT is asking. The gateway checks
+            //                  this before the function runs; a user token
+            //                  does not satisfy it, because it is not an API
+            //                  key.
+            //
+            // This header was removed once, on the reasoning that an Edge
+            // Function authenticates from the bearer token alone. That is true
+            // of the older gateway and false of the current one, which answers
+            //
+            //   No credential matched any of the accepted auth mode(s):
+            //   "publishable", "secret"
+            //
+            // when no API key reaches it. Note what that message names: the
+            // NEW key formats only. A legacy `eyJ...` anon key does not
+            // satisfy it either, so NEXT_PUBLIC_SUPABASE_ANON_KEY has to be
+            // the `sb_publishable_...` key. PostgREST accepts both formats,
+            // which is exactly why the database can keep working while every
+            // submission fails.
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
             apikey: env.supabaseAnonKey,
@@ -158,14 +180,30 @@ export function AttemptClient({
         const body = (await res.json().catch(() => ({}))) as ScoreResponse;
 
         if (!res.ok) {
+          // TWO different services answer on this URL, and they do not agree on
+          // how to report a failure. Our own code always replies { error }. The
+          // Supabase gateway rejects a bad token BEFORE the function runs and
+          // replies { message } or { msg }. Reading only `error` turned every
+          // gateway rejection into "check the connection" — wrong, and nothing
+          // a student or a teacher could act on.
+          const detail =
+            (body as Record<string, unknown>).error ??
+            (body as Record<string, unknown>).message ??
+            (body as Record<string, unknown>).msg ??
+            null;
+          console.error(`[nybble] scorer returned ${res.status} from ${env.scoreFunctionUrl}`, body);
           setError(
             body.error === 'attempt already submitted'
               ? 'This attempt has already been handed up.'
               : body.error === 'step already answered'
                 ? 'You have already answered this step, and the first answer is the one that counts.'
-                : body.error
-                ? `Could not save your answer: ${body.error}`
-                : 'Could not save your answer. Check the connection and press Submit again — nothing was lost.',
+                : res.status === 401
+                  ? `The marking service would not accept your sign-in${
+                      detail ? ` (${String(detail)})` : ''
+                    }. Sign out and back in; if it keeps happening, tell your teacher.`
+                  : detail
+                    ? `Could not save your answer: ${String(detail)}`
+                    : `Could not save your answer (error ${res.status}). Your work is saved — press Submit again, and tell your teacher if it keeps happening.`,
           );
           setBusy(false);
           return;

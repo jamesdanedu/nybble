@@ -1,0 +1,348 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 08 Randomness",
+      "topic": "Programming — Python",
+      "description": "randint, randrange, choice, and the seed that makes a random program repeat itself. Six Parsons problems and an MCQ. Two of the programs deliberately have no fixed answer — that is the point of them.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Roll a dice",
+          "weight": 1,
+          "config": {
+            "title": "Roll a dice",
+            "instructions": "Three lines. The import always comes before the first line that uses the library.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "number = random.randint(1, 6)" },
+              { "id": "c", "text": "print(\"You rolled a\", number)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 3,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "randint(1, 6) includes both ends, so every face of the dice is possible — it is the one function in this section where the second number is not left out. Run the program twice and you will get two different answers, which is exactly what is wanted here.",
+            "check": { "stdoutPattern": "^You rolled a [1-6]\n$" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "Five rolls in a row",
+          "weight": 1,
+          "config": {
+            "title": "Five rolls in a row",
+            "instructions": "Put the dice inside a loop. randrange stops before its second number, so the 7 here is deliberate.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "for roll in range(5):" },
+              { "id": "c", "text": "number = random.randrange(1, 7)" },
+              { "id": "d", "text": "print(\"Roll\", roll + 1, \"gave\", number)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 1 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Both lines go inside the loop: a new number each time, then print it. Leave the print outside and only the last roll would be shown. randrange(1, 7) gives 1 to 6, the same as randint(1, 6) — the difference is only whether the second number is included.",
+            "check": { "stdoutPattern": "^Roll 1 gave [1-6]\nRoll 2 gave [1-6]\nRoll 3 gave [1-6]\nRoll 4 gave [1-6]\nRoll 5 gave [1-6]\n$" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Making random repeatable",
+          "weight": 1,
+          "config": {
+            "title": "Making random repeatable",
+            "instructions": "A seed makes the sequence come out the same every run — which is how you test a program that uses randomness. One of the wrong lines looks like a seed and is not.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "random.seed(42)" },
+              { "id": "c", "text": "print(\"First:\", random.randint(1, 100))" },
+              { "id": "d", "text": "print(\"Second:\", random.randint(1, 100))" },
+              { "id": "e", "text": "print(\"Run it again and those two numbers will be the same.\")" },
+              { "id": "d1", "text": "random.seed()" },
+              { "id": "d2", "text": "import randon" },
+              { "id": "d3", "text": "random.randint(1, 100)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 5,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "seed(42) fixes where the sequence starts, so the same two numbers come out every time. seed() with nothing in the brackets does the opposite — it seeds from the clock, which is the unpredictable behaviour you already get for free. The two numbers still differ from each other: the seed fixes the sequence, it does not repeat one value. And randint on a line by itself throws its result away.",
+            "check": { "stdout": "First: 82\nSecond: 15\nRun it again and those two numbers will be the same.\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "Rock, paper, scissors",
+          "weight": 1,
+          "config": {
+            "title": "Rock, paper, scissors",
+            "instructions": "choice() picks one item out of a list. Two of the wrong lines try to do it with a number instead, and one of those fails only some of the time.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "options = [\"rock\", \"paper\", \"scissors\"]" },
+              { "id": "c", "text": "computer = random.choice(options)" },
+              { "id": "d", "text": "player = input(\"Your move: \").strip().lower()" },
+              { "id": "e", "text": "print(\"Computer chose\", computer)" },
+              { "id": "f", "text": "if player == computer:" },
+              { "id": "g", "text": "print(\"A draw\")" },
+              { "id": "h", "text": "else:" },
+              { "id": "i", "text": "print(\"Not a draw\")" },
+              { "id": "d1", "text": "computer = random.choice(3)" },
+              { "id": "d2", "text": "computer = options[random.randint(0, 3)]" },
+              { "id": "d3", "text": "computer = random.randint(options)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 0 },
+              { "id": "i", "indent": 1 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 9,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "choice() takes the list itself, not its length. The nastiest wrong line is options[random.randint(0, 3)]: randint includes both ends, so it can produce 3, and there is no position 3 in a three-item list. It works most of the time and crashes about one run in four — the worst kind of bug to be given.",
+            "check": { "stdin": "rock\n", "stdoutPattern": "^Your move: Computer chose (rock|paper|scissors)\n(A draw|Not a draw)\n$" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Guess the number",
+          "weight": 1,
+          "config": {
+            "title": "Guess the number",
+            "instructions": "A loop that keeps going until the guess is right, counting the attempts as it goes. Seeded, so the answer is the same every run.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "random.seed(7)" },
+              { "id": "c", "text": "secret = random.randint(1, 10)" },
+              { "id": "d", "text": "guesses = 0" },
+              { "id": "e", "text": "while True:" },
+              { "id": "f", "text": "guess = int(input(\"Guess (1-10): \"))" },
+              { "id": "g", "text": "guesses = guesses + 1" },
+              { "id": "h", "text": "if guess == secret:" },
+              { "id": "i", "text": "break" },
+              { "id": "j", "text": "print(\"Got it in\", guesses, \"guesses\")" },
+              { "id": "d1", "text": "guess = input(\"Guess (1-10): \")" },
+              { "id": "d2", "text": "if guess = secret:" },
+              { "id": "d3", "text": "guesses = guesses + guess" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 1 },
+              { "id": "g", "indent": 1 },
+              { "id": "h", "indent": 1 },
+              { "id": "i", "indent": 2 },
+              { "id": "j", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 10,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The secret is drawn once, before the loop — inside it, there would be a new answer every guess and the game could never be won. The counter goes up by 1 per attempt, not by the size of the guess. And without int() the comparison is between a string and a number, which is never true, so the loop would run forever.",
+            "check": { "stdin": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "stdout": "Guess (1-10): Guess (1-10): Guess (1-10): Guess (1-10): Guess (1-10): Guess (1-10): Got it in 6 guesses\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "Odd and even at random",
+          "weight": 1,
+          "config": {
+            "title": "Odd and even at random",
+            "instructions": "randrange takes a third number, the step — how far apart the possible answers are. Start at 2 and step by 2 and you can only ever get an even number.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 0,
+            "lines": [
+              { "id": "a", "text": "import random" },
+              { "id": "b", "text": "random.seed(3)" },
+              { "id": "c", "text": "even = random.randrange(2, 21, 2)" },
+              { "id": "d", "text": "odd = random.randrange(1, 20, 2)" },
+              { "id": "e", "text": "print(\"An even number:\", even)" },
+              { "id": "f", "text": "print(\"An odd number:\", odd)" },
+              { "id": "d1", "text": "even = random.randrange(2, 21)" },
+              { "id": "d2", "text": "even = random.randint(2, 21, 2)" },
+              { "id": "d3", "text": "odd = random.randrange(1, 20, 1)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 0 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 6,
+            "partial": true,
+            "distractorPenalty": 0.5,
+            "explanation": "The third number is the step. Without it randrange counts by 1 and odd numbers get through, and a step of 1 does the same thing. randint has no step at all — giving it three numbers stops the program with a TypeError.",
+            "check": { "stdout": "An even number: 8\nAn odd number: 19\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Which function, and what range?",
+          "weight": 1,
+          "config": {
+            "title": "Which function, and what range?",
+            "instructions": "Five questions on the random functions and what they can produce.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What are the possible values?",
+                "code": "random.randint(1, 5)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "1, 2, 3, 4 or 5" },
+                  { "id": "b", "text": "1, 2, 3 or 4" },
+                  { "id": "c", "text": "2, 3, 4 or 5" },
+                  { "id": "d", "text": "0, 1, 2, 3, 4 or 5" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What are the possible values?",
+                "code": "random.randrange(1, 5)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "1, 2, 3 or 4" },
+                  { "id": "b", "text": "1, 2, 3, 4 or 5" },
+                  { "id": "c", "text": "2, 3, 4 or 5" },
+                  { "id": "d", "text": "Only 1 or 5" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Why would you call random.seed(42) at the top of a program?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "So the same random numbers come out every run, which makes the program testable" },
+                  { "id": "b", "text": "To make the numbers more random than they would be otherwise" },
+                  { "id": "c", "text": "To limit every random number to 42 or less" },
+                  { "id": "d", "text": "It is required — random will not work without it" }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "colours holds a list of three colours. Which line picks one at random?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "pick = random.choice(colours)", "code": true },
+                  { "id": "b", "text": "pick = random.choice(3)", "code": true },
+                  { "id": "c", "text": "pick = colours[random.randint(0, 3)]", "code": true },
+                  { "id": "d", "text": "pick = random.randint(colours)", "code": true }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "How would you get a random even number from 0 to 10?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "random.randrange(0, 11, 2)", "code": true },
+                  { "id": "b", "text": "random.randint(0, 10, 2)", "code": true },
+                  { "id": "c", "text": "random.randrange(0, 11) * 2", "code": true },
+                  { "id": "d", "text": "random.randrange(2, 10)", "code": true }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "randint includes both ends. It is the odd one out — nearly everything else in Python stops before the second number."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "randrange stops before the second number, exactly like range(). To reach 5 you would ask for randrange(1, 6)."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "A seed fixes where the sequence starts, so the run is repeatable. That is what lets you test a program whose output would otherwise change every time."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "choice() takes the list itself. Option c is the dangerous one: randint can return 3, and a three-item list has no position 3, so it crashes some of the time."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "The third number is the step, and the 11 is needed to let 10 through. randint has no step, and multiplying a 0-to-10 result by 2 would reach 20."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

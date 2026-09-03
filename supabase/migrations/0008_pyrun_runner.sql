@@ -23,7 +23,7 @@
 -- A step given `weight: 0` (PRIMM's Run: read it, run it, look at the output)
 -- records 0/0 rather than queueing, because there is genuinely nothing to mark.
 --
--- Idempotent, like 0006.
+-- Idempotent, like 0006 and 0007.
 -- ============================================================================
 
 insert into runners (id, name, version, entry_url, scorer, builtin)

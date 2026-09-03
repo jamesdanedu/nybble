@@ -1,0 +1,349 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python — 10 Functions",
+      "topic": "Programming — Python",
+      "description": "Defining and calling functions, arguments, default arguments, and returning one value or several. Six Parsons problems and an MCQ. The distinction that does the most work here is between printing a value and handing it back.",
+      "visibility": "school",
+      "steps": [
+        {
+          "id": "p1",
+          "runner_id": "parsons",
+          "title": "Define one, then call it",
+          "weight": 1,
+          "config": {
+            "title": "Define one, then call it",
+            "instructions": "The body of the function is indented under the def. The call is not — it is back at the left, and it is the line that actually makes anything happen.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "def greet():" },
+              { "id": "b", "text": "print(\"Hello!\")" },
+              { "id": "c", "text": "print(\"Welcome to Nybble\")" },
+              { "id": "d", "text": "greet()" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "Defining a function does not run it — it only gives the block a name. Nothing at all is printed until the last line calls it. The brackets are what make it a call: greet on its own would just name the function.",
+            "check": { "stdout": "Hello!\nWelcome to Nybble\n" }
+          }
+        },
+        {
+          "id": "p2",
+          "runner_id": "parsons",
+          "title": "An argument in, a value out",
+          "weight": 1,
+          "config": {
+            "title": "An argument in, a value out",
+            "instructions": "This one takes a number and hands an answer back, so the call goes on the right of an = sign.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "def double(number):" },
+              { "id": "b", "text": "return number * 2" },
+              { "id": "c", "text": "answer = double(7)" },
+              { "id": "d", "text": "print(\"Twice 7 is\", answer)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": [],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 0,
+            "explanation": "number is a name that only exists inside the function; the 7 in the call is what it stands for on this run. return ends the function and hands the value back to whoever called it, which is how answer gets its value.",
+            "check": { "stdout": "Twice 7 is 14\n" }
+          }
+        },
+        {
+          "id": "p3",
+          "runner_id": "parsons",
+          "title": "Return, not print",
+          "weight": 1,
+          "config": {
+            "title": "Return, not print",
+            "instructions": "The function is called twice and the two answers are then added together. One of the wrong lines shows the answer instead of handing it back — which looks the same on screen until the last line runs.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 2,
+            "lines": [
+              { "id": "a", "text": "def area(width, height):" },
+              { "id": "b", "text": "return width * height" },
+              { "id": "c", "text": "first = area(3, 4)" },
+              { "id": "d", "text": "second = area(5, 6)" },
+              { "id": "e", "text": "print(\"First area:\", first)" },
+              { "id": "f", "text": "print(\"Second area:\", second)" },
+              { "id": "g", "text": "print(\"Total:\", first + second)" },
+              { "id": "d1", "text": "print(width * height)" },
+              { "id": "d2", "text": "def area(width, height)" },
+              { "id": "d3", "text": "return width + height" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 },
+              { "id": "e", "indent": 0 },
+              { "id": "f", "indent": 0 },
+              { "id": "g", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 7,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "A function that prints its answer cannot be used in a sum. Swap the return for a print and the two areas appear on screen, but first and second both end up as None and the last line stops with a TypeError. The def line needs its colon, and an area is a multiplication.",
+            "check": { "stdout": "First area: 12\nSecond area: 30\nTotal: 42\n" }
+          }
+        },
+        {
+          "id": "p4",
+          "runner_id": "parsons",
+          "title": "A default argument",
+          "weight": 1,
+          "config": {
+            "title": "A default argument",
+            "instructions": "The greeting has a value ready in case the caller does not give one. Note what the two calls look like.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 1,
+            "lines": [
+              { "id": "a", "text": "def greet(name, greeting=\"Hello\"):" },
+              { "id": "b", "text": "print(greeting + \", \" + name)" },
+              { "id": "c", "text": "greet(\"Aoife\")" },
+              { "id": "d", "text": "greet(\"Ben\", \"Good morning\")" },
+              { "id": "d1", "text": "def greet(greeting=\"Hello\", name):" },
+              { "id": "d2", "text": "def greet(name, greeting):" },
+              { "id": "d3", "text": "greet()" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 0 },
+              { "id": "d", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 4,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "An argument with a default has to come after the ones without, or Python refuses the definition — it would have no way to tell which value you meant. Without the default, the first call would fail for want of a second argument, and greet() with nothing at all fails either way because name has no default.",
+            "check": { "stdout": "Hello, Aoife\nGood morning, Ben\n" }
+          }
+        },
+        {
+          "id": "p5",
+          "runner_id": "parsons",
+          "title": "Two values back at once",
+          "weight": 1,
+          "config": {
+            "title": "Two values back at once",
+            "instructions": "One return can hand back more than one thing, separated by a comma, and the call can unpack them into two variables.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 3,
+            "lines": [
+              { "id": "a", "text": "def stats(numbers):" },
+              { "id": "b", "text": "total = 0" },
+              { "id": "c", "text": "for n in numbers:" },
+              { "id": "d", "text": "total = total + n" },
+              { "id": "e", "text": "average = total / len(numbers)" },
+              { "id": "f", "text": "return total, average" },
+              { "id": "g", "text": "marks = [60, 70, 80]" },
+              { "id": "h", "text": "whole, mean = stats(marks)" },
+              { "id": "i", "text": "print(\"Total:\", whole)" },
+              { "id": "j", "text": "print(\"Average:\", mean)" },
+              { "id": "d1", "text": "return total" },
+              { "id": "d2", "text": "return average" },
+              { "id": "d3", "text": "whole = stats(marks)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 2 },
+              { "id": "e", "indent": 1 },
+              { "id": "f", "indent": 1 },
+              { "id": "g", "indent": 0 },
+              { "id": "h", "indent": 0 },
+              { "id": "i", "indent": 0 },
+              { "id": "j", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 10,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "The return is at indent 1, after the loop has finished — inside the loop it would end the function on the very first number. A list can be passed to a function like any other value. Returning only one of the two leaves the other unavailable to the caller, and taking the pair into a single variable gives you both stuck together rather than two usable numbers.",
+            "check": { "stdout": "Total: 210\nAverage: 70.0\n" }
+          }
+        },
+        {
+          "id": "p6",
+          "runner_id": "parsons",
+          "title": "The longest word",
+          "weight": 1,
+          "config": {
+            "title": "The longest word",
+            "instructions": "The keep-the-best-so-far pattern from section 06, this time wrapped in a function so it can be reused.",
+            "language": "python",
+            "indentSize": 4,
+            "maxIndent": 4,
+            "lines": [
+              { "id": "a", "text": "def longest(words):" },
+              { "id": "b", "text": "best = words[0]" },
+              { "id": "c", "text": "for word in words:" },
+              { "id": "d", "text": "if len(word) > len(best):" },
+              { "id": "e", "text": "best = word" },
+              { "id": "f", "text": "return best" },
+              { "id": "g", "text": "names = [\"Ben\", \"Aoife\", \"Cara\"]" },
+              { "id": "h", "text": "print(\"Longest:\", longest(names))" },
+              { "id": "d1", "text": "if len(word) > best:" },
+              { "id": "d2", "text": "best = 0" },
+              { "id": "d3", "text": "print(best)" }
+            ]
+          },
+          "key": {
+            "solution": [
+              { "id": "a", "indent": 0 },
+              { "id": "b", "indent": 1 },
+              { "id": "c", "indent": 1 },
+              { "id": "d", "indent": 2 },
+              { "id": "e", "indent": 3 },
+              { "id": "f", "indent": 1 },
+              { "id": "g", "indent": 0 },
+              { "id": "h", "indent": 0 }
+            ],
+            "distractors": ["d1", "d2", "d3"],
+            "marks": 8,
+            "partial": true,
+            "distractorPenalty": 1,
+            "explanation": "Both sides of the comparison need len() — comparing a length against a whole word stops the program with a TypeError. Starting best at the first word rather than at 0 means it is always a word, which is what the comparison and the return both need. And because the function returns rather than prints, the call can be dropped straight inside a print.",
+            "check": { "stdout": "Longest: Aoife\n" }
+          }
+        },
+        {
+          "id": "m1",
+          "runner_id": "mcq",
+          "title": "Calling, returning, and what a name means where",
+          "weight": 1,
+          "config": {
+            "title": "Calling, returning, and what a name means where",
+            "instructions": "Five questions on functions, arguments and return values.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is printed?",
+                "code": "def add(a, b):\n    print(a + b)\n\nresult = add(2, 3)\nprint(result)",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "5 and then None" },
+                  { "id": "b", "text": "5 and then 5" },
+                  { "id": "c", "text": "Only 5" },
+                  { "id": "d", "text": "An error" }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What does this program print?",
+                "code": "def greet():\n    print(\"Hi\")",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "Nothing — the function is never called" },
+                  { "id": "b", "text": "Hi" },
+                  { "id": "c", "text": "An error, because greet is never used" },
+                  { "id": "d", "text": "greet" }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "Which definition does Python refuse?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "def f(a=1, b):", "code": true },
+                  { "id": "b", "text": "def f(a, b=1):", "code": true },
+                  { "id": "c", "text": "def f(a, b):", "code": true },
+                  { "id": "d", "text": "def f(a=1, b=2):", "code": true }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What is printed?",
+                "code": "def total(numbers):\n    for n in numbers:\n        return n\n\nprint(total([4, 5, 6]))",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "4" },
+                  { "id": "b", "text": "6" },
+                  { "id": "c", "text": "15" },
+                  { "id": "d", "text": "None" }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A function ends with return width, height. How would you take both values?",
+                "marks": 1,
+                "options": [
+                  { "id": "a", "text": "w, h = size()", "code": true },
+                  { "id": "b", "text": "w = size()", "code": true },
+                  { "id": "c", "text": "w = size()[width]", "code": true },
+                  { "id": "d", "text": "return w, h = size()", "code": true }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "The function prints 5 but returns nothing, and a function that returns nothing gives back None. Printing and returning are different jobs."
+            },
+            "q2": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Defining a function only names the block. Nothing runs until something calls it with greet()."
+            },
+            "q3": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "An argument with a default cannot come before one without — Python could not tell which value a single argument was meant for, so it refuses the definition outright."
+            },
+            "q4": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "return ends the function immediately, so it stops on the first pass of the loop and hands back 4. A running total needs the return after the loop, not inside it."
+            },
+            "q5": {
+              "correct": ["a"],
+              "marks": 1,
+              "explanation": "Two names on the left unpack the two returned values. A single name would hold both of them stuck together as a pair."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
