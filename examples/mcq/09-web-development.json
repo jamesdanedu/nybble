@@ -1,0 +1,344 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Web development",
+      "topic": "Web Development",
+      "description": "Ten questions on HTML structure, CSS styling, JavaScript behaviour, the DOM, accessibility and the client-server split — the ground covered by ALT 1, Interactive Information Systems. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "web-development-mcq",
+          "runner_id": "mcq",
+          "title": "Web development",
+          "weight": 10,
+          "config": {
+            "title": "Web development",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "HTML, CSS and JavaScript each do a different job on a web page. Which line describes them correctly?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "HTML gives the structure and content, CSS the presentation, JavaScript the behaviour."
+                  },
+                  {
+                    "id": "b",
+                    "text": "HTML gives the presentation, CSS the behaviour, JavaScript the structure."
+                  },
+                  {
+                    "id": "c",
+                    "text": "HTML gives the behaviour, CSS the structure, JavaScript the presentation."
+                  },
+                  {
+                    "id": "d",
+                    "text": "All three do the same job and any of them can be used alone."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "Which HTML element creates the most important heading on a page?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "<h6>",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "<head>",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "<title>",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "<h1>",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A CSS rule should apply to every element that has class=\"warning\". Which selector is correct?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "#warning { }",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "warning { }",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": ".warning { }",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "class=warning { }",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Why is an external stylesheet usually preferred over writing style attributes on individual elements?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Style attributes are not supported by modern browsers."
+                  },
+                  {
+                    "id": "b",
+                    "text": "One file styles every page, so a change is made once rather than in hundreds of places, and the browser can cache it."
+                  },
+                  {
+                    "id": "c",
+                    "text": "External stylesheets load before the HTML, so pages appear faster."
+                  },
+                  {
+                    "id": "d",
+                    "text": "CSS in a separate file is encrypted."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What is the DOM?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A tree of objects representing the loaded page, which JavaScript can read and change to update what the user sees."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The file containing a page's CSS rules."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The server that stores a website's HTML files."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A protocol for sending pages over the internet."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "A button should run a function when it is clicked. What is the mechanism?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A CSS rule is written for the button's click state."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The page is reloaded every second to check whether the button has been pressed."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The HTML file is edited on the server when the user clicks."
+                  },
+                  {
+                    "id": "d",
+                    "text": "An event listener is attached to the button, and the browser calls the function when the click event occurs."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "Why should every meaningful image on a page carry an alt attribute?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It makes the image file smaller."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Without it the image will not display at all."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A screen reader reads it aloud to a user who cannot see the image, and it is shown if the image fails to load."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It sets the width and height of the image."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "A form validates an email address in JavaScript in the browser. Why must the server check it again?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "JavaScript cannot check email addresses accurately."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Client-side code can be bypassed or disabled entirely, so the server can never trust what arrives."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Server-side validation is faster for the user."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The browser deletes the data before sending it."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Which of these is a semantic HTML element?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "<nav>, because it says what the content is for as well as grouping it",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "<div>, because it is the most common container",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "<span>, because it wraps inline text",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "<br>, because it breaks a line",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A page is described as responsive. What does that mean?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It responds quickly because the server is fast."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It replies automatically to messages left by users."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It works without JavaScript enabled."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Its layout adapts to the size of the screen it is being viewed on, from phone to desktop."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Structure, presentation, behaviour — keeping the three separate is the reason a site can be restyled without touching its content, and why a page still makes sense when the CSS fails to load."
+            },
+            "q2": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Headings run from <h1> down to <h6>, so <h1> is the top level. <title> sets the browser tab text rather than a heading on the page, and <head> is the metadata section. Screen readers use the heading levels to build a navigable outline, so skipping levels for visual effect is a real accessibility problem."
+            },
+            "q3": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A leading dot selects a class, which may be used on many elements. A leading hash selects an id, which must be unique on the page, and a bare word selects an element type such as p or h1."
+            },
+            "q4": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "It is separation of concerns and maintenance: one rule change updates the whole site. The browser also caches the stylesheet, so it is downloaded once rather than repeated inside every page's HTML."
+            },
+            "q5": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "The browser parses the HTML into a tree of objects — the Document Object Model — and the page you see is a rendering of that tree, not of the original file. Changing the DOM changes the display immediately, which is how an interactive page updates without reloading."
+            },
+            "q6": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Event-driven programming: the code registers interest in an event and the browser calls back when it happens. Nothing loops or polls in the meantime, which is why reloading the page over and over to check for a click would be both wrong and wasteful."
+            },
+            "q7": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Alt text is the image's meaning in words — essential for screen reader users, useful on a broken connection, and read by search engines. A purely decorative image is the exception: it takes an empty alt so it is skipped rather than announced."
+            },
+            "q8": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Everything on the client is under the user's control: JavaScript can be turned off and a request can be sent straight to the server without the form. Client-side validation is a courtesy that gives instant feedback; server-side validation is the one that protects the data."
+            },
+            "q9": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Semantic elements describe the role of their content — <nav>, <header>, <article>, <footer>. <div> and <span> are deliberately meaningless containers. The difference matters to screen readers and search engines, which can only use structure they can interpret."
+            },
+            "q10": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Responsive design uses flexible layouts and media queries so one page serves every screen size, rather than maintaining a separate mobile site. With most traffic now on phones, it is the default expectation rather than an extra."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

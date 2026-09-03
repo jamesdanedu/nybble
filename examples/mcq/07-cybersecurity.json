@@ -1,0 +1,336 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Cybersecurity and data protection",
+      "topic": "Cybersecurity",
+      "description": "Ten questions on encryption, hashing, authentication, malware, social engineering, input validation and GDPR. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "cybersecurity-mcq",
+          "runner_id": "mcq",
+          "title": "Cybersecurity and data protection",
+          "weight": 10,
+          "config": {
+            "title": "Cybersecurity and data protection",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "A message is encrypted with a Caesar cipher using a shift of 3, so A becomes D. What does the plaintext CODE become?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "DPEF",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "ZLAB",
+                    "code": true
+                  },
+                  {
+                    "id": "c",
+                    "text": "FRGH",
+                    "code": true
+                  },
+                  {
+                    "id": "d",
+                    "text": "GSHI",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What is the essential difference between symmetric and asymmetric encryption?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Symmetric encryption cannot be broken; asymmetric can."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Symmetric encryption uses the same key to encrypt and decrypt; asymmetric uses a public key to encrypt and a matching private key to decrypt."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Symmetric encryption works only on text; asymmetric works on any file."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Asymmetric encryption uses no keys at all."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A well-designed website stores a hash of each user's password rather than the password itself. Why?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Hashing is one-way, so an attacker who steals the database still does not have the passwords, while a login can still be checked by hashing what the user typed."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Hashes take up less disk space than passwords."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Hashing lets the site email a user their password if they forget it."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Hashes are encrypted passwords that the site decrypts at login."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "A student receives an email that appears to be from their bank, warning that their account will be closed and linking to a page that asks for their login details. What kind of attack is this?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A denial-of-service attack"
+                  },
+                  {
+                    "id": "b",
+                    "text": "A brute-force attack"
+                  },
+                  {
+                    "id": "c",
+                    "text": "SQL injection"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Phishing"
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "Two-factor authentication asks for a password and a code from the user's phone. Why is that stronger than a password alone?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It makes the password itself harder to guess."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It encrypts the connection to the website."
+                  },
+                  {
+                    "id": "c",
+                    "text": "An attacker who has stolen or guessed the password still cannot log in without physical access to the second factor."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It stops the website from being hacked."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "A login form passes whatever the user types straight into a database query. An attacker types a fragment of SQL into the username box and gains access. What has gone wrong, and what fixes it?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The password was too short; a longer password would prevent it."
+                  },
+                  {
+                    "id": "b",
+                    "text": "User input was treated as code; validating input and using parameterised queries keeps data and instructions separate."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The site was not using HTTPS; encryption would prevent it."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The database was too large; splitting it into smaller tables would prevent it."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "Which description matches ransomware?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Malware that encrypts the victim's files and demands payment for the key."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Software that secretly records what the user types."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A program that appears useful but hides a malicious payload."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Flooding a server with traffic so real users cannot reach it."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "What is the purpose of a firewall?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "To scan files already on the disk for known viruses."
+                  },
+                  {
+                    "id": "b",
+                    "text": "To make a backup copy of important data."
+                  },
+                  {
+                    "id": "c",
+                    "text": "To encrypt files stored on a laptop."
+                  },
+                  {
+                    "id": "d",
+                    "text": "To inspect network traffic entering and leaving a network and block anything that breaks the configured rules."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "An online shop asks every customer for their date of birth, mother's maiden name and PPS number, none of which it needs to sell them a jumper. Which GDPR principle does this breach?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Accuracy — data must be kept up to date."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Integrity — data must be kept secure."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Data minimisation — collect only what is adequate, relevant and necessary for the stated purpose."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Portability — users must be able to take their data elsewhere."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "Passwords in a system are limited to 4 digits. Why is this weak against a brute-force attack?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Digits are stored differently from letters and are easier to read."
+                  },
+                  {
+                    "id": "b",
+                    "text": "There are only 10 000 possible passwords, which a computer can try in a fraction of a second."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Four-digit passwords cannot be hashed."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Numbers travel across a network unencrypted."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Shift each letter forward three places: C→F, O→R, D→G, E→H, giving FRGH. A Caesar cipher has only 25 useful keys, so it is trivially broken by trying them all — it survives as a teaching example, not as security."
+            },
+            "q2": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Symmetric encryption is fast but both parties need the same secret key, which is hard to share safely with a stranger. Asymmetric solves exactly that: the public key can be published, and only the matching private key undoes it. HTTPS uses asymmetric encryption to agree a symmetric key, then switches to the fast one."
+            },
+            "q3": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "A hash cannot be reversed, so a stolen table of hashes is far less use than a table of passwords. Logging in works by hashing the attempt and comparing hashes. Note the consequence: a site that can email you your old password is not hashing it, which is a warning sign."
+            },
+            "q4": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Phishing attacks the person, not the machine: urgency and a convincing imitation persuade the victim to hand over credentials. No software flaw is exploited, which is why staff training and 2FA do more against it than any patch."
+            },
+            "q5": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "The two factors are something you know and something you have, so one stolen secret is not enough. It is the single most effective defence against phishing and password reuse — though not perfect, since a victim can be tricked into reading the code aloud."
+            },
+            "q6": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "The bug is that the query is built by pasting text together, so the attacker's input is executed as part of the SQL. Parameterised queries send the query and the values separately, so input can never become code. HTTPS would encrypt the attack in transit and change nothing."
+            },
+            "q7": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Ransomware makes data unreadable and sells the key back. Secretly recording what is typed is a keylogger, hiding a malicious payload inside something useful is a trojan, and flooding a server with traffic is denial of service. Good, tested, offline backups are the defence that actually works, since they remove the need to pay."
+            },
+            "q8": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "A firewall polices traffic at the boundary, by port, address or protocol. It is not an antivirus ('b'), and it does nothing about a threat that is already inside or one carried in on a USB stick — which is why layered defences exist."
+            },
+            "q9": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Data minimisation says you may hold only what the stated purpose actually requires. Data never collected cannot be leaked, which makes minimisation a security measure as well as a legal duty."
+            },
+            "q10": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "4 digits give 10^4 = 10 000 combinations, exhausted almost instantly by software. Length and character variety are what make brute force expensive — which is why a phone PIN is only safe alongside a limit on the number of attempts."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

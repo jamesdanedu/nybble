@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Computational thinking",
+      "topic": "Computational Thinking",
+      "description": "Ten questions on decomposition, pattern recognition, abstraction, algorithms, generalisation and evaluation — including scenarios where you have to name the skill being used. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "computational-thinking-mcq",
+          "runner_id": "mcq",
+          "title": "Computational thinking",
+          "weight": 10,
+          "config": {
+            "title": "Computational thinking",
+            "instructions": "Several questions describe a situation and ask which skill is being used. Read the whole scenario before choosing. Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is decomposition?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Removing detail that is not needed for the problem in hand."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Noticing similarities between problems you have already solved."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Breaking a large problem into smaller sub-problems that can be solved separately."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Writing a step-by-step set of instructions."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "The London Underground map shows the order of stations and where lines meet, but not the real distances or the shape of the streets above. Which computational thinking skill does that map best illustrate?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Decomposition"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Abstraction"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Pattern recognition"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Evaluation"
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A student notices that the code they wrote to total a class's maths results will also total their science results if the list is swapped. Which skill is being used?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Generalisation — recognising that one solution covers a whole family of problems."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Decomposition — splitting the task into parts."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Debugging — finding and fixing an error."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Evaluation — judging how good the solution is."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Which of these is NOT a requirement of an algorithm?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Every step must be unambiguous."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It must finish after a finite number of steps."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It must produce an output or a defined result."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It must be written in a programming language."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "A team is asked to build a school library system. They split the work into 'search for a book', 'issue a book', 'return a book' and 'send overdue reminders'. What have they done?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Abstracted the problem."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Evaluated the problem."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Decomposed the problem."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Generalised the problem."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "Why is pattern recognition useful when solving a new problem?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It guarantees the new problem has the same answer as the old one."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Spotting that the new problem resembles one already solved lets you reuse or adapt that solution instead of starting from nothing."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It removes the need to test the solution."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It makes the program run faster."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "Which of these is the best example of abstraction in a program?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Storing a student as a name, an exam number and a year group, and ignoring their eye colour and shoe size."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Splitting a program into three functions."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Running the program with test data."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Adding comments to explain each line."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "Two algorithms both sort a list correctly. One takes 2 seconds on 10 000 items and the other takes 40 seconds. Judging between them on time, memory and readability is an example of which skill?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Decomposition"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Abstraction"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Pattern recognition"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Evaluation"
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "An algorithm is written as: 'Add a bit of milk, cook until it looks right, season to taste.' What is wrong with it as an algorithm?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It has too many steps."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It is not written in Python."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The steps are ambiguous — 'a bit', 'looks right' and 'to taste' are not precise enough for a machine to follow."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It has no loop."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "In which order do these stages usually appear when tackling a substantial problem?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Implement it, understand the problem, decompose it, test and evaluate."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Understand the problem, decompose it, design an algorithm, implement it, test and evaluate."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Test and evaluate, design an algorithm, decompose it, implement it."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Decompose it, test and evaluate, understand the problem, implement it."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Decomposition is the breaking-down step. The other three options define abstraction, pattern recognition and an algorithm — all four are computational thinking skills, but only one is about splitting a problem up."
+            },
+            "q2": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "The map keeps what a traveller needs — order of stops and interchanges — and throws away everything else. Abstraction is exactly that: deciding what detail is irrelevant to the problem and leaving it out. A geographically accurate map would be more truthful and much less useful."
+            },
+            "q3": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Generalisation is taking a solution that worked once and seeing the wider class of problems it covers. In code it shows up as a function with a parameter — `total(results)` instead of a version hard-coded to one subject."
+            },
+            "q4": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "An algorithm is a plan, not a program. Pseudocode, a flowchart or plain English all count, so long as the steps are unambiguous, finite and produce a result. Turning it into Python is implementation, a later step."
+            },
+            "q5": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "One big vague task has become four smaller tasks that can be designed, written and tested independently — and by different people at the same time. That is decomposition, and it is usually the first thing you do after understanding the problem."
+            },
+            "q6": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Recognising that 'find the highest score' and 'find the cheapest flight' are the same problem with different data means you already have the algorithm. It is a shortcut to a solution, not a guarantee — you still have to check the resemblance is real, which is why 'a' is wrong."
+            },
+            "q7": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Choosing which attributes to model, and dropping the rest, is abstraction — you are building a simplified representation fit for the job. Splitting a program into functions is decomposition, and running it with test data is testing; comments are good practice but not abstraction."
+            },
+            "q8": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Evaluation is judging a solution against criteria — speed, memory use, readability, whether it actually meets the user's need. Note that both algorithms are correct here: correctness is the entry requirement, not the thing being judged."
+            },
+            "q9": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A human cook copes with vagueness by using judgement; a computer has none. Every step of an algorithm must have exactly one possible interpretation, which is why 'cook until it looks right' has to become something like 'cook for 12 minutes'."
+            },
+            "q10": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Understanding comes first — you cannot decompose a problem you have not grasped — and evaluation comes last, though in practice it sends you back around the loop. The other orders all start coding or judging before there is anything to code or judge."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

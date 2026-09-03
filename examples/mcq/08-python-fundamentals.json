@@ -1,0 +1,345 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Python fundamentals",
+      "topic": "Programming",
+      "description": "Ten questions on Python data types, operators, strings, lists, dictionaries, loops and functions — mostly 'what does this print' tracing. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "python-fundamentals-mcq",
+          "runner_id": "mcq",
+          "title": "Python fundamentals",
+          "weight": 10,
+          "config": {
+            "title": "Python fundamentals",
+            "instructions": "Trace each program by hand before you choose — do not guess from the shape of the code. Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "A program asks for a number and then adds 10 to it. It crashes with a TypeError. What is the fix?",
+                "code": "age = input(\"Your age: \")\nprint(age + 10)",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Change the 10 to a string: age + \"10\"",
+                    "code": true
+                  },
+                  {
+                    "id": "b",
+                    "text": "Rename the variable, because age is a reserved word."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Add a colon to the end of the print line."
+                  },
+                  {
+                    "id": "d",
+                    "text": "input() always returns a string, so it must be converted: int(input(\"Your age: \"))",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "What does this print?",
+                "code": "print(17 // 5, 17 % 5)",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "3.4 2"
+                  },
+                  {
+                    "id": "b",
+                    "text": "2 3"
+                  },
+                  {
+                    "id": "c",
+                    "text": "3 2"
+                  },
+                  {
+                    "id": "d",
+                    "text": "3 3.4"
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What does this print?",
+                "code": "word = \"computer\"\nprint(word[0:4])",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "compu"
+                  },
+                  {
+                    "id": "b",
+                    "text": "comp"
+                  },
+                  {
+                    "id": "c",
+                    "text": "ompu"
+                  },
+                  {
+                    "id": "d",
+                    "text": "omp"
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "What does this print?",
+                "code": "scores = [12, 7, 30, 4]\nprint(scores[-1], len(scores))",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "4 4"
+                  },
+                  {
+                    "id": "b",
+                    "text": "12 4"
+                  },
+                  {
+                    "id": "c",
+                    "text": "4 3"
+                  },
+                  {
+                    "id": "d",
+                    "text": "30 4"
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "What does this print?",
+                "code": "for i in range(1, 10, 3):\n    print(i, end=\" \")",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "1 4 7 10"
+                  },
+                  {
+                    "id": "b",
+                    "text": "1 2 3 4 5 6 7 8 9"
+                  },
+                  {
+                    "id": "c",
+                    "text": "3 6 9"
+                  },
+                  {
+                    "id": "d",
+                    "text": "1 4 7"
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What is the value of total when this loop finishes?",
+                "code": "total = 0\nn = 5\nwhile n > 0:\n    total = total + n\n    n = n - 2",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "5"
+                  },
+                  {
+                    "id": "b",
+                    "text": "8"
+                  },
+                  {
+                    "id": "c",
+                    "text": "9"
+                  },
+                  {
+                    "id": "d",
+                    "text": "15"
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "What does this print?",
+                "code": "marks = {\"Aoife\": 82, \"Ben\": 55}\nmarks[\"Ben\"] = marks[\"Ben\"] + 5\nprint(marks[\"Ben\"], len(marks))",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "60 3"
+                  },
+                  {
+                    "id": "b",
+                    "text": "60 2"
+                  },
+                  {
+                    "id": "c",
+                    "text": "55 2"
+                  },
+                  {
+                    "id": "d",
+                    "text": "5 2"
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "What does this print?",
+                "code": "def double(n):\n    print(n * 2)\n\nresult = double(6)\nprint(result)",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "12 then None"
+                  },
+                  {
+                    "id": "b",
+                    "text": "12 then 12"
+                  },
+                  {
+                    "id": "c",
+                    "text": "None then 12"
+                  },
+                  {
+                    "id": "d",
+                    "text": "It raises an error because double returns nothing."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "A program should print \"Pass\" for a mark of 40 or more and \"Fail\" otherwise, but it prints \"Pass\" for a mark of 39. What is wrong?",
+                "code": "mark = 39\nif mark > 40:\n    print(\"Fail\")\nelse:\n    print(\"Pass\")",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The variable mark has not been declared with a type."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Python cannot compare integers with >."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The else branch needs its own condition."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The condition is the wrong way round and uses the wrong operator; it should be if mark >= 40: print(\"Pass\") else: print(\"Fail\")",
+                    "code": true
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "What does this print?",
+                "code": "names = [\"Cara\", \"Dan\", \"Eve\"]\nnames.append(\"Fionn\")\nnames.remove(\"Dan\")\nprint(names[1], len(names))",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Dan 4"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Cara 3"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Eve 3"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Fionn 3"
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "input() hands back a string every time, and Python refuses to add an int to a str rather than guessing what you meant. Wrapping it in int() converts it — and will itself raise a ValueError if the user types something that is not a whole number, which is where try/except earns its keep."
+            },
+            "q2": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "// is integer division, discarding the remainder: 17 // 5 = 3. % gives that remainder: 17 % 5 = 2. Plain / would give 3.4. The pair is exactly what you need to split seconds into minutes and seconds, or a number into its digits."
+            },
+            "q3": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Slicing starts at index 0 and stops just before index 4, taking characters 0, 1, 2 and 3 — 'comp'. The end index being excluded is the same convention as range(), and the length of the slice is 4 − 0 = 4."
+            },
+            "q4": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "Index −1 is the last item, which is 4, and len() counts the items, which is also 4 here — a coincidence worth noticing so it does not confuse you. Valid indices run 0 to 3, so scores[4] would raise an IndexError."
+            },
+            "q5": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "range(1, 10, 3) starts at 1, steps by 3 and stops before 10: 1, 4, 7. The next value would be 10, which is excluded. The sequence ending in 10 wrongly includes the stop value, and 3 6 9 is what range(3, 10, 3) would give."
+            },
+            "q6": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Trace it: n = 5 adds 5 (total 5, n becomes 3), n = 3 adds 3 (total 8, n becomes 1), n = 1 adds 1 (total 9, n becomes −1), and the condition now fails. So total is 9 — the odd numbers 5 + 3 + 1."
+            },
+            "q7": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "55 + 5 = 60 is written back under the existing key 'Ben', so nothing is added to the dictionary and len() is still 2. Assigning to a key that already exists replaces its value; assigning to a new key would have grown the dictionary."
+            },
+            "q8": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "double() prints 12 but has no return statement, so it hands back None, which the second print shows. Printing and returning are different things: a function whose result you want to use later must return it."
+            },
+            "q9": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "With mark = 39 the condition 39 > 40 is False, so the else branch prints 'Pass'. The logic has been inverted and the boundary is wrong: a mark of exactly 40 should pass, which needs >=. This is a logic error — the program runs perfectly and is simply wrong, so only testing finds it."
+            },
+            "q10": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "After append the list is ['Cara', 'Dan', 'Eve', 'Fionn']; remove('Dan') deletes that item and everything after it shifts down, giving ['Cara', 'Eve', 'Fionn']. So index 1 is 'Eve' and the length is 3."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

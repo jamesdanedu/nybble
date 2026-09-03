@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Embedded systems and IoT",
+      "topic": "Embedded Systems",
+      "description": "Ten questions on microcontrollers, sensors and actuators, analogue and digital signals, polling and interrupts, real-time constraints and the risks of connected devices — the ground covered by ALT 4. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "embedded-systems-mcq",
+          "runner_id": "mcq",
+          "title": "Embedded systems and IoT",
+          "weight": 10,
+          "config": {
+            "title": "Embedded systems and IoT",
+            "instructions": "Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "What is an embedded system?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Any computer that is connected to the internet."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A general-purpose computer with the operating system installed on a chip."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A computer built into a larger device to carry out one dedicated job, such as the controller in a washing machine."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Software that is stored inside another program."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "Which pair correctly separates sensors from actuators?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A motor is a sensor; a thermistor is an actuator."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A thermistor is a sensor; a motor is an actuator."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Both are sensors, because both are connected to the microcontroller."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Both are actuators, because both use electricity."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "A microcontroller must read the voltage from a light sensor, which varies smoothly between 0 V and 3.3 V. What component does it need?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "An analogue-to-digital converter, to turn the continuous voltage into a number."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A digital-to-analogue converter, to turn the number into a voltage."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A modem, to modulate the signal."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nothing — a processor can read a voltage directly as a number."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "An ADC has a resolution of 10 bits. How many distinct levels can it distinguish?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "10"
+                  },
+                  {
+                    "id": "b",
+                    "text": "100"
+                  },
+                  {
+                    "id": "c",
+                    "text": "512"
+                  },
+                  {
+                    "id": "d",
+                    "text": "1024"
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "Why is a small microcontroller used in a central heating thermostat rather than a full desktop computer?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Desktop computers cannot read sensors."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Microcontrollers run programs faster than desktop processors."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It costs a fraction as much, uses very little power, fits in the case, and does everything the job requires."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A thermostat's software cannot be written for a desktop machine."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "What is the difference between polling and using an interrupt to detect a button press?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Polling is done by the hardware; an interrupt is done in software."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Polling means the program repeatedly checks the button itself; an interrupt means the hardware signals the processor when the press happens."
+                  },
+                  {
+                    "id": "c",
+                    "text": "They are two names for the same technique."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Polling is used for outputs and interrupts for inputs."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "An airbag controller must fire within a few milliseconds of a crash being detected. What kind of requirement is this?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A real-time constraint — a correct result delivered late is a failure."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A bandwidth constraint."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A storage constraint."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A usability requirement."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "What is firmware?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The physical circuit board inside a device."
+                  },
+                  {
+                    "id": "b",
+                    "text": "An app the user installs on a phone to control a device."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Data collected by a device's sensors."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The program held in a device's non-volatile memory that controls its hardware, updated rarely if at all."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "What makes something an Internet of Things device rather than just an embedded system?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It has more than one sensor."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It is battery powered."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It is network-connected, so it can send its data and be controlled remotely."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It runs a full operating system."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A cheap internet-connected security camera ships with the same default password on every unit and no way to update its software. Why is that dangerous?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The camera will run out of storage."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Anyone can find the default password online and log in, and a flaw discovered later can never be patched — which is how thousands of such cameras have been recruited into botnets."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The video quality will degrade over time."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It will use too much electricity."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "An embedded system is dedicated to one function inside a larger product, and the user usually does not think of it as a computer at all. Most processors made each year go into embedded systems, not into laptops and phones. Internet connection is optional — that is what makes it IoT."
+            },
+            "q2": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "A sensor turns a physical quantity into an electrical signal the system can read in; an actuator turns a signal into a physical effect out. Thermistor, LDR and microphone are inputs; motor, LED, buzzer and relay are outputs."
+            },
+            "q3": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "The world is analogue and a processor works only in discrete numbers, so an ADC samples the voltage and reports a value. A DAC does the reverse — driving a speaker, say. This conversion is where quantisation error creeps in."
+            },
+            "q4": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "n bits give 2^n levels: 2^10 = 1024, numbered 0 to 1023. Over a 0–3.3 V range that is a step of about 3.2 mV. 512 would be 9-bit resolution. More bits means finer measurement, at the cost of speed and price."
+            },
+            "q5": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Embedded design is about fitting the job: cost, power, size and reliability all matter more than raw speed, and a thermostat needs almost none of a desktop's capability. A microcontroller with no operating system also starts instantly and can run for years untouched."
+            },
+            "q6": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Polling burns processor time asking 'has it happened yet?' and can miss a short event between checks. An interrupt lets the processor do something else — or sleep, saving battery — until the hardware raises a signal that diverts it into a handler."
+            },
+            "q7": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "In a hard real-time system the deadline is part of correctness: an airbag that fires 200 ms late is as bad as one that does not fire. This is why such systems avoid anything with unpredictable timing, including general-purpose operating systems."
+            },
+            "q8": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Firmware sits between hardware and software: it is a program, but it lives in the device and is rarely changed. That is exactly why a device with no update mechanism is a long-term security problem — see the last question."
+            },
+            "q9": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "IoT is an embedded system plus a network connection. That connection is what makes remote monitoring possible, and it is also what turns a private device into something reachable by anyone on the internet if it is not secured."
+            },
+            "q10": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Shared default credentials mean one published password unlocks every unit, and with no update path a vulnerability is permanent. The Mirai botnet of 2016 was built almost entirely from such devices, and used them to knock large parts of the internet offline."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "nybble": 1,
+  "activities": [
+    {
+      "title": "Computers, ethics and society",
+      "topic": "Computers and Society",
+      "description": "Ten questions on artificial intelligence and machine learning, algorithmic bias, the digital divide, automation and employment, e-waste, accessibility and intellectual property. Written for Leaving Certificate Computer Science.",
+      "visibility": "school",
+      "shared_context": {},
+      "max_score": 10,
+      "steps": [
+        {
+          "id": "ethics-ai-society-mcq",
+          "runner_id": "mcq",
+          "title": "Computers, ethics and society",
+          "weight": 10,
+          "config": {
+            "title": "Computers, ethics and society",
+            "instructions": "Several of these have more than one defensible-sounding answer — choose the one that is most accurate. Each question is worth 1 mark.",
+            "shuffleQuestions": false,
+            "shuffleOptions": true,
+            "requireAll": true,
+            "questions": [
+              {
+                "id": "q1",
+                "stem": "How does a machine learning system differ from a traditional rule-based program?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It does not need a computer to run."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It is always more accurate than a rule-based program."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It writes its own hardware."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Its behaviour is derived from patterns in training data rather than from rules written out by a programmer."
+                  }
+                ]
+              },
+              {
+                "id": "q2",
+                "stem": "A company's CV-screening model rejects far more women than men. The training data was ten years of the company's own past hiring decisions. What is the most likely explanation?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The model was given too much data."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A programmer must have written a rule to reject women."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The model learned the biases present in the historical decisions it was trained on."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Machine learning cannot process text CVs."
+                  }
+                ]
+              },
+              {
+                "id": "q3",
+                "stem": "What is meant by the digital divide?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The split between hardware engineers and software engineers."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The gap between those with reliable access to technology and connectivity and those without, which widens other inequalities."
+                  },
+                  {
+                    "id": "c",
+                    "text": "The difference between analogue and digital signals."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The boundary between a company's internal network and the internet."
+                  }
+                ]
+              },
+              {
+                "id": "q4",
+                "stem": "Why is the explainability of an automated decision system a genuine ethical concern?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "If nobody can say why a loan or a place was refused, the decision cannot be challenged, audited or corrected."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Explainable systems always run faster."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It is impossible to test a system you cannot explain."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Users prefer systems with more documentation."
+                  }
+                ]
+              },
+              {
+                "id": "q5",
+                "stem": "Which statement about automation and employment is best supported by the history of computing?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Automation always reduces the total number of jobs in an economy."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Automation has no effect on employment."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Automation only affects manual work, never office work."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Automation removes some kinds of work and creates others, but the people displaced are rarely the ones who fill the new roles."
+                  }
+                ]
+              },
+              {
+                "id": "q6",
+                "stem": "Why is e-waste a significant environmental problem?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Electronic devices are biodegradable and release methane."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The plastic in devices is the only part that cannot be recycled."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Discarded devices contain both toxic materials and valuable recoverable metals, and much of it is exported to be dismantled in unsafe conditions."
+                  },
+                  {
+                    "id": "d",
+                    "text": "E-waste takes up more space in landfill than any other waste stream."
+                  }
+                ]
+              },
+              {
+                "id": "q7",
+                "stem": "A student finds a photograph online with no licence stated and uses it on a public website. What is the position?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Anything on the internet is free to reuse."
+                  },
+                  {
+                    "id": "b",
+                    "text": "The photograph is automatically protected by copyright; permission or a licence is needed, so an openly licensed or public domain image should be used instead."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It is fine as long as the site is not making money."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It is fine as long as the photographer is credited."
+                  }
+                ]
+              },
+              {
+                "id": "q8",
+                "stem": "Under GDPR, what must an organisation do before processing someone's personal data on the basis of consent?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Obtain consent that is freely given, specific and informed, and make it as easy to withdraw as to give."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Publish the data on its website."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Add a line about it somewhere in a long terms-and-conditions document."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nothing, provided the data is stored securely."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "Which change most improves a website for a user with a severe visual impairment?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Brighter colours throughout."
+                  },
+                  {
+                    "id": "b",
+                    "text": "More images instead of text."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A larger logo in the header."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Meaningful alt text, proper heading structure and full keyboard navigation, so a screen reader can convey the page."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "Video and audio of a real person can now be convincingly fabricated. What is the most serious societal consequence?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Video files will become much larger."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Editing software will become harder to use."
+                  },
+                  {
+                    "id": "c",
+                    "text": "People can be shown saying things they never said, and — just as damaging — genuine recordings can be dismissed as fakes."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Cameras will need to be replaced more often."
+                  }
+                ]
+              }
+            ]
+          },
+          "key": {
+            "q1": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "In a rule-based program a human states the logic; in machine learning the system infers it from examples. That is powerful for problems nobody can write rules for — recognising a face — and it is also why the data used for training determines what the system does, and why it can be hard to say why it did it."
+            },
+            "q2": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "A model trained on past decisions reproduces the pattern in those decisions, including the unfair parts, without anyone writing a discriminatory rule. Removing the gender field does not fix it either, since other fields act as proxies. Amazon abandoned a real recruiting tool for exactly this reason."
+            },
+            "q3": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "The divide runs along income, geography, age and disability, and it compounds: when schooling, banking and public services move online, the people already worst served lose the most. Rural broadband and device access in schools are the local face of it."
+            },
+            "q4": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "A decision that affects someone's rights has to be contestable, and you cannot appeal a reason nobody can state. It is why GDPR gives a right to meaningful information about automated decisions, and why an accurate model can still be unacceptable in a high-stakes setting."
+            },
+            "q5": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "Mechanisation and computerisation have repeatedly destroyed occupations and created others — the honest difficulty is the transition, which falls on particular people in particular places. Note that this wave reaches clerical, legal and creative work, so 'd' has not held for a long time."
+            },
+            "q6": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Lead, mercury and cadmium leach from dumped devices, while the gold and rare earths inside are lost unless recovered. Much e-waste is shipped abroad and stripped by hand over open fires. Repairability and longer replacement cycles cut the problem at source."
+            },
+            "q7": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Copyright is automatic on creation — no notice is needed for it to apply, so silence is not permission. Credit is a courtesy, not a licence, and non-commercial use is not a general exemption. Creative Commons and public domain sources exist precisely to make lawful reuse easy."
+            },
+            "q8": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "GDPR sets a high bar: consent must be a genuine choice, tied to a stated purpose, and withdrawable at any time. Pre-ticked boxes and consent buried in terms and conditions do not qualify, and consent is only one of six lawful bases for processing."
+            },
+            "q9": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "A screen reader user navigates by headings and links and never sees the layout, so structure and alt text are what carry the page. Accessibility work also helps everyone else — keyboard navigation, captions and clear structure improve the site for all users, and in the EU it is a legal requirement for public bodies."
+            },
+            "q10": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "The second half is the subtler harm: once fabrication is plausible, any inconvenient recording can be waved away as a fake. That erosion of shared evidence is harder to repair than any single forged clip, and it is why provenance and watermarking are being taken seriously."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
