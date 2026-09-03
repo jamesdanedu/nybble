@@ -5,22 +5,9 @@
 project_id = "nybble"
 
 [functions.score]
-# JWT verification OFF, and this is a correctness requirement, not a relaxation.
-#
-# This said `true` and argued that the gateway rejecting tokenless calls before
-# our code runs is a free layer of defence. It is not free, because of one fact
-# about browsers: a CORS PREFLIGHT CARRIES NO AUTHORIZATION HEADER. The browser
-# sends OPTIONS with no credentials by design, so with verification on the
-# gateway answers 401 before the function is reached — and that 401 has no
-# Access-Control-Allow-Origin on it, because our code is what adds those and it
-# never ran. The browser then refuses to send the POST at all and reports:
-#
-#   Response to preflight request doesn't pass access control check:
-#   No 'Access-Control-Allow-Origin' header is present on the requested resource.
-#
-# Which is what a whole class saw instead of submitting. It is also maximally
-# confusing, because the function is deployed, healthy, and correct: nothing it
-# logs shows a problem, since it is never invoked.
+# JWT verification OFF. Supabase's own advice under the toggle says the same:
+# "Recommended: OFF with JWT and custom auth logic in your function code", which
+# is exactly what this is.
 #
 # Nothing is given up. The gateway was never what protected the answer keys —
 # index.ts authorises every caller itself and always did:
@@ -33,5 +20,14 @@ project_id = "nybble"
 #     by the service role, which lives in this function and nowhere else
 #
 # A tokenless caller gets 401 from our own code, one layer later, with CORS
-# headers attached so the browser can actually read the refusal.
+# headers attached so the browser can actually read the refusal. Leaving
+# verification ON would also refuse the browser's CORS preflight, which carries
+# no Authorization header by design — the refusal would arrive with no
+# Access-Control-Allow-Origin and the POST would never be sent.
+#
+# For the record, since a commit message here once claimed otherwise: that
+# preflight problem was NOT what broke submissions on the live deployment. The
+# toggle was already off there. The real cause was index.ts being pasted alone
+# into the dashboard editor, where its relative imports cannot resolve — see the
+# warning at the top of that file.
 verify_jwt = false

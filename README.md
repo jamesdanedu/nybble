@@ -173,6 +173,15 @@ supabase functions deploy score
 supabase secrets set PORTAL_ORIGIN=https://nybble.vercel.app
 ```
 
+**Using the dashboard editor instead of the CLI?** Paste the output of
+`node scripts/bundle-score.mjs`, never `supabase/functions/score/index.ts`.
+That file has three relative imports which the CLI resolves by uploading the
+whole folder; alone in the editor they resolve to nothing, the module fails to
+load, and the function 500s on every request — including the preflight, so a
+browser reports it as a CORS error, and the Logs tab stays empty because the
+function is never invoked. The bundle inlines the three modules into one file
+with no relative imports.
+
 **"Verify JWT" must be OFF for the `score` function.** `config.toml` sets it,
 but check the dashboard if the function was ever created by hand. A CORS
 preflight carries no Authorization header — browsers never put credentials on

@@ -1,4 +1,17 @@
 // ============================================================================
+// DO NOT PASTE THIS FILE INTO THE SUPABASE DASHBOARD EDITOR.
+//
+// The three relative imports below are resolved by the CLI, which uploads the
+// whole folder. The dashboard editor holds ONE file, so those imports resolve
+// to nothing, the module fails to load, and the function 500s on every request
+// — including the CORS preflight, which makes a browser report it as a CORS
+// error. Nothing appears in the Logs tab either, because the function is never
+// invoked. It cost a class a week of submissions that silently went nowhere.
+//
+// Deploy with:      supabase functions deploy score
+// Dashboard editor: paste `node scripts/bundle-score.mjs`, which inlines the
+//                   three modules into one file with no relative imports.
+// ============================================================================
 // POST /functions/v1/score
 //
 // The only place answer keys are ever read. Called by the portal when a student
