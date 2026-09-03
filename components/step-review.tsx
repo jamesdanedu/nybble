@@ -96,6 +96,9 @@ export function StepReview({
           </Badge>
         )}
         {showScores && score?.manual && <Badge>Marked by hand</Badge>}
+        {/* A mark a browser produced is never allowed to look like a mark this
+            system stands over. See scoreFromClient in the score function. */}
+        {showScores && score?.unverified && <Badge tone="warn">Not checked by the server</Badge>}
         {score?.late && <Badge tone="warn">Late</Badge>}
       </div>
 

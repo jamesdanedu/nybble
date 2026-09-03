@@ -112,8 +112,14 @@ export function AttemptClient({
    * mark: the function reads `activity_keys` with the service role and a
    * database trigger strips score columns from any student-originated update.
    *
-   * `clientScore` from the runner is deliberately ignored here. It exists for
-   * the standalone demo pages only.
+   * `clientScore` is sent ONLY in practice mode, and only reaches a runner
+   * registered `scorer = 'client'` (today, `pyrun`). Whether a student's Python
+   * passes the teacher's checks cannot be decided on the server — there is no
+   * Python there — so in practice mode, where nothing is at stake, the runner's
+   * own report becomes instant formative feedback. The Edge Function reads the
+   * assignment's mode from the database rather than from this request, so
+   * omitting the guard here would not have let a browser award itself marks;
+   * it is here so the portal never sends what cannot be used.
    */
   const onSubmit = useCallback(
     async (payload: RunnerSubmitPayload) => {
@@ -143,6 +149,9 @@ export function AttemptClient({
             attemptId: attempt.id,
             stepId: step.id,
             response: payload.response ?? {},
+            ...(assignment.mode === 'practice'
+              ? { clientScore: payload.clientScore, maxScore: payload.maxScore }
+              : {}),
           }),
         });
 

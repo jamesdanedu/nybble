@@ -27,6 +27,7 @@ supabase/
   migrations/0004_school_admin.sql   per-school admin
   migrations/0005_service_role_grants.sql  what the service role may reach
   migrations/0006_freetext_runner.sql  registers the freetext runner
+  migrations/0007_pyrun_runner.sql     registers the pyrun runner
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -45,6 +46,8 @@ public/
     numbase/index.html            binary/hex conversion runner
     parsons/index.html            Parsons problem runner (drag, tap, keyboard)
     freetext/index.html           written answer, hand-marked (PRIMM Predict/Make)
+    pyrun/index.html              Python in the browser (PRIMM Run/Modify)
+    lib/skulpt/                   vendored Python engine — see its README
 docs/runner-contract.md           the protocol spec
 docs/activity-format.md           the activity file format you author against
 docs/primm.md                     the plan for PRIMM step sequences
@@ -73,7 +76,7 @@ of path bug — see the note in `test/vercel-sim.py`.
 npm i -D playwright && npx playwright install chromium
 
 python3 test/vercel-sim.py --port 8102 &          # production config
-node test/harness.test.mjs                        # 14 runner-contract checks
+node test/harness.test.mjs                        # 21 runner-contract checks
 node test/deploy.test.mjs                         # 7 deployment checks
 
 python3 test/vercel-sim.py --clean --port 8101 &  # if cleanUrls ever comes back
@@ -87,7 +90,8 @@ and builds on every deploy. That was not true of the earlier static-only repo.)
 
 **1. Activities are step sequences, not types.** An activity is an ordered list
 of steps, each one a runner instance sharing the same `context`. A quiz is a
-one-step activity. PRIMM is a five-step activity. Same code path.
+one-step activity. PRIMM is a five-step activity — `examples/primm-total.json`
+is a real one. Same code path.
 
 **2. A runner is a plain HTML file.** It speaks `postMessage`, holds no key,
 knows no student, and reaches no database. Adding one is a row in `runners` plus
@@ -171,8 +175,10 @@ the whole class from *Lost the passwords?* at the bottom of the class page.
 ## What is deliberately not here yet
 
 - Uploading a CSV file (you can paste CSV text today, but not pick a file)
-- The `pyrun` runner PRIMM's Run and Modify phases need — `freetext` has
-  shipped, so a four-step PRIMM works today; see `docs/primm.md`
+- Hidden test cases for `pyrun` — impossible by construction, since the tests
+  run in the browser and a runner never sees the key (`docs/activity-format.md`)
+- Locking a Predict step once it is answered, and showing hand-marked steps as
+  pending rather than as zero — both written up in `docs/primm.md`
 - The authoring UI — activities are seeded by SQL for now
 
 ## Known sharp edges

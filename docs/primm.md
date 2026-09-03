@@ -72,15 +72,14 @@ works fine today only because no activity has more than one kind of step in it.
 | `freetext` runner | Predict, Make | **shipped** |
 | `context.prior` | Investigate, Make | **shipped** |
 | engine decision | Run, Modify | **settled — Skulpt**, see below |
-| `pyrun` runner | Run, Modify | still to do, and the bulk of the work |
+| `pyrun` runner | Run, Modify | **shipped** |
 | resubmission lock | Predict | still to do — scorer fix |
 | pending-manual marks | results page | still to do — scoring fix |
 
-With the first two in, a **four-step** PRIMM works today: Predict and Make on
-`freetext`, Investigate on `mcq`, and Run as an authored "here is what it
-prints" step, also on `freetext`. `examples/primm-total.json` is exactly that,
-and imports clean. What `pyrun` adds is the student running and changing the
-code themselves rather than being told what it did.
+All five phases now work. `examples/primm-total.json` is the whole sequence —
+Predict and Make on `freetext`, Run and Modify on `pyrun`, Investigate on the
+`mcq` runner that already existed — and it imports clean. What is left is the
+two defects below, neither of which blocks using it.
 
 `docs/runner-contract.md:124` names these as `freetext` and `pyodide`. Keep
 `freetext`; rename `pyodide` to `pyrun`, because the engine is an
@@ -256,7 +255,7 @@ dynamically imported module: pyodide.asm.mjs"*. It needs CORS headers on its
 asset origin before it will even start. It was given them for the rest of the
 spike, so the results above are Pyodide at its best, not Pyodide handicapped.
 
-### What this means for `pyrun`
+### What this means for `pyrun` — and what was built
 
 - **Vendor Skulpt into `public/runners/lib/`.** 228 KB in the repo, no CDN, no
   network at test time — `test/harness.test.mjs` keeps working offline against
@@ -269,6 +268,14 @@ spike, so the results above are Pyodide at its best, not Pyodide handicapped.
 - The runner id stays `pyrun`. If the course ever needs real CPython, the engine
   is one HTML file behind the contract, and the sandbox facts above are what a
   future attempt has to solve.
+
+All four were done. The abort is asserted in `test/harness.test.mjs` rather than
+assumed: an endless loop is stopped in about three seconds and the next program
+runs normally in the same frame. One thing the spike did not anticipate and the
+build surfaced: because every check re-runs the student's source, a runaway
+program would have cost the time limit again for each one, so the checks are
+skipped when a run times out — the fix is obviously "stop the loop", and making
+a student wait twelve seconds to be told so is just cruel.
 
 ## Marking: what the browser is allowed to be believed about
 
@@ -337,8 +344,9 @@ property `reviews` was split from `attempts` to preserve.
    end; `examples/primm-total.json` is the worked example, and the runner is
    covered in `test/harness.test.mjs` alongside the others.
 2. ~~**The engine spike.**~~ **Done.** Skulpt, on the evidence above.
-3. **`pyrun`**, plus harness coverage matching the existing runners in
-   `test/harness.test.mjs`.
+3. ~~**`pyrun`**, plus harness coverage.~~ **Done.** Seven checks in
+   `test/harness.test.mjs`, including the runaway-loop abort and the frame
+   surviving it — the property the engine choice rests on.
 4. **The two defects.**
 5. **An example activity** in `examples/`, the way `lccs-week1.json` works today,
    so the whole sequence is importable and testable by hand.

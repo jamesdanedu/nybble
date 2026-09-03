@@ -219,6 +219,97 @@ console.log('✓ freetext: review replays the answer read-only');
 
 await page.screenshot({ path: 'test/shot-freetext-review.png', fullPage: true });
 
+// --------------------------------------------------------------------------
+// 7. pyrun: real Python, teacher checks, and the runaway-loop abort
+//
+// The abort is not one test among several — the whole engine choice rests on
+// it (docs/primm.md). If Skulpt ever stops honouring execLimit, a student's
+// `while True:` freezes the frame for the rest of the lesson with no way back.
+// --------------------------------------------------------------------------
+await page.selectOption('#runner', 'pyrun');
+await page.waitForFunction(() => /mode: attempt/.test(document.querySelector('#modePill').textContent));
+f = await frame();
+await f.waitForSelector('.py-editor', { timeout: 20000 });
+
+const skLoaded = await f.evaluate(() => typeof Sk);
+assert.strictEqual(skLoaded, 'object', 'Skulpt did not load inside the runner');
+
+// The starter program adds everything, so exactly one of the three checks passes.
+await f.click('#run');
+await f.waitForSelector('.py-test.pass, .py-test.fail', { timeout: 30000 });
+const firstOut = (await f.textContent('#out')).trim();
+assert.strictEqual(firstOut, '8', `starter program should print 8, got "${firstOut}"`);
+let marks = await f.$$eval('.py-test', (n) => n.map((x) => x.className));
+assert.deepStrictEqual(marks, ['py-test pass', 'py-test fail', 'py-test fail'],
+  `starter should pass 1 of 3, got ${JSON.stringify(marks)}`);
+console.log('✓ pyrun runs real Python and marks the teacher\'s checks (1/3 on the starter)');
+
+// A correct fix turns them all green.
+await f.fill('.py-editor', [
+  'def total(numbers):',
+  '    runningTotal = 0',
+  '    for n in numbers:',
+  '        if n > 0:',
+  '            runningTotal = runningTotal + n',
+  '    return runningTotal',
+  '',
+  'print(total([3, 1, 4]))',
+].join('\n'));
+await f.click('#run');
+await page.waitForTimeout(1500);
+marks = await f.$$eval('.py-test', (n) => n.map((x) => x.className));
+assert.deepStrictEqual(marks, ['py-test pass', 'py-test pass', 'py-test pass'],
+  `a correct fix should pass 3 of 3, got ${JSON.stringify(marks)}`);
+console.log('✓ pyrun: a correct change turns every check green');
+
+// THE test. An endless loop must be stopped, and the frame must survive it.
+await f.fill('.py-editor', 'while True:\n    pass');
+const abortStart = Date.now();
+await f.click('#run');
+await f.waitForFunction(
+  () => /ran too long/.test(document.querySelector('#out').textContent),
+  null, { timeout: 20000 });
+const abortMs = Date.now() - abortStart;
+assert.ok(abortMs < 15000, `runaway loop took ${abortMs}ms to abort`);
+console.log(`✓ pyrun stops an endless loop (${abortMs}ms) with a message a student can act on`);
+
+// Still alive afterwards: the interpreter and the frame both survived.
+await f.fill('.py-editor', 'print(6 * 7)');
+await f.click('#run');
+await f.waitForFunction(() => document.querySelector('#out').textContent.trim() === '42',
+  null, { timeout: 20000 });
+console.log('✓ pyrun survives the abort — the next program runs normally');
+
+// requireRun: editing invalidates the last run, so submitting must be blocked.
+await f.fill('.py-editor', 'print(1)');
+await f.click('#submit');
+const gate = await f.$eval('#status', (el) => ({ text: el.textContent, warn: el.classList.contains('warn') }));
+assert.ok(gate.warn && /Press Run first/.test(gate.text), `requireRun did not block: "${gate.text}"`);
+console.log('✓ pyrun: editing invalidates the run, and submit is blocked until it is run again');
+
+// Submit, and check the mark comes back as a number rather than "with teacher":
+// pyrun is scorer:'client', which the demo pages treat as practice mode.
+await f.click('#run');
+await page.waitForTimeout(1200);
+await f.click('#submit');
+await page.waitForFunction(() => /score: \d/.test(document.querySelector('#scorePill').textContent),
+  null, { timeout: 10000 });
+console.log('✓ pyrun submits a client score:', (await page.textContent('#scorePill')).trim());
+
+// Review replays the submitted source, read-only.
+await page.waitForFunction(() => /mode: review/.test(document.querySelector('#modePill').textContent),
+  null, { timeout: 5000 });
+f = await frame();
+await f.waitForSelector('.py-editor');
+const ro = await f.$eval('.py-editor', (el) => ({ readOnly: el.readOnly, value: el.value }));
+assert.ok(ro.readOnly, 'review mode left the editor writable');
+assert.ok(/print\(1\)/.test(ro.value), `review did not replay the source: "${ro.value}"`);
+assert.strictEqual(await f.$('#run'), null, 'review mode still offers a Run button');
+console.log('✓ pyrun: review replays the submitted program read-only');
+
+await page.screenshot({ path: 'test/shot-pyrun-review.png', fullPage: true });
+
+
 
 // --------------------------------------------------------------------------
 if (consoleErrors.length) {

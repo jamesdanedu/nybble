@@ -247,6 +247,100 @@ the mark and the comment. Two consequences worth knowing when you set weights:
 
 ---
 
+## `pyrun`
+
+Python in the browser. Carries PRIMM's Run and Modify phases, and it is the same
+runner for both — the difference is whether the student may edit the program.
+
+```jsonc
+"config": {
+  "title": "Modify",
+  "instructions": "Change the program, press Run, and watch the checks below.",
+  "task": "Change total() so that it ignores any negative numbers.",
+  "source": "def total(numbers):\n    ...",   // optional: falls back to shared_context.code
+  "editable": true,             // false for a Run step — read it, run it, read the output
+  "requireRun": true,           // must press Run before Submit is allowed
+  "showTests": true,            // students can see what they have to satisfy
+  "execLimitMs": 3000,          // a program running longer than this is stopped
+  "stdin": ["5", "7"],          // answers handed to input(), in order
+  "showStdin": false,           // let the student edit those answers
+  "tests": [
+    { "id": "t1", "label": "skips a negative", "marks": 1,
+      "call": "total([1, -2, 3])", "expect": "4" },
+    { "id": "t2", "label": "prints the total", "marks": 1,
+      "stdout": "8" }
+  ]
+}
+
+"key": {}                       // there is none — see below
+```
+
+A **Run** step is the same runner with `"editable": false`, `"weight": 0` and no
+tests. The student reads the program, runs it, and sees what it prints.
+
+### Tests
+
+Two kinds, and a test is one or the other:
+
+- **`call` + `expect`** — the program is run, then the expression in `call` is
+  evaluated and its `repr()` compared to `expect`. So `expect` is written the way
+  Python would print it: `"4"`, `"[1, 2, 3]"`, `"'hello'"`, `"True"`. Anything
+  the student's own program printed is ignored, so their debugging `print`s do
+  not break the checks.
+- **`stdout`** — the whole program is run and everything it printed is compared
+  to `stdout`, trailing whitespace ignored. Use this for programs that print
+  rather than return.
+
+`marks` defaults to 1.
+
+### There is no key, and tests are public
+
+Every other runner here hides its answers in `activity_keys`. This one cannot,
+and the reason is structural rather than an oversight: **the tests run in the
+student's browser, and a runner is never sent the key.** Tests written under
+`key` would never run at all, so the importer rejects them with an error rather
+than letting you find out in a classroom.
+
+The practical consequence is that a determined student can read the expected
+values and write a function that returns them. That is a real limit, and it is
+the right trade for a formative phase: Modify exists to give instant feedback on
+"did my change work", and a student who games it has only skipped their own
+practice. Anything that carries marks should be a `freetext` step a teacher
+reads, or an `mcq`.
+
+### Marking
+
+`pyrun` is registered `scorer: 'client'`, which is narrower than it sounds:
+
+| | |
+|---|---|
+| `weight: 0` (a Run step) | `0 / 0` — recorded, nothing to mark, no review queue |
+| practice mode | the runner's own report, scaled to the step's weight, flagged **unverified** |
+| anything else | `null` — recorded and sent to the teacher, like any hand-marked step |
+
+Whether a student's Python does what it was asked cannot be settled on the
+server: the scorer runs on Deno and there is no Python there. So in practice
+mode, where nothing is at stake, the browser's report becomes instant feedback;
+everywhere else a human decides. The Edge Function reads the assignment's mode
+from the database rather than from the request, so a browser cannot talk its way
+into being believed, and a mark that came from a browser is badged
+*"Not checked by the server"* wherever a teacher sees it.
+
+### The engine
+
+Skulpt, vendored at `/runners/lib/skulpt/`, chosen by the spike written up in
+`docs/primm.md`. It supports the Leaving Cert Python surface — a 14-item battery
+covering f-strings, comprehensions, dictionaries, string methods, `try`/`except`,
+classes, `input()` and the rest passes in full — but not `numpy`, `matplotlib`
+or anything else off the course.
+
+`execLimitMs` is the setting that matters. A student's `while True:` is stopped
+and reported as *"Your program ran too long and was stopped. Is there a loop
+that never ends?"*, and the interpreter keeps working afterwards. Without it the
+whole frame would freeze for the rest of the lesson.
+
+---
+
 ## Writing these with an LLM
 
 The schema is deliberately flat and boring so you can paste this document into a

@@ -89,6 +89,35 @@
       key: {}   // hand-marked; there is no answer to hide
     },
 
+    pyrun: {
+      runnerId: 'pyrun',
+      entryUrl: '/runners/pyrun/index.html',
+      name: 'Run Python',
+      // A PRIMM Modify step: the starter program arrives through the shared
+      // context, the student changes it, and the teacher's checks run in the
+      // browser as they go.
+      context: { code: 'def total(numbers):\n    runningTotal = 0\n    for n in numbers:\n        runningTotal = runningTotal + n\n    return runningTotal\n\nprint(total([3, 1, 4]))' },
+      config: {
+        title: 'Modify',
+        instructions: 'Change the program, press Run, and watch the checks below.',
+        task: 'Change total() so that it ignores any negative numbers.\n\n' +
+              'The checks underneath run every time you press Run.',
+        editable: true,
+        requireRun: true,
+        showTests: true,
+        execLimitMs: 3000,
+        tests: [
+          { id: 't1', label: 'still adds ordinary numbers', marks: 1,
+            call: 'total([1, 2, 3])', expect: '6' },
+          { id: 't2', label: 'skips a negative', marks: 1,
+            call: 'total([1, -2, 3])', expect: '4' },
+          { id: 't3', label: 'all negatives come to nothing', marks: 1,
+            call: 'total([-1, -2])', expect: '0' }
+        ]
+      },
+      key: {}   // pyrun tests are public by necessity: the runner runs them
+    },
+
     parsons: {
       runnerId: 'parsons',
       entryUrl: '/runners/parsons/index.html',
@@ -270,6 +299,15 @@
     // freetext is registered scorer:'manual'. The Edge Function returns a null
     // total for those and routes the attempt to the review queue, so the demo
     // shows the same thing rather than inventing a mark nobody awarded.
+    // pyrun is registered scorer:'client'. The Edge Function honours the
+    // runner's own report in practice mode only, and flags it unverified; the
+    // demo pages are practice by definition, so they show the same shape.
+    if (s.runnerId === 'pyrun') {
+      var passed = (response && typeof response.passed === 'number') ? response.passed : 0;
+      var max = (response && typeof response.max === 'number') ? response.max : 0;
+      return { total: passed, max: max, client: true, unverified: true,
+               nothingToMark: max === 0, perQuestion: {} };
+    }
     if (s.runnerId === 'freetext') {
       return { total: null, max: null, manual: true, perQuestion: {},
                chars: String((response && response.text) || '').trim().length };
