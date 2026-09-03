@@ -110,12 +110,41 @@ const GATEWAY_FIX =
 // because the remedy is specific and nothing else in this file implies it.
 const NEW_KEYS_ONLY = 'accepted auth mode';
 
+// Supabase's `functions new` template reads `name` from the body and answers
+// `Hello <name>!`. Deployed under the name `score` it answers 200 to
+// everything, so every submission looks like a success and nothing is written —
+// which is exactly how a class can submit for a week and record nothing. Worth
+// matching by name because the remedy is specific and the symptom is silent.
+const TEMPLATE_FN = /"Hello\s|"message"\s*:\s*"Hello/;
+
+const TEMPLATE_FIX =
+  'A DIFFERENT function is deployed under the name `score` — that reply is Supabase\u2019s ' +
+  '"Hello World" template, not this scorer. It answers 200 to everything, so the portal thinks ' +
+  'every submission succeeded while nothing is written: attempts stay in_progress with an empty ' +
+  'step_responses. Replace it: run `supabase functions deploy score` from the repo, or paste the ' +
+  'output of `node scripts/bundle-score.mjs` into the dashboard editor for the function named ' +
+  'exactly `score`.';
+
 const NEW_KEYS_FIX =
   'This project\u2019s function gateway accepts only the NEW API key formats. Take the ' +
   'publishable key (sb_publishable_\u2026) and the secret key (sb_secret_\u2026) from Project ' +
   'Settings \u2192 API Keys, set them as NEXT_PUBLIC_SUPABASE_ANON_KEY and ' +
   'SUPABASE_SERVICE_ROLE_KEY in Vercel, and redeploy. A legacy eyJ\u2026 key keeps working for ' +
   'the database, which is why everything except submitting looks fine.';
+
+// A 5xx on OPTIONS is not a CORS problem, and calling it one sends the reader
+// to edit headers in a function that never got as far as running. Our handler
+// answers OPTIONS on its first line, so if that 500s the module threw while
+// loading and NOTHING in it has executed.
+const BOOT_ERROR_FIX =
+  'The function is deployed but crashing as it starts, before any of its code runs \u2014 our ' +
+  'handler answers OPTIONS on its first line, so a 500 here means the module never loaded. Open ' +
+  'the function\u2019s Logs tab in the Supabase dashboard: a boot failure is printed there verbatim ' +
+  'and names the line. The usual cause is the remote import at the top of index.ts: an Edge ' +
+  'Runtime that cannot resolve `jsr:@supabase/supabase-js@2` fails exactly like this, and ' +
+  'swapping it for `https://esm.sh/@supabase/supabase-js@2` is the fix. A partial paste into the ' +
+  'dashboard editor looks the same \u2014 compare the end of the file against ' +
+  '`node scripts/bundle-score.mjs`.';
 
 const PLATFORM_401_FIX =
   'The refusal carried no message, so it did not come from the function (which always answers ' +
@@ -208,21 +237,26 @@ export async function runScorerChecks(): Promise<Check[]> {
     const allowOrigin = res.headers.get('access-control-allow-origin');
     const allowHeaders = res.headers.get('access-control-allow-headers');
     const deployed = res.status !== 404;
+    // Distinguished from "no CORS headers" deliberately. Both leave allowOrigin
+    // empty, and the advice for each is the opposite of the other's.
+    const crashed = res.status >= 500;
     checks.push({
       name: 'Deployed',
-      verdict: deployed && allowOrigin ? 'ok' : 'fail',
+      verdict: deployed && !crashed && allowOrigin ? 'ok' : 'fail',
       summary: !deployed
         ? 'The score function is not deployed.'
-        : allowOrigin
-          ? 'The function answers preflight requests.'
-          : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
+        : crashed
+          ? 'The function is deployed but crashes before it can answer.'
+          : allowOrigin
+            ? 'The function answers preflight requests.'
+            : 'The function answered, but sent no CORS headers — a browser will refuse to use it.',
       detail: [
         `OPTIONS ${url}`,
         `status ${res.status}`,
         `access-control-allow-origin  ${allowOrigin ?? '<none>'}`,
         `access-control-allow-headers ${allowHeaders ?? '<none>'}`,
       ].join('\n'),
-      fix: !deployed ? NOT_DEPLOYED_FIX : undefined,
+      fix: !deployed ? NOT_DEPLOYED_FIX : crashed ? BOOT_ERROR_FIX : undefined,
     });
   } catch (e) {
     checks.push({
@@ -266,9 +300,11 @@ export async function runScorerChecks(): Promise<Check[]> {
       detail:
         `POST ${url}\nAuthorization: Bearer <anon key>\n\n` +
         `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
-      fix: body.includes(NEW_KEYS_ONLY)
-        ? NEW_KEYS_FIX
-        : kind === 'gateway-401'
+      fix: TEMPLATE_FN.test(body)
+        ? TEMPLATE_FIX
+        : body.includes(NEW_KEYS_ONLY)
+          ? NEW_KEYS_FIX
+          : kind === 'gateway-401'
           ? GATEWAY_FIX
           : kind === 'platform-401'
             ? PLATFORM_401_FIX
@@ -328,7 +364,9 @@ export async function runScorerChecks(): Promise<Check[]> {
               'gateway-401': 'The gateway refused your token before the function ran.',
               'platform-401': 'Something above the function refused your token, without saying why.',
               'function-401': 'The function itself refused your token.',
-              reached: `The function ran but replied ${res.status}.`,
+              reached: TEMPLATE_FN.test(body)
+                ? 'A different function is deployed under the name `score`.'
+                : `The function ran but replied ${res.status}.`,
               unexpected: `Unexpected reply (${res.status}).`,
             }[kind],
         detail:
@@ -337,8 +375,10 @@ export async function runScorerChecks(): Promise<Check[]> {
           `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
         fix: worked
           ? undefined
-          : body.includes(NEW_KEYS_ONLY)
-            ? NEW_KEYS_FIX
+          : TEMPLATE_FN.test(body)
+            ? TEMPLATE_FIX
+            : body.includes(NEW_KEYS_ONLY)
+              ? NEW_KEYS_FIX
             : kind === 'not-deployed'
               ? NOT_DEPLOYED_FIX
               : kind === 'gateway-401'

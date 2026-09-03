@@ -71,6 +71,7 @@ test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
 test/runner-host.test.mjs         autosave: debounce, and the flush on teardown
 test/auth-refresh.test.mjs        where an auth redirect may send you
+test/resume.test.mjs              which step a resumed attempt opens on
 test/deploy.test.mjs              checks that survive real static hosting
 test/pwa.test.mjs                 manifest, worker, and what it may cache
 test/sw-sandbox-spike.mjs         why a sandboxed runner cannot go offline
@@ -120,6 +121,7 @@ node test/check-parsons.test.mjs                    # the Parsons key checker
 node test/schools-ie.test.mjs                       # 17 school-directory checks
 node test/runner-host.test.mjs                      # 9 autosave checks
 node test/auth-refresh.test.mjs                     # 8 redirect-safety checks
+node test/resume.test.mjs                           # 10 resume-point checks
 ```
 
 (There is a `package.json` now — the portal is a Next.js app, so Vercel installs
