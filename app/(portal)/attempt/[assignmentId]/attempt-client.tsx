@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/browser';
 import { env } from '@/lib/env';
+import { resumeIndex } from '@/lib/resume.mjs';
 import { Alert, Badge, Button, cx } from '@/components/ui';
 import {
   RunnerFrame,
@@ -52,19 +53,19 @@ export function AttemptClient({
     () => ({ ...((attempt.step_responses as Record<string, unknown>) ?? {}) }),
   );
   const answered = useMemo(() => new Set(Object.keys(responses)), [responses]);
-  // Start on the first step with no response — a resumed attempt lands exactly
-  // where the student left off.
-  const [index, setIndex] = useState(() => {
-    const done = new Set(Object.keys(attempt.step_responses ?? {}));
-    const first = steps.findIndex((s) => !done.has(s.id));
-    return first === -1 ? Math.max(steps.length - 1, 0) : first;
-  });
+  // Where a resumed attempt opens. Drafts count as progress, not just
+  // submissions — see lib/resume.mjs for why "the first unanswered step" is the
+  // wrong rule and what it looked like when a student came back to it.
+  const [index, setIndex] = useState(() =>
+    resumeIndex(steps, attempt.step_responses ?? {}, attempt.step_state ?? {}),
+  );
 
   const [capabilities, setCapabilities] = useState<RunnerCapabilities>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [practiceScore, setPracticeScore] = useState<StepScore | null>(null);
+  const [handedUp, setHandedUp] = useState(false);
 
   const slotRef = useRef<RunnerSlot | null>(null);
   const step = steps[index];
@@ -234,6 +235,20 @@ export function AttemptClient({
         const gotMarks = stepScore && typeof stepScore.total === 'number';
 
         if (body.status === 'submitted') {
+          // The attempt is handed up. That is now true in the database whatever
+          // happens next in this browser, so say so on screen BEFORE trying to
+          // navigate, and drop `busy` on the way past.
+          //
+          // The old code returned here without clearing `busy` and relied on
+          // router.replace() to take the student away. When that navigation
+          // does not happen — and on this deployment client-side navigation has
+          // been seen to stall silently — the student is left staring at
+          // "Sending…" with every button disabled, on an attempt that was
+          // actually submitted. They cannot tell that from a failure, so they
+          // try again, and the retry is refused with 409 because the attempt is
+          // no longer in_progress. That is the loop.
+          setHandedUp(true);
+          setBusy(false);
           router.refresh();
           router.replace(`/results/${attempt.id}`);
           return;
@@ -402,6 +417,21 @@ export function AttemptClient({
           <Alert tone="success" title={`${formatScore(practiceScore.total)} / ${formatScore(practiceScore.max)}`}>
             Answer recorded.
             {index < steps.length - 1 && ' Move on when you are ready.'}
+          </Alert>
+        </div>
+      )}
+
+      {handedUp && (
+        <div className="mt-4">
+          <Alert tone="success" title="Handed up">
+            Every step is in and this attempt has been submitted. If this page does not move
+            on by itself,{' '}
+            {/* A plain anchor, deliberately: a full page load, with none of the
+                client-side routing that may be what stranded them here. */}
+            <a className="font-semibold underline" href={`/results/${attempt.id}`}>
+              open your results
+            </a>
+            .
           </Alert>
         </div>
       )}
