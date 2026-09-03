@@ -20,7 +20,7 @@ scripts/check-parsons.mjs         reassembles every Parsons key and runs it
 examples/lccs-week1.json          a real activity file to import
 examples/primm-total.json         a five-step PRIMM sequence about one snippet
 examples/python/                  the LCCS Python checklist, a file per section
-examples/mcq/                     140 LCCS multiple-choice questions, a file per topic
+examples/mcq/                     145 LCCS multiple-choice questions, a file per topic
 vercel.json                       headers only — Next owns the build now
 supabase/
   config.toml                     keeps verify_jwt on for the scorer

@@ -1,14 +1,16 @@
 # Leaving Certificate Computer Science — multiple-choice bank
 
-Fourteen activity files, one per topic, ten questions each: **140 questions in
-total**, every one with an explanation that students see on review.
+Fourteen activity files, one per topic. Ten questions each, except the
+algorithms file, which has fifteen to cover four sorting algorithms as well as
+searching: **145 questions in total**, every one with an explanation that
+students see on review.
 
 | File | Activity topic | Covers |
 |---|---|---|
 | `01-character-sets.json` | Data Representation | ASCII, extended ASCII, Unicode, UTF-8, character arithmetic |
 | `02-logic-gates.json` | Logic Gates | AND, OR, NOT, XOR, NAND, NOR, truth tables, the half adder |
 | `03-computational-thinking.json` | Computational Thinking | decomposition, abstraction, pattern recognition, generalisation, evaluation |
-| `04-algorithms.json` | Algorithms | linear and binary search, bubble/selection/insertion sort, growth rates |
+| `04-algorithms.json` | Algorithms | linear and binary search; bubble, selection, insertion and quicksort; growth rates |
 | `05-computer-systems.json` | Computer Systems | von Neumann, fetch-decode-execute, registers, cache, buses, storage |
 | `06-networks.json` | Networks | protocols, IP and MAC, DNS, packet switching, topologies, bandwidth and latency |
 | `07-cybersecurity.json` | Cybersecurity | encryption, hashing, 2FA, malware, injection, GDPR |
@@ -37,8 +39,8 @@ duplicate.
 
 ## Conventions used here
 
-Each file is one activity with a single `mcq` step worth 10 marks, 1 mark per
-question.
+Each file is one activity with a single `mcq` step, 1 mark per question — 10
+marks, or 15 for the algorithms file.
 
 - **`shuffleOptions` is on, `shuffleQuestions` is off.** Questions in a topic
   build on each other, so their order is deliberate; option order is not.

@@ -4,16 +4,16 @@
     {
       "title": "Searching, sorting and efficiency",
       "topic": "Algorithms",
-      "description": "Ten questions on linear and binary search, bubble, selection and insertion sort, and how the cost of an algorithm grows with the size of the data. Written for Leaving Certificate Computer Science.",
+      "description": "Fifteen questions on linear and binary search, the four sorting algorithms on the course — bubble, selection, insertion and quicksort — and how the cost of an algorithm grows with the size of the data. Written for Leaving Certificate Computer Science.",
       "visibility": "school",
       "shared_context": {},
-      "max_score": 10,
+      "max_score": 15,
       "steps": [
         {
           "id": "algorithms-mcq",
           "runner_id": "mcq",
           "title": "Searching, sorting and efficiency",
-          "weight": 10,
+          "weight": 15,
           "config": {
             "title": "Searching, sorting and efficiency",
             "instructions": "Trace the algorithm on paper where a list is given. Each question is worth 1 mark.",
@@ -176,30 +176,169 @@
                   },
                   {
                     "id": "c",
-                    "text": "It splits the list in half, sorts each half and merges them."
+                    "text": "It takes each item in turn and slides it back into its place among the items already sorted."
                   },
                   {
                     "id": "d",
-                    "text": "It removes duplicates and then sorts what is left."
+                    "text": "It picks a value and moves everything smaller to one side of it."
                   }
                 ]
               },
               {
                 "id": "q8",
+                "stem": "How does an insertion sort differ from a selection sort?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Insertion sort takes the next unsorted item and shuffles it back into the sorted section, so it stops early on a nearly sorted list; selection sort scans the whole remaining list every pass whatever the data looks like."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Insertion sort works only on numbers, selection sort on any data."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Insertion sort always uses fewer comparisons than selection sort on every possible list."
+                  },
+                  {
+                    "id": "d",
+                    "text": "They are two names for the same algorithm."
+                  }
+                ]
+              },
+              {
+                "id": "q9",
+                "stem": "A quicksort has completed one partition step around its pivot. What is true of the pivot now?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "It is at the start of the list."
+                  },
+                  {
+                    "id": "b",
+                    "text": "It has been removed from the list."
+                  },
+                  {
+                    "id": "c",
+                    "text": "It is the largest value in the list."
+                  },
+                  {
+                    "id": "d",
+                    "text": "It is in its final sorted position and never has to move again."
+                  }
+                ]
+              },
+              {
+                "id": "q10",
+                "stem": "A quicksort partitions this list around the pivot 7, keeping the other values in their original relative order. What is the list after that first partition step?",
+                "code": "[7, 2, 9, 4, 1, 8]",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "[1, 2, 4, 7, 8, 9]"
+                  },
+                  {
+                    "id": "b",
+                    "text": "[2, 4, 1, 8, 9, 7]"
+                  },
+                  {
+                    "id": "c",
+                    "text": "[2, 4, 1, 7, 9, 8]"
+                  },
+                  {
+                    "id": "d",
+                    "text": "[7, 2, 4, 1, 9, 8]"
+                  }
+                ]
+              },
+              {
+                "id": "q11",
+                "stem": "Quicksort is described as a divide-and-conquer algorithm. What does that mean here?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "The list is split into two equal halves regardless of the values, each half is sorted, and the two are merged."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Partitioning splits the list into a smaller-than-pivot part and a larger-than-pivot part, and the same procedure is then applied to each part in turn."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Two processors each sort half of the list at the same time."
+                  },
+                  {
+                    "id": "d",
+                    "text": "The list is divided into single items, which are then swapped into order."
+                  }
+                ]
+              },
+              {
+                "id": "q12",
+                "stem": "A quicksort always takes the first element as its pivot. Which input gives it its worst performance?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "A list that is already in ascending order."
+                  },
+                  {
+                    "id": "b",
+                    "text": "A list in random order."
+                  },
+                  {
+                    "id": "c",
+                    "text": "A list with an even number of items."
+                  },
+                  {
+                    "id": "d",
+                    "text": "A list containing several duplicate values."
+                  }
+                ]
+              },
+              {
+                "id": "q13",
+                "stem": "A million values in random order have to be sorted. Which statement is the most accurate comparison?",
+                "marks": 1,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Bubble sort is faster because each of its steps is simpler."
+                  },
+                  {
+                    "id": "b",
+                    "text": "Both take about the same time, since both must look at every value."
+                  },
+                  {
+                    "id": "c",
+                    "text": "Quicksort is faster only when the list is already nearly sorted."
+                  },
+                  {
+                    "id": "d",
+                    "text": "Quicksort averages about n log n comparisons where bubble sort needs about n², so quicksort finishes in a fraction of the time."
+                  }
+                ]
+              },
+              {
+                "id": "q14",
                 "stem": "A bubble sort on 100 items takes about 1 second. Very roughly, how long will the same sort take on 200 items?",
                 "marks": 1,
                 "options": [
                   {
                     "id": "a",
-                    "text": "About 4 seconds."
-                  },
-                  {
-                    "id": "b",
                     "text": "About the same."
                   },
                   {
-                    "id": "c",
+                    "id": "b",
                     "text": "About 2 seconds."
+                  },
+                  {
+                    "id": "c",
+                    "text": "About 4 seconds."
                   },
                   {
                     "id": "d",
@@ -208,30 +347,7 @@
                 ]
               },
               {
-                "id": "q9",
-                "stem": "Which algorithm finishes fastest on a list that is already in order?",
-                "marks": 1,
-                "options": [
-                  {
-                    "id": "a",
-                    "text": "Selection sort, which searches the whole remaining list every time regardless."
-                  },
-                  {
-                    "id": "b",
-                    "text": "They all take exactly the same time on any list."
-                  },
-                  {
-                    "id": "c",
-                    "text": "A sorted list still has to be shuffled first, so it makes no difference."
-                  },
-                  {
-                    "id": "d",
-                    "text": "Insertion sort, which makes one pass and finds nothing to move."
-                  }
-                ]
-              },
-              {
-                "id": "q10",
+                "id": "q15",
                 "stem": "Why is the efficiency of an algorithm usually described by how the work grows with the size of the input, rather than by timing it in seconds?",
                 "marks": 1,
                 "options": [
@@ -241,11 +357,11 @@
                   },
                   {
                     "id": "b",
-                    "text": "Algorithms have no running time until they are compiled."
+                    "text": "A time in seconds only describes one computer and one data set, while the growth rate compares algorithms on any hardware and predicts what happens as the data gets bigger."
                   },
                   {
                     "id": "c",
-                    "text": "A time in seconds only describes one computer and one data set, while the growth rate compares algorithms on any hardware and predicts what happens as the data gets bigger."
+                    "text": "Algorithms have no running time until they are compiled."
                   },
                   {
                     "id": "d",
@@ -261,7 +377,7 @@
                 "d"
               ],
               "marks": 1,
-              "explanation": "A linear search checks each item in turn, so the worst case — the value is last, or absent — costs all 40 comparisons. On average it is about half that, but the worst case is what n tells you. 6 would be a binary search, which needs a sorted list."
+              "explanation": "A linear search checks each item in turn, so the worst case — the value is last, or absent — costs all 40 comparisons. On average it is about half that, but the worst case is what n tells you. Six comparisons would be a binary search, which needs a sorted list."
             },
             "q2": {
               "correct": [
@@ -303,25 +419,60 @@
                 "b"
               ],
               "marks": 1,
-              "explanation": "Selection sort scans the unsorted remainder for the minimum and swaps it into place — one swap per pass, which is far fewer swaps than bubble sort makes, though it still does the same number of comparisons. Repeatedly swapping neighbouring items describes bubble sort, and splitting the list in half and merging describes merge sort."
+              "explanation": "Selection sort scans the unsorted remainder for the minimum and swaps it into place — one swap per pass, far fewer swaps than bubble sort makes, though it still does the same number of comparisons. Swapping neighbours describes bubble sort, sliding each item back into a sorted section describes insertion sort, and partitioning around a chosen value describes quicksort."
             },
             "q8": {
               "correct": [
                 "a"
               ],
               "marks": 1,
-              "explanation": "Bubble sort's work grows with the square of the list length, so doubling the data multiplies the time by about 2^2 = 4. This is what O(n^2) means in practice, and it is why an algorithm that is fine on a class list can be hopeless on a national database."
+              "explanation": "Both build a sorted section at the front, but they choose differently: selection sort searches for the right value to put next, insertion sort takes whatever comes next and searches for where it goes. Insertion sort's search stops as soon as it finds the place, which is why an almost-sorted list costs it almost nothing — the reason it is used to finish off other algorithms."
             },
             "q9": {
               "correct": [
                 "d"
               ],
               "marks": 1,
-              "explanation": "Insertion sort's best case is a sorted list: each item is already in place, so it makes n−1 comparisons and no moves. Selection sort has no such shortcut — it scans the whole remaining list every pass whatever the data looks like."
+              "explanation": "Everything smaller is now to its left and everything larger to its right, so wherever those two sides end up internally, the pivot is already where the sorted list needs it. That is what makes the recursion work: each partition permanently fixes one value and leaves two smaller, independent problems."
             },
             "q10": {
               "correct": [
                 "c"
+              ],
+              "marks": 1,
+              "explanation": "Take the values below 7 in the order they appear — 2, 4, 1 — then the pivot, then the values above it — 9, 8. That gives [2, 4, 1, 7, 9, 8]. The list is not sorted yet, and it should not be: 7 is in its final place (index 3 of six) and the two sublists [2, 4, 1] and [9, 8] still have to be quicksorted themselves."
+            },
+            "q11": {
+              "correct": [
+                "b"
+              ],
+              "marks": 1,
+              "explanation": "Divide: partition around the pivot. Conquer: apply quicksort to each part, which is where the recursion comes in. Combine: nothing to do, because partitioning already put the parts on the correct sides. Splitting into equal halves and merging afterwards describes merge sort, which divides by position where quicksort divides by value."
+            },
+            "q12": {
+              "correct": [
+                "a"
+              ],
+              "marks": 1,
+              "explanation": "With a first-element pivot on sorted data, every partition puts nothing on the left and everything on the right, so it peels off one item at a time: n levels of recursion instead of about log n, and the cost degenerates to n². It is a memorable irony that the input needing no work is the one that costs most, and it is why real implementations choose the pivot more carefully — the middle element, or the median of three."
+            },
+            "q13": {
+              "correct": [
+                "d"
+              ],
+              "marks": 1,
+              "explanation": "For a million items, n² is 10^12 while n log n is around 2 × 10^7 — a difference of about fifty thousand times, so the gap is minutes against days rather than a matter of tidier code. Nearly sorted data is insertion sort's strength, not quicksort's; for a naive quicksort it is the worst case."
+            },
+            "q14": {
+              "correct": [
+                "c"
+              ],
+              "marks": 1,
+              "explanation": "Bubble sort's work grows with the square of the list length, so doubling the data multiplies the time by about 2² = 4. This is what O(n²) means in practice, and it is why an algorithm that is fine on a class list can be hopeless on a national database."
+            },
+            "q15": {
+              "correct": [
+                "b"
               ],
               "marks": 1,
               "explanation": "A stopwatch measures one machine on one day with one data set. Growth rate is a property of the algorithm itself, so it survives a hardware upgrade and answers the question that actually matters: what happens when the data gets ten times bigger."
