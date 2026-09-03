@@ -5,7 +5,33 @@
 project_id = "nybble"
 
 [functions.score]
-# Leave JWT verification ON. The gateway then rejects tokenless calls before our
-# code runs, and index.ts re-checks the caller with auth.getUser(). The scorer is
-# the only thing standing between a student and their own answer key.
-verify_jwt = true
+# JWT verification OFF, and this is a correctness requirement, not a relaxation.
+#
+# This said `true` and argued that the gateway rejecting tokenless calls before
+# our code runs is a free layer of defence. It is not free, because of one fact
+# about browsers: a CORS PREFLIGHT CARRIES NO AUTHORIZATION HEADER. The browser
+# sends OPTIONS with no credentials by design, so with verification on the
+# gateway answers 401 before the function is reached — and that 401 has no
+# Access-Control-Allow-Origin on it, because our code is what adds those and it
+# never ran. The browser then refuses to send the POST at all and reports:
+#
+#   Response to preflight request doesn't pass access control check:
+#   No 'Access-Control-Allow-Origin' header is present on the requested resource.
+#
+# Which is what a whole class saw instead of submitting. It is also maximally
+# confusing, because the function is deployed, healthy, and correct: nothing it
+# logs shows a problem, since it is never invoked.
+#
+# Nothing is given up. The gateway was never what protected the answer keys —
+# index.ts authorises every caller itself and always did:
+#
+#   * it reads the bearer token with auth.getUser(), which revalidates against
+#     the auth server rather than trusting the cookie
+#   * it refuses a request whose attempt does not belong to that user (403)
+#   * it refuses an attempt that is not in_progress (409)
+#   * activity_keys has RLS on with NO policies, so the keys are readable only
+#     by the service role, which lives in this function and nowhere else
+#
+# A tokenless caller gets 401 from our own code, one layer later, with CORS
+# headers attached so the browser can actually read the refusal.
+verify_jwt = false

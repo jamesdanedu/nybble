@@ -27,7 +27,7 @@ examples/python/                  the LCCS Python checklist, a file per section
 examples/mcq/                     145 LCCS multiple-choice questions, a file per topic
 vercel.json                       headers only — Next owns the build now
 supabase/
-  config.toml                     keeps verify_jwt on for the scorer
+  config.toml                     verify_jwt OFF for the scorer — see the file
   migrations/0001_init.sql        schema + RLS + guard triggers
   migrations/0002_profile_guard.sql  self-update guard as a trigger, not a subquery
   migrations/0003_grants.sql      table privileges for `authenticated`
@@ -172,6 +172,15 @@ supabase db push
 supabase functions deploy score
 supabase secrets set PORTAL_ORIGIN=https://nybble.vercel.app
 ```
+
+**"Verify JWT" must be OFF for the `score` function.** `config.toml` sets it,
+but check the dashboard if the function was ever created by hand. A CORS
+preflight carries no Authorization header — browsers never put credentials on
+OPTIONS — so with verification on, the gateway answers 401 before the function
+runs, that 401 has no CORS headers, and the browser refuses to send the POST.
+Students cannot submit and the function logs nothing, because it is never
+invoked. Nothing is given up by turning it off: `index.ts` checks the token with
+`auth.getUser()` itself and refuses an attempt belonging to anyone else.
 
 Set only `PORTAL_ORIGIN`. `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
 `SUPABASE_SERVICE_ROLE_KEY` are injected into every Edge Function automatically
