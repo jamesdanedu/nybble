@@ -66,6 +66,7 @@ docs/parsons-authoring.md         how the Python Parsons ladder is built
 docs/primm.md                     the PRIMM sequence: plan, engine spike, decisions
 docs/pwa.md                       installable app shell, and why not offline
 docs/schools.md                   the Dept of Education school list: import, dedupe
+docs/customers.md                 selling to schools: subscriptions, pipeline, operator console (a plan)
 test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
