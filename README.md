@@ -191,9 +191,17 @@ Students cannot submit and the function logs nothing, because it is never
 invoked. Nothing is given up by turning it off: `index.ts` checks the token with
 `auth.getUser()` itself and refuses an attempt belonging to anyone else.
 
-Set only `PORTAL_ORIGIN`. `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
-`SUPABASE_SERVICE_ROLE_KEY` are injected into every Edge Function automatically
-and the `SUPABASE_` prefix is reserved — trying to set them fails.
+Set only `PORTAL_ORIGIN`. The project's URL and keys are injected into every
+Edge Function automatically and the `SUPABASE_` prefix is reserved — trying to
+set them fails. Two sets arrive: the new `SUPABASE_PUBLISHABLE_KEYS` and
+`SUPABASE_SECRET_KEYS` (JSON dictionaries, first key under `"default"`) and the
+legacy `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`. `index.ts` prefers
+the new ones and falls back to the legacy pair, so it keeps working after the
+legacy keys are deactivated under Settings → API Keys. A deployed copy that
+predates this reads only the legacy pair, and on a project with those keys
+deactivated every submission fails as "unauthenticated" or "attempt not found"
+— the gateway is refusing the function's *own* key, not the student's token.
+Teacher → Status now names this.
 
 `PORTAL_ORIGIN` accepts a comma-separated list, and every Vercel preview
 deployment has its own hostname. Pin one origin and the scorer works in
@@ -233,8 +241,10 @@ node scripts/bundle-score.mjs > score.bundled.ts
 ```
 
 Paste that as the function body, name the function exactly `score` (the portal
-calls `/functions/v1/score`), and leave JWT verification ON — it is the gateway
-check that stops a tokenless caller reaching the answer keys.
+calls `/functions/v1/score`), and turn **"Verify JWT" OFF** for it — the same
+setting `config.toml` applies on a CLI deploy, for the preflight reason above.
+(An earlier version of this paragraph said the opposite; the function authorises
+every caller itself, so nothing depends on the gateway check.)
 
 That file is generated and must never be edited by hand. A hand-maintained
 single-file copy is a second implementation of the scorer that quietly stops

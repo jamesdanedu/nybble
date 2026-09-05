@@ -164,6 +164,31 @@ const PREFLIGHT_FIX =
   'auth.getUser() itself, refuses an attempt belonging to another user, and activity_keys stays ' +
   'unreadable to every role but the service role.';
 
+// The function's OWN key was refused. index.ts now says so: a 401 whose detail
+// is the gateway's wording rather than "invalid JWT", or a 500 from the service
+// client's first select. Neither is the student's token and neither is data.
+const FUNCTION_KEY_FIX =
+  'The function\u2019s own API key is being refused by the gateway, so it cannot verify the ' +
+  'student\u2019s token or read the attempt. index.ts reads SUPABASE_PUBLISHABLE_KEYS and ' +
+  'SUPABASE_SECRET_KEYS (falling back to the legacy SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY). ' +
+  'Redeploy the current index.ts if the deployed copy predates that, and check Edge Functions ' +
+  '\u2192 Secrets shows those variables. If the legacy keys are deactivated under Settings ' +
+  '\u2192 API Keys, a deployed copy that still reads only the legacy pair fails exactly like this.';
+
+const MISCONFIGURED_FIX =
+  'The function started but could not build its Supabase clients; the detail names the missing ' +
+  'variable. Supabase injects SUPABASE_URL and the key dictionaries into every function, so a ' +
+  'missing one usually means the function was created in a different project from the one the ' +
+  'portal points at. Compare NEXT_PUBLIC_SUPABASE_URL with the project the function lives in.';
+
+const KEY_GRANT_FIX =
+  'The service role cannot read activity_keys. Run supabase/migrations/0005_service_role_grants.sql ' +
+  '\u2014 without it the scorer would mark against an empty key.';
+
+// A detail that names the FUNCTION's credential, not the caller's. The
+// gateway's wording for a rejected API key, in the forms seen so far.
+const FUNCTION_KEY_REFUSED = /Invalid API key|No credential matched|apikey/i;
+
 const PLATFORM_401_FIX =
   'The refusal carried no message, so it did not come from the function (which always answers ' +
   'with { error }) nor from the gateway\u2019s JWT check (which answers with { message }). Open ' +
@@ -397,12 +422,28 @@ export async function runScorerChecks(): Promise<Check[]> {
       const kind = classify(res.status, body);
       // "attempt not found" is the SUCCESS signal: the token was accepted, the
       // function ran, and it got as far as looking up an id we know is absent.
+      //
+      // It is only a signal because index.ts now tells "no such row" apart from
+      // "the database refused me": a rejected service key used to come back as
+      // these same words, and this page called that a pass.
       const worked = body.includes('attempt not found');
+      const refusedLookup = body.includes('database refused the lookup');
+      const misconfigured = body.includes('scorer is misconfigured');
+      const keyRefused = kind === 'function-401' && FUNCTION_KEY_REFUSED.test(body);
+      const cannotReadKeys = body.includes('could not read the answer key');
       checks.push({
         name: 'Signed-in call',
         verdict: worked ? 'ok' : 'fail',
         summary: worked
           ? 'Your token was accepted and the function ran. Submitting works.'
+          : refusedLookup
+            ? 'The function ran, but its own database calls were refused.'
+            : misconfigured
+              ? 'The function ran, but has no usable API key in its environment.'
+              : keyRefused
+                ? 'The function ran, but the gateway refused the function\u2019s own key while checking yours.'
+                : cannotReadKeys
+                  ? 'The function ran, but cannot read the answer keys.'
           : {
               'not-deployed': 'Nothing is deployed at this path.',
               'gateway-401': 'The gateway refused your token before the function ran.',
@@ -419,6 +460,12 @@ export async function runScorerChecks(): Promise<Check[]> {
           `status ${res.status}\n${describeHeaders(res)}\n\n${body}`,
         fix: worked
           ? undefined
+          : refusedLookup || keyRefused
+            ? FUNCTION_KEY_FIX
+            : misconfigured
+              ? MISCONFIGURED_FIX
+              : cannotReadKeys
+                ? KEY_GRANT_FIX
           : TEMPLATE_FN.test(body)
             ? TEMPLATE_FIX
             : body.includes(NEW_KEYS_ONLY)

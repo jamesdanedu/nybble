@@ -127,6 +127,63 @@ function scoreFromClient(
   };
 }
 
+/**
+ * The project's own API keys, as the platform injects them.
+ *
+ * Supabase now hands every function TWO sets. The new ones arrive as JSON
+ * dictionaries keyed by name — SUPABASE_PUBLISHABLE_KEYS and
+ * SUPABASE_SECRET_KEYS, with the dashboard's first key under "default" — and
+ * the legacy pair, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY, alongside.
+ *
+ * This function read only the legacy pair, and a project can DEACTIVATE the
+ * legacy keys (Settings → API Keys). Once that is done the gateway refuses
+ * them with
+ *
+ *   No credential matched any of the accepted auth mode(s): "publishable", "secret"
+ *
+ * — and the refusal happens to the function's OWN calls: auth.getUser() fails,
+ * so every student is "unauthenticated", and the service client's first select
+ * fails, so every attempt is "not found". Neither message names the key, which
+ * is how this can be chased as a token problem or a data problem for days.
+ *
+ * So prefer the new keys, fall back to the legacy ones, and if neither is
+ * present say so by name: `Deno.env.get(...)!` would have handed createClient
+ * an undefined and let it throw a 500 with no CORS headers, which a browser
+ * reports as a CORS error.
+ */
+function projectKey(kind: 'publishable' | 'secret'): string {
+  const dictVar = kind === 'publishable' ? 'SUPABASE_PUBLISHABLE_KEYS' : 'SUPABASE_SECRET_KEYS';
+  const legacyVar = kind === 'publishable' ? 'SUPABASE_ANON_KEY' : 'SUPABASE_SERVICE_ROLE_KEY';
+
+  const dict = Deno.env.get(dictVar);
+  if (dict) {
+    try {
+      const parsed = JSON.parse(dict) as Record<string, unknown>;
+      const first = parsed['default'] ?? Object.values(parsed)[0];
+      if (typeof first === 'string' && first) return first;
+    } catch {
+      // Not JSON — fall through to the legacy variable rather than crash.
+    }
+  }
+  const legacy = Deno.env.get(legacyVar);
+  if (legacy) return legacy;
+
+  throw new Error(
+    `neither ${dictVar} nor ${legacyVar} is set in this function's environment. ` +
+      'Supabase injects both automatically; check Edge Functions → Secrets in the dashboard.',
+  );
+}
+
+/**
+ * PostgREST's "no rows" code for .single(). Anything ELSE coming back from a
+ * lookup is not "not found" — it is the database refusing the call, and the
+ * usual reason is that the key the function is using is not accepted. That
+ * must be reported as what it is, because the teacher's Status page proves
+ * the scorer works by asking for an absent attempt and reading "attempt not
+ * found" as success. A rejected service key answered the same words.
+ */
+const NO_ROWS = 'PGRST116';
+
 Deno.serve(async (req) => {
   const CORS = corsFor(req);
   const json = (body: unknown, status = 200) =>
@@ -145,21 +202,32 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization') ?? '';
   if (!authHeader.startsWith('Bearer ')) return json({ error: 'unauthenticated' }, 401);
 
-  // Identify the caller with their own token (anon key + their JWT).
-  const asUser = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: authHeader } } },
-  );
-  const { data: { user }, error: userErr } = await asUser.auth.getUser();
-  if (userErr || !user) return json({ error: 'unauthenticated' }, 401);
+  // Both clients, or a 500 that says which variable is missing — with CORS
+  // headers, so the browser can show the sentence instead of "CORS error".
+  let asUser: ReturnType<typeof createClient>;
+  let db: ReturnType<typeof createClient>;
+  try {
+    const url = Deno.env.get('SUPABASE_URL');
+    if (!url) throw new Error('SUPABASE_URL is not set in this function\'s environment.');
 
-  // Service role for everything else — this is what can see activity_keys.
-  const db = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    { auth: { persistSession: false } },
-  );
+    // Identify the caller with their own token (project key + their JWT).
+    asUser = createClient(url, projectKey('publishable'), {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Service role for everything else — this is what can see activity_keys.
+    db = createClient(url, projectKey('secret'), { auth: { persistSession: false } });
+  } catch (e) {
+    return json({ error: 'scorer is misconfigured', detail: (e as Error).message }, 500);
+  }
+
+  const { data: { user }, error: userErr } = await asUser.auth.getUser();
+  if (userErr || !user) {
+    // The reason matters: "invalid JWT" is the student's token (sign in again);
+    // "Invalid API key" or "No credential matched" is the FUNCTION's key being
+    // refused by the gateway, which no amount of signing in will fix.
+    return json({ error: 'unauthenticated', detail: userErr?.message ?? 'no user for this token' }, 401);
+  }
 
   let body: {
     attemptId?: string;
@@ -183,15 +251,21 @@ Deno.serve(async (req) => {
     .select('id, school_id, assignment_id, profile_id, status, seed, step_responses, step_scores')
     .eq('id', attemptId)
     .single();
-  if (aErr || !attempt) return json({ error: 'attempt not found' }, 404);
+  if (aErr && aErr.code !== NO_ROWS) {
+    return json({ error: 'database refused the lookup', detail: aErr.message, code: aErr.code }, 500);
+  }
+  if (!attempt) return json({ error: 'attempt not found' }, 404);
   if (attempt.profile_id !== user.id) return json({ error: 'forbidden' }, 403);
   if (attempt.status !== 'in_progress') return json({ error: 'attempt already submitted' }, 409);
 
-  const { data: assignment } = await db
+  const { data: assignment, error: asgErr } = await db
     .from('assignments')
     .select('id, activity_id, mode, open_at, due_at, release_feedback, time_limit_secs')
     .eq('id', attempt.assignment_id)
     .single();
+  if (asgErr && asgErr.code !== NO_ROWS) {
+    return json({ error: 'database refused the lookup', detail: asgErr.message, code: asgErr.code }, 500);
+  }
   if (!assignment) return json({ error: 'assignment not found' }, 404);
 
   const now = Date.now();
@@ -199,11 +273,14 @@ Deno.serve(async (req) => {
     return json({ error: 'assignment is not open yet' }, 403);
   }
 
-  const { data: activity } = await db
+  const { data: activity, error: actErr } = await db
     .from('activities')
     .select('id, steps, max_score')
     .eq('id', assignment.activity_id)
     .single();
+  if (actErr && actErr.code !== NO_ROWS) {
+    return json({ error: 'database refused the lookup', detail: actErr.message, code: actErr.code }, 500);
+  }
   if (!activity) return json({ error: 'activity not found' }, 404);
 
   const steps: any[] = Array.isArray(activity.steps) ? activity.steps : [];
@@ -231,8 +308,15 @@ Deno.serve(async (req) => {
   const { data: runner } = await db
     .from('runners').select('id, scorer').eq('id', step.runner_id).single();
 
-  const { data: keyRow } = await db
+  // A missing key row is legitimate (manual and client-scored steps have no
+  // key). A REFUSED read is not: it means the service role cannot see
+  // activity_keys — the grant in 0005 is missing — and marking against an
+  // empty key would give every student zero without a word of complaint.
+  const { data: keyRow, error: keyErr } = await db
     .from('activity_keys').select('keys').eq('activity_id', activity.id).single();
+  if (keyErr && keyErr.code !== NO_ROWS) {
+    return json({ error: 'could not read the answer key', detail: keyErr.message, code: keyErr.code }, 500);
+  }
   const stepKey = (keyRow?.keys ?? {})[stepId] ?? {};
 
   // ---- Mark ----------------------------------------------------------------
