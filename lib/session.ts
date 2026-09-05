@@ -124,3 +124,35 @@ export async function requireStaffSession(): Promise<Session> {
   if (!isStaff(session.profile)) redirect('/dashboard');
   return session;
 }
+
+/**
+ * Is this user an operator — the one role that sees every school?
+ *
+ * A separate question from `profile.role`, and deliberately so: the operator
+ * is a row in `operators`, not a fourth value of user_role, because a profile
+ * belongs to a school and the operator belongs to none. In practice the
+ * operator is also the admin of a house tenant used for demos, which is why
+ * this still needs a session with a profile. See
+ * supabase/migrations/0011_customers.sql.
+ *
+ * `operator_self_read` lets a user see their own row and nobody else's, so
+ * this is a plain select with the caller's own client and no elevation.
+ */
+export async function isOperator(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('operators')
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
+/** Operator only. Anyone else is bounced to wherever their role lives. */
+export async function requireOperatorSession(): Promise<Session> {
+  const session = await requireStudentOrStaff();
+  if (!(await isOperator(session.userId))) {
+    redirect(isStaff(session.profile) ? '/teacher' : '/dashboard');
+  }
+  return session;
+}

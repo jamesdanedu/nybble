@@ -6,12 +6,18 @@ import { qualifyLabels } from '@/lib/schools-ie/qualify.mjs';
  * The Department of Education's post-primary list, for the admin who is linking
  * their school to its official record.
  *
- * Read with the SIGNED-IN user's client, not the service role. `school_directory`
- * has a select policy of `is_admin()`, so the policy is what decides — and that
- * is the right way round for a screen only an admin can open. Contrast
+ * Read with the SIGNED-IN user's client, not the service role, through the
+ * `school_directory_public` view: six columns, gated on `is_admin()` inside the
+ * view itself, so the database is what decides — and that is the right way
+ * round for a screen only an admin can open. The base table holds the
+ * Department's contact details as well and is operator-only; nothing an admin
+ * can reach reads it. See supabase/migrations/0011_customers.sql. Contrast
  * lib/schools.ts, which reads `schools` with the service role because it serves
  * the sign-in page, where by definition nobody is signed in yet.
  */
+
+/** The view, not the table. The table has columns an admin must not see. */
+const DIRECTORY = 'school_directory_public';
 
 export interface DirectorySchool {
   roll_number: string;
@@ -62,7 +68,7 @@ export async function searchDirectory(query: string, limit = 20): Promise<Direct
   const supabase = await createClient();
   const pattern = forOrFilter(q);
   const { data, error } = await supabase
-    .from('school_directory')
+    .from(DIRECTORY)
     .select(COLUMNS)
     .or(`name.ilike.${pattern},town.ilike.${pattern}`)
     .order('name')
@@ -83,7 +89,7 @@ export async function directoryEntry(roll: string | null): Promise<DirectoryMatc
   if (!roll) return null;
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('school_directory')
+    .from(DIRECTORY)
     .select(COLUMNS)
     .eq('roll_number', roll)
     .maybeSingle();
@@ -99,7 +105,7 @@ export async function directoryEntry(roll: string | null): Promise<DirectoryMatc
 export async function directoryCount(): Promise<number> {
   const supabase = await createClient();
   const { count, error } = await supabase
-    .from('school_directory')
+    .from(DIRECTORY)
     .select('roll_number', { count: 'exact', head: true });
   if (error) {
     console.error('directoryCount:', error.message);

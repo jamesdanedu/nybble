@@ -20,6 +20,11 @@
  * Re-runnable. Rows are upserted on roll number, so next year's file updates
  * names, towns and enrolments in place and leaves every `schools.roll_number`
  * link pointing at the same row.
+ *
+ * Since 0011 the whole workbook is read, not six columns of it: contact
+ * details, classification, and the year-group numbers from the second sheet.
+ * The contact columns are operator-only in the database; see
+ * supabase/migrations/0011_customers.sql and docs/customers.md.
  * ======================================================================== */
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -128,14 +133,16 @@ async function main() {
     ? parseSchoolRows(parseCsv(buf.toString('utf8')), path.basename(opts.file))
     : parseSchoolsWorkbook(buf);
 
-  const { schools, rejected, sheet, sourceYear } = result;
+  const { schools, rejected, sheet, sourceYear, programme } = result;
   const labels = qualifyLabels(schools);
   const qualified = [...labels.values()].filter((l) => /,\s/.test(l)).length;
   const byRoll = [...labels.values()].filter((l) => /\([0-9]{5}[A-Z]\)$/.test(l)).length;
   const noTown = schools.filter((s) => !s.town).length;
+  const withEmail = schools.filter((s) => s.email).length;
+  const withPhone = schools.filter((s) => s.phone).length;
 
   if (opts.json) {
-    console.log(JSON.stringify({ sheet, sourceYear, schools, rejected }, null, 2));
+    console.log(JSON.stringify({ sheet, sourceYear, programme: programme ?? null, schools, rejected }, null, 2));
   } else {
     console.log(`\n${bold('Parsed')} ${opts.file}`);
     console.log(`  sheet            ${sheet}`);
@@ -146,13 +153,24 @@ async function main() {
       console.log(dim(`      line ${r.line} ${r.roll || '(no roll)'} — ${r.reason}`));
     }
     console.log(`  without a town   ${noTown ? yellow(noTown) : '0'}`);
+    console.log(`\n${bold('Contact')}`);
+    console.log(`  with an email    ${withEmail}`);
+    console.log(`  with a phone     ${withPhone}`);
+    console.log(`\n${bold('Year groups')}`);
+    if (programme) {
+      console.log(`  matched          ${programme.matched} of ${schools.length}`);
+      console.log(`  unmatched rows   ${programme.unmatched ? yellow(programme.unmatched) : '0'}`);
+    } else {
+      console.log(`  ${yellow('no Programme & Year sheet')} — TY/LC1/LC2 will be null`);
+    }
     console.log(`\n${bold('Names')}`);
     console.log(`  unique labels    ${new Set(labels.values()).size} of ${labels.size}`);
     console.log(`  needed a place   ${qualified}`);
     console.log(`  needed a roll    ${byRoll}`);
     console.log(`\n${bold('Sample')}`);
     for (const s of schools.slice(0, opts.limit)) {
-      console.log(`  ${s.roll_number}  ${labels.get(s.roll_number)}${s.county ? dim(` — ${s.county}`) : ''}`);
+      const lc = s.lc1 !== null || s.lc2 !== null ? dim(` · LC ${(s.lc1 ?? 0) + (s.lc2 ?? 0)}`) : '';
+      console.log(`  ${s.roll_number}  ${labels.get(s.roll_number)}${s.county ? dim(` — ${s.county}`) : ''}${lc}`);
     }
   }
 
@@ -171,9 +189,19 @@ async function main() {
   if (new Set(labels.values()).size !== labels.size) {
     die('Two schools ended up with the same label. That is a bug in qualifyLabels, not in the file.');
   }
+  // The second sheet is optional, but a second sheet that names schools the
+  // first does not know is two sheets from different files, and the year-group
+  // numbers would then be somebody else's.
+  if (programme && programme.matched < schools.length * 0.9) {
+    die(
+      `The Programme & Year sheet matched only ${programme.matched} of ${schools.length} schools. ` +
+        'Either it is from a different year or its shape has changed — read the report above before importing.',
+    );
+  }
 
   if (opts.dryRun) {
-    console.log(`\n${yellow('Dry run')} — nothing written.\n`);
+    // stderr, so that `--json --dry-run` leaves stdout as one JSON document.
+    console.error(`\n${yellow('Dry run')} — nothing written.\n`);
     return;
   }
 

@@ -7,8 +7,8 @@ typed into a name field at setup.
 Source: **gov.ie → Department of Education → [Post-primary schools enrolment
 figures](https://www.gov.ie/en/department-of-education/collections/post-primary-schools-enrolment-figures/)**.
 Download the workbook for the academic year you want. The 2025/2026 file is 722
-data rows on a sheet called *School Lists*, 28 columns wide, of which this reads
-six.
+data rows on a sheet called *School Lists*, 28 columns wide, plus a *Programme &
+Year* sheet with the same schools broken down by year group. All of it is read.
 
 ## Two tables, one join
 
@@ -59,7 +59,21 @@ silently missing a third of the country is worse than no directory.
 
 ### What it reads, and what it works out
 
-Read directly: `Roll Number`, `Official School Name`, `Total <year>`.
+Read directly: `Roll Number`, `Official School Name`, `Total <year>`, and —
+since `0011_customers.sql` — the contact and classification columns:
+`Principal Name`, `Email`, `Phone`, `Eircode`, `School Latitude`/`Longitude`,
+`Ethos/Religion`, `Post Primary School Type`, `Irish Classification`, `School
+Gender`, `DEIS (Y/N)` and `Fee Paying School (Y/N)`. A Y/N cell becomes a
+boolean; a blank one becomes null, because "the Department left it blank" and
+"the Department said no" are different facts. An email is lower-cased and kept
+only if it has the shape of one.
+
+From the *Programme & Year* sheet, joined on roll number: `TY`, `LC 1` and
+`LC 2`. That sheet's header is on its second row, under a merged group header;
+the parser finds the header by looking for the roll column rather than assuming
+row one. The importer refuses a programme sheet that matches fewer than 90% of
+the schools on the list — that is two sheets from different years, not a few
+closed schools.
 
 Worked out, because the file does not have the columns you would want:
 
@@ -122,11 +136,15 @@ the name, as a checkbox rather than a consequence — a school that calls itself
 "St Mary's" on screen should not be silently renamed to "St Marys Secondary
 School".
 
-`school_directory` is readable by admins only. It is published public
-information and none of it is secret, but "not secret" is not a reason to
-publish a table, and the admin School page is the only screen that reads it.
-Widen the policy when a screen needs it — a self-service "register your school"
-flow would need anonymous read, and that flow does not exist.
+The admin School page reads `school_directory_public`, a view of the six
+columns it needs, gated on `is_admin()` inside the view. The table itself is
+operator-only since `0011`: it now carries the principal's name and the
+school's contact details, which are for selling to the school, not for an admin
+to see while linking it. Principal names are personal data even though the
+Department publishes them. See `docs/customers.md`.
+
+Widen the view's gate when a screen needs it — a self-service "register your
+school" flow would need anonymous read, and that flow does not exist.
 
 ## Reading the .xlsx
 
@@ -148,7 +166,7 @@ sheet" is not good enough and the real file proves it: the workbook opens on an
 ## Tests
 
 ```bash
-node test/schools-ie.test.mjs      # 17 checks, no browser, no database, no network
+node test/schools-ie.test.mjs      # 24 checks, no browser, no database, no network
 ```
 
 No committed spreadsheet either: the reader is exercised against a deflated
