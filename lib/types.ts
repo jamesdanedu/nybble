@@ -165,6 +165,72 @@ export interface Review {
   updated_at: string;
 }
 
+/* ---------------------------------------------------------------------------
+ * Customers — supabase/migrations/0011_customers.sql
+ * ------------------------------------------------------------------------ */
+
+export type ProspectStage = 'contacted' | 'demo' | 'declined' | 'not_now';
+export type SubscriptionStatus = 'trial' | 'active' | 'complimentary' | 'cancelled';
+export type TouchChannel = 'email' | 'phone' | 'visit' | 'event' | 'other';
+
+/**
+ * The pipeline for one school that is not (yet) a tenant. Keyed by roll
+ * number because the universe of prospects is the directory. `stage` covers
+ * the funnel before a tenant exists; once one does, the truth is in
+ * `Subscription` and this row is history.
+ */
+export interface Prospect {
+  roll_number: string;
+  stage: ProspectStage;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_role: string | null;
+  do_not_contact: boolean;
+  next_action_at: string | null;
+  notes: string | null;
+  updated_at: string;
+}
+
+export interface Touch {
+  id: number;
+  roll_number: string;
+  at: string;
+  channel: TouchChannel;
+  note: string;
+  logged_by: string;
+}
+
+/**
+ * One row per school per academic year. Renewal is a new row, not an edit.
+ * "Lapsed" is not a status here: it is computed from `period_end` and the
+ * grace period by `school_licensed()` in SQL and `licence()` in
+ * lib/licensing.mjs.
+ */
+export interface Subscription {
+  id: string;
+  school_id: string;
+  status: SubscriptionStatus;
+  period_start: string;
+  /** Null only for 'complimentary'. */
+  period_end: string | null;
+  amount_cents: number | null;
+  currency: string;
+  invoice_no: string | null;
+  invoiced_on: string | null;
+  paid_on: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+/** What `school_usage()` returns to an operator: counts, never content. */
+export interface SchoolUsage {
+  students: number;
+  staff: number;
+  active_30d: number;
+  attempts_30d: number;
+  last_seen: string | null;
+}
+
 /** Derived, UI-facing status for one assignment as it appears to a student. */
 export type StudentStatus =
   | 'not_started'

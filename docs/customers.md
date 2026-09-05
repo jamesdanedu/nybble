@@ -4,9 +4,19 @@ The plan for offering Nybble to any post-primary school in the country for a
 small annual fee, and keeping track of who has been asked, who is trying it,
 who is paying, and who is due to renew.
 
-This is a plan, not a description of code that exists. Where it says "add" or
-"create", nothing has been added or created yet. Section 2 lists the decisions
-that have to be made by a person before section 4 can be built.
+**Status.** Phase 1 (section 4) is built: `0011_customers.sql`, the widened
+importer, `requireOperatorSession()`, and `lib/licensing.mjs` with its test.
+Phases 2 to 4 are still a plan. Section 2 lists the decisions a person has to
+make; the schema below assumes the recommendations and none of them is hard to
+change while there is no data in the tables.
+
+To become the operator on a deployment, once 0011 has run:
+
+```sql
+insert into operators (user_id) values ('<your auth.users id>');
+```
+
+There is deliberately no screen for this.
 
 ## 1. Where things stand
 
@@ -266,16 +276,25 @@ admin, because the teacher seeing it usually is not the person who pays.
 
 ## 4. What gets built, in order
 
-### Phase 1 — schema, importer, operator gate
+### Phase 1 — schema, importer, operator gate (done)
 
-- `0011_customers.sql` as above, plus `lib/types.ts` to match.
-- Importer reads the extra columns and the second sheet; `test/schools-ie.test.mjs`
-  grows a workbook with both sheets and the offset header row.
-- `requireOperator()` in `lib/session.ts`, next to `requireAdminSession()`.
-- `test/licensing.test.mjs`: the pure date logic — trial, grace, renewal
-  overlap, complimentary — with no database, in the style of `resume.test.mjs`.
-
-Rough size: two to three days.
+- `0011_customers.sql` as above, plus `lib/types.ts` to match. Applied and
+  exercised against a scratch Postgres while being written: an admin reads the
+  view and not the table, a student's insert is refused one day past the grace
+  period and allowed the day before, a teacher can still edit and delete
+  assignments after a lapse, the operator reads every school and no attempt,
+  and `school_usage()` refuses a non-operator.
+- The importer reads the contact and classification columns and joins the
+  *Programme & Year* sheet on roll number. Against the 2025/2026 file: 721
+  schools, 720 with an email, 721 matched to their year-group row.
+  `test/schools-ie.test.mjs` builds a three-sheet workbook with the offset
+  header row.
+- `requireOperatorSession()` and `isOperator()` in `lib/session.ts`, next to
+  `requireAdminSession()`. Nothing uses them yet; phase 2 does.
+- `lib/licensing.mjs` and `test/licensing.test.mjs`: the pure date logic —
+  trial, grace, lapse, renewal overlap, complimentary — with no database. The
+  last check reads the migration and fails if the grace period there ever
+  differs from `GRACE_DAYS`.
 
 ### Phase 2 — the operator console, read-only
 

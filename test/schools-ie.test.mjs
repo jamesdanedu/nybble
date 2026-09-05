@@ -17,7 +17,7 @@
 import assert from 'node:assert';
 import { deflateRawSync, crc32 } from 'node:zlib';
 import { readWorkbook } from '../lib/schools-ie/xlsx.mjs';
-import { parseSchoolRows } from '../lib/schools-ie/parse.mjs';
+import { parseSchoolRows, parseSchoolsWorkbook, parseProgrammeRows, yesNo } from '../lib/schools-ie/parse.mjs';
 import { qualifyLabels, normaliseName } from '../lib/schools-ie/qualify.mjs';
 
 let failures = 0;
@@ -85,7 +85,11 @@ function zip(entries) {
   return Buffer.concat([...locals, cdBuf, eocd]);
 }
 
-/** A two-sheet workbook shaped like the Department's: notes first, data second. */
+/**
+ * A workbook shaped like the Department's: notes first, data second, and the
+ * year-group sheet third with its header on the SECOND row under a merged
+ * group header — which is exactly how the real one is laid out.
+ */
 function workbook() {
   const strings = ['Roll Number', 'Official School Name', 'Address 1', 'Coláiste Eoin', 'Clonmel'];
   const si = strings.map((s) => `<si><t>${s.replace(/&/g, '&amp;')}</t></si>`).join('');
@@ -96,27 +100,39 @@ function workbook() {
     `<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c></row>` +
     `<row r="2"><c r="A2" t="inlineStr"><is><t>60041D</t></is></c><c r="B2" t="s"><v>3</v></c><c r="C2" t="s"><v>4</v></c></row>` +
     `</sheetData></worksheet>`;
+  const str = (ref, t) => `<c r="${ref}" t="inlineStr"><is><t>${t}</t></is></c>`;
+  const num = (ref, n) => `<c r="${ref}"><v>${n}</v></c>`;
+  const programme =
+    `<worksheet><sheetData>` +
+    `<row r="1">${str('D1', 'TRANSITION YEAR')}${str('E1', 'LEAVING CERTIFICATE')}${str('F1', 'LEAVING CERTIFICATE')}</row>` +
+    `<row r="2">${str('A2', 'Academic Year')}${str('B2', 'Roll Number')}${str('C2', 'Official School Name')}${str('D2', 'TY')}${str('E2', 'LC 1')}${str('F2', 'LC 2')}</row>` +
+    `<row r="3">${num('A3', 2025)}${str('B3', '60041D')}${str('C3', 'Coláiste Eoin')}${num('D3', 90)}${num('E3', 101)}${num('F3', 98)}</row>` +
+    `<row r="4">${num('A4', 2025)}${str('B4', '99999Z')}${str('C4', 'Closed School')}${num('D4', 1)}${num('E4', 2)}${num('F4', 3)}</row>` +
+    `</sheetData></worksheet>`;
 
   return zip({
     'xl/workbook.xml':
       `<workbook xmlns:r="x"><sheets>` +
       `<sheet name="Explanatory Note" sheetId="2" r:id="rId1"/>` +
       `<sheet name="School Lists" sheetId="1" r:id="rId2"/>` +
+      `<sheet name="Programme &amp; Year" sheetId="3" r:id="rId3"/>` +
       `</sheets></workbook>`,
     'xl/_rels/workbook.xml.rels':
       `<Relationships>` +
       `<Relationship Id="rId1" Target="worksheets/sheet1.xml"/>` +
       `<Relationship Id="rId2" Target="worksheets/sheet2.xml"/>` +
+      `<Relationship Id="rId3" Target="worksheets/sheet3.xml"/>` +
       `</Relationships>`,
     'xl/sharedStrings.xml': `<sst>${si}</sst>`,
     'xl/worksheets/sheet1.xml': note,
     'xl/worksheets/sheet2.xml': data,
+    'xl/worksheets/sheet3.xml': programme,
   });
 }
 
 check('reads a deflated .xlsx and resolves sheets by name, not by position', () => {
   const sheets = readWorkbook(workbook());
-  assert.deepStrictEqual(sheets.map((s) => s.name), ['Explanatory Note', 'School Lists']);
+  assert.deepStrictEqual(sheets.map((s) => s.name), ['Explanatory Note', 'School Lists', 'Programme & Year']);
   // The data is on the SECOND sheet. Taking "the first sheet" would have read
   // the explanatory note, which is what the real workbook does to you.
   const rows = sheets[1].rows;
@@ -228,6 +244,105 @@ check('a missing Roll Number column is a thrown error, not an empty import', () 
   assert.throws(
     () => parseSchoolRows([['Name', 'Town'], ['A', 'B']]),
     /no header row/,
+  );
+});
+
+/* ---------------------------------------------------------------------------
+ * Contact, classification, and the year-group sheet
+ * ------------------------------------------------------------------------ */
+
+const WIDE_HEADER = [
+  'Academic Year', 'Roll Number', 'Official School Name',
+  'Address 1', 'Address 2', 'Address 3', 'Address 4', 'County', 'Eircode',
+  'School Latitude', 'School Longitude', 'School Planning area', 'Local Authority',
+  'Principal Name', 'Email', 'Phone', 'Ethos/Religion', 'Post Primary School Type',
+  'Irish Classification - Post Primary', 'School Gender - Post Primary',
+  'Pupil Attendance Type', 'Fee Paying School (Y/N)', 'Island Location (Y/N)',
+  'Gaeltacht Area Location (Y/N)', 'DEIS (Y/N)', 'FEMALE', 'MALE', 'Total 2025-2026',
+];
+
+/** The real file's first row, as it is. */
+const LORETO = [
+  '2025', '60010P', 'Loreto Secondary School', 'Brick Lane', 'Balbriggan', 'Co Dublin', '33', '',
+  'K32R248', '53.612259000000002', '-6.1851139999999996', 'Balbriggan', 'Fingal County Council',
+  'MS. NIAMH MCNALLY', 'Office@LoretoBalbriggan.ie', '018411594', 'CATHOLIC', 'Secondary',
+  'No subjects taught through Irish', 'Girls', 'Day', 'N', 'N', 'N', 'N', '1220', '0', '1220',
+];
+
+check('contact and classification columns are read, and Y/N become booleans', () => {
+  const [s] = parseSchoolRows([WIDE_HEADER, LORETO]).schools;
+  assert.strictEqual(s.principal, 'MS. NIAMH MCNALLY');
+  assert.strictEqual(s.email, 'office@loretobalbriggan.ie', 'lower-cased');
+  assert.strictEqual(s.phone, '018411594');
+  assert.strictEqual(s.eircode, 'K32R248');
+  assert.strictEqual(s.latitude, 53.612259);
+  assert.strictEqual(s.longitude, -6.185114);
+  assert.strictEqual(s.ethos, 'CATHOLIC');
+  assert.strictEqual(s.school_type, 'Secondary');
+  assert.strictEqual(s.gender, 'Girls');
+  assert.strictEqual(s.irish_medium, 'No subjects taught through Irish');
+  assert.strictEqual(s.deis, false);
+  assert.strictEqual(s.fee_paying, false);
+  // The year-group columns come from the other sheet; with rows alone they are unknown.
+  assert.strictEqual(s.lc1, null);
+});
+
+check('a blank Y/N cell is null, not false — unknown is not no', () => {
+  assert.strictEqual(yesNo('Y'), true);
+  assert.strictEqual(yesNo('n'), false);
+  assert.strictEqual(yesNo(''), null);
+  assert.strictEqual(yesNo('maybe'), null);
+  const blank = [...LORETO];
+  blank[24] = ''; // DEIS
+  blank[21] = 'Y'; // fee paying
+  const [s] = parseSchoolRows([WIDE_HEADER, blank]).schools;
+  assert.strictEqual(s.deis, null);
+  assert.strictEqual(s.fee_paying, true);
+});
+
+check('an email that is not one is null rather than stored as text', () => {
+  const bad = [...LORETO];
+  bad[14] = 'see website';
+  const [s] = parseSchoolRows([WIDE_HEADER, bad]).schools;
+  assert.strictEqual(s.email, null);
+});
+
+check('a workbook without the wide columns still parses, with the new fields null', () => {
+  const [s] = parseSchoolRows([HEADER, row('60010P', 'Loreto Secondary School', 'Brick Lane', 'Balbriggan', 'Co Dublin', '33', '', 'K32R248', 'Fingal County Council', '1220')]).schools;
+  assert.strictEqual(s.principal, null);
+  assert.strictEqual(s.email, null);
+  assert.strictEqual(s.deis, null);
+  assert.strictEqual(s.eircode, 'K32R248');
+});
+
+check('the programme sheet: header on the second row, joined on roll number', () => {
+  const r = parseSchoolsWorkbook(workbook());
+  assert.strictEqual(r.schools.length, 1);
+  const [s] = r.schools;
+  assert.strictEqual(s.ty, 90);
+  assert.strictEqual(s.lc1, 101);
+  assert.strictEqual(s.lc2, 98);
+  // One row matched; the row for a roll number the school list lacks is
+  // counted and not imported — a school that closed mid-year, or two sheets
+  // from different files.
+  assert.deepStrictEqual(r.programme, { matched: 1, unmatched: 1, rows: 2 });
+});
+
+check('programme rows are read by header name, and the group header row is skipped', () => {
+  const byRoll = parseProgrammeRows([
+    ['', '', '', 'TRANSITION YEAR', 'LEAVING CERTIFICATE', 'LEAVING CERTIFICATE'],
+    ['Academic Year', 'Roll Number', 'Official School Name', 'TY', 'LC 1', 'LC 2'],
+    ['2025', '60010P', 'Loreto Secondary School', '201', '224', '190'],
+    ['2025', '', 'Totals', '30000', '60000', '58000'],
+  ]);
+  assert.deepStrictEqual([...byRoll.keys()], ['60010P']);
+  assert.deepStrictEqual(byRoll.get('60010P'), { ty: 201, lc1: 224, lc2: 190 });
+});
+
+check('a programme sheet with no LC columns is a thrown error, not silent nulls', () => {
+  assert.throws(
+    () => parseProgrammeRows([['Roll Number', 'JC 1'], ['60010P', '5']]),
+    /no LC1 column/,
   );
 });
 

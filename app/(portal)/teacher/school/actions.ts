@@ -52,8 +52,9 @@ export async function linkSchoolRecord(formData: FormData): Promise<{ ok: boolea
 
   const patch: { roll_number: string; name?: string } = { roll_number: roll };
   if (adoptName) {
+    // The view, not the table: an admin's session cannot read the table.
     const { data: entry } = await supabase
-      .from('school_directory')
+      .from('school_directory_public')
       .select('name')
       .eq('roll_number', roll)
       .maybeSingle();

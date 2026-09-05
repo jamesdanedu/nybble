@@ -16,6 +16,7 @@ app/                              Next.js portal (App Router)
   manifest.ts                     PWA manifest — installable, NOT offline
   offline/page.tsx                the one page the service worker keeps
 lib/                              Supabase clients, session, activity importer
+  licensing.mjs                   is a school licensed today? (mirrors school_licensed() in SQL)
 components/                       shared UI, incl. the runner iframe wrapper
 scripts/import-activities.mjs     CLI importer (same code as the web one)
 scripts/import-schools.mjs        loads the Dept of Education post-primary list
@@ -38,6 +39,7 @@ supabase/
   migrations/0008_pyrun_runner.sql     registers the pyrun runner
   migrations/0009_school_directory.sql every post-primary school, as reference data
   migrations/0010_save_step_state.sql  atomic autosave of one step's draft
+  migrations/0011_customers.sql   operators, the sales pipeline, subscriptions, the licence check
   functions/score/
     index.ts                      the only code that reads answer keys
     mcq.ts                        MCQ scorer
@@ -66,10 +68,11 @@ docs/parsons-authoring.md         how the Python Parsons ladder is built
 docs/primm.md                     the PRIMM sequence: plan, engine spike, decisions
 docs/pwa.md                       installable app shell, and why not offline
 docs/schools.md                   the Dept of Education school list: import, dedupe
-docs/customers.md                 selling to schools: subscriptions, pipeline, operator console (a plan)
+docs/customers.md                 selling to schools: subscriptions, pipeline, operator console
 test/harness.test.mjs             end-to-end checks through a real browser
 test/check-parsons.test.mjs       the Parsons checker, no browser needed
 test/schools-ie.test.mjs          the school directory: xlsx reader, parser, labels
+test/licensing.test.mjs           subscriptions: trial, grace, lapse, renewal
 test/runner-host.test.mjs         autosave: debounce, and the flush on teardown
 test/auth-refresh.test.mjs        where an auth redirect may send you
 test/resume.test.mjs              which step a resumed attempt opens on
@@ -119,7 +122,8 @@ Two suites need nothing at all — no browser, no server, no database:
 
 ```bash
 node test/check-parsons.test.mjs                    # the Parsons key checker
-node test/schools-ie.test.mjs                       # 17 school-directory checks
+node test/schools-ie.test.mjs                       # 24 school-directory checks
+node test/licensing.test.mjs                        # 17 subscription-date checks
 node test/runner-host.test.mjs                      # 9 autosave checks
 node test/auth-refresh.test.mjs                     # 8 redirect-safety checks
 node test/resume.test.mjs                           # 10 resume-point checks
