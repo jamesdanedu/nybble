@@ -26,9 +26,9 @@ happens, most of a customer list. Here is what exists and what does not.
 
 | Exists | |
 |---|---|
-| `school_directory` | every post-primary school in the country, 721 rows, keyed by roll number. Read by admins only. |
+| `school_directory` | every post-primary school in the country, 721 rows, keyed by roll number. Was admin-only; since 0011 the table is operator-only and admins read a six-column view. |
 | `schools` | the tenants. A handful. Each has a slug, and now a nullable `roll_number` into the directory. |
-| `scripts/import-schools.mjs` | re-runnable, refuses a file whose shape has changed, reads 6 of the workbook's 28 columns. |
+| `scripts/import-schools.mjs` | re-runnable, refuses a file whose shape has changed. Read 6 of the workbook's 28 columns before 0011; reads all of them and the second sheet now. |
 | Teacher → School | an admin links their school to its official record. |
 | Roles | `student`, `teacher`, `admin` — all three live *inside* one school. |
 
@@ -61,7 +61,7 @@ also has, on the same *School Lists* sheet:
 A third sheet, *Programme & Year*, gives per-school numbers for JC1–3, TY, LC1
 and LC2. LC1 + LC2 is the size of the addressable class in every school in the
 country. Its header row is the **second** row (the first is a merged group
-header), which is the one thing about it the current parser does not expect.
+header), which the parser now allows for.
 
 **Personal data.** Principal names are personal data even though the
 Department publishes them. The office email and phone are business contact
